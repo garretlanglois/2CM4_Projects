@@ -85,7 +85,7 @@ history(h) at (0,0)
 
 
 
-report val (price,0,0)
-report val (h,0,0)
-report val (v,0,0)
+report price
+report h
+report v
 END
