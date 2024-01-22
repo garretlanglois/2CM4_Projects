@@ -77,7 +77,7 @@ BOUNDARIES       { The domain definition }
   REGION 1       { For each material region }
     START(0,0)   { Walk the domain boundary }
     LINE TO (1,0) TO (1,1) TO (0,1) TO CLOSE
-TIME 0 TO tfuel2   { if time dependent }
+TIME 0 TO 300 halt p=0   { if time dependent }
 MONITORS         { show progress }
 PLOTS            { save result displays }
 for t = 0 by endtime/50 to endtime

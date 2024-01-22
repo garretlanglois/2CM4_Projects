@@ -1,0 +1,3194 @@
+
+================================================================
+===  FlexPDE Version 6.36s/W32  14:13:44 Jan  8 2015  © 1996-2014 PDE Solutions Inc.
+===  C:\Users\Nathan Latka\OneDrive - McMaster University\Documents\GitHub\2CM4_Projects\DA-1\assignement 1 rocket.pde 11:31:10 1/22/24
+================================================================
+    1| { Fill in the following sections (removing comment marks ! if necessary),
+    2|   and delete those that are unused.}
+    3| TITLE 'Rocket 1a'     { the problem identification }
+    4| COORDINATES cartesian2  { coordinate system, 1D,2D,3D, etc }
+    5| VARIABLES        { system variables }
+    6| h(threshold = 0.0001)
+    7| v(threshold = 0.0001)
+    8| 
+    9|  SELECT         { method controls n}
+   10| ngrid =1
+   11| DEFINITIONS    { parameter definitions }
+   12| 
+   13| !parameters
+   14| 
+   15| mfuel1  = 1200
+   16| mfuel2 = 1100
+   17| 
+   18| ! constants
+   19| g_earth = 9.80665
+   20|  p0 = 101.325e3
+   21| t0 = 288.15
+   22| L= 0.0065
+   23| R_gas = 8.31447
+   24| mm = 0.0289644
+   25| big_G = 6.67e-11
+   26| M_earth = 5.9722e24
+   27| R_earth = 6.3781e6
+   28| CD = 0.2
+   29| A = 1
+   30| 
+   31| !stage 1 specific constants 
+   32| q1 = 2000
+   33| v1 = 2500
+   34| m_engine = 320
+   35| mass_tank = 30*(1+mfuel1/2000)
+   36| tfuel1 =  mfuel1/q1
+   37| 
+   38| 
+   39| !stage 2 specific constants 
+   40| q2 = 300
+   41| v2 = 2800
+   42| m_engine2 = 150
+   43| mass_tank2 = 15*(1+mfuel2/1000)
+   44| tfuel2 = mfuel2/q2 + tfuel1
+   45| 
+   46| !equations
+   47| start_mass = m_engine +m_engine2 +200+mass_tank2 + mass_tank + mfuel1 + mfuel2
+   48| m_r_t =   if ( t < tfuel1) then (start_mass - q1*t) else (if  ( t < tfuel2)  then (start_mass - (q1*tfuel1 + q2*t)-m_engine) else start_mass - mfuel1 - mfuel2-m_engine) !mass rocket total
+   49| thresh = (L*h)/t0
+   50| Tvar = t0 - L*h
+   51| expon = (g_earth*mm)/(R_gas*L)
+   52| p = if  (thresh < 1) then  p0*(1-(L*h)/t0)^(expon) else 0
+   53| rho = p*mm/(R_gas*Tvar)
+   54| 
+   55| 
+   56| ! equations
+   57|  
+   58| FD = 1/2*rho*CD*A*v^2
+   59| FG = (big_G*m_r_t*M_earth)/(R_earth+h)^2
+   60| FT = if ( t < tfuel1) then q1*v1 else(if  (t < tfuel2) then q2*v2 else 0)
+   61| acc =( FT - (FD +FG))/m_r_t
+   62| 
+   63| price = 5000*(320+150) + 8000*(mass_tank+ mass_tank2) + 5*(mfuel1 + mfuel2)
+   64| 
+   65| INITIAL VALUES
+   66| 
+   67| h = 0
+   68| v = 1  
+   69| 
+   70| EQUATIONS        { PDE's, one for each variable }
+   71| h: dt(h) = v
+   72| v: dt(v) = acc
+   73| 
+   74| 
+   75| ! CONSTRAINTS    { Integral constraints }
+   76| BOUNDARIES       { The domain definition }
+   77|   REGION 1       { For each material region }
+   78|     START(0,0)   { Walk the domain boundary }
+   79|     LINE TO (1,0) TO (1,1) TO (0,1) TO CLOSE
+   80| TIME 0 TO tfuel2   { if time dependent }
+   81| MONITORS         { show progress }
+   82| PLOTS            { save result displays }
+   83| for t = 0 by endtime/50 to endtime
+   84| history(h) at (0,0)
+   85| 
+   86| 
+   87| 
+   88| report val (price,0,0)
+   89| report val (h,0,0)
+   90| report val (v,0,0)
+   91| END
+FlexPDE Student Version 6.36s/W32 3D
+© 1996-2014 PDE Solutions Inc.
+FlexPDE Student Version 6.36s/W32 3D
+© 1996-2014 PDE Solutions Inc.
+FlexPDE Student Version 6.36s/W32 3D
+© 1996-2014 PDE Solutions Inc.
+
+SUMMARIZE 36 PARAMETERS (NO COMMON SUBEXPRESSION ELIMINATION)
+   Param         Compartment       Complexity     Memory
+--------------------------------------------------------------
+         MFUEL1      0                    1         56
+         MFUEL2      0                    1         56
+        G_EARTH      0                    1         56
+             P0      0                    1         56
+             T0      0                    1         56
+              L      0                    1         56
+          R_GAS      0                    1         56
+             MM      0                    1         56
+          BIG_G      0                    1         56
+        M_EARTH      0                    1         56
+        R_EARTH      0                    1         56
+             CD      0                    1         56
+              A      0                    1         56
+             Q1      0                    1         56
+             V1      0                    1         56
+       M_ENGINE      0                    1         56
+      MASS_TANK      0                    1         56
+         TFUEL1      0                    1         56
+             Q2      0                    1         56
+             V2      0                    1         56
+      M_ENGINE2      0                    1         56
+     MASS_TANK2      0                    1         56
+         TFUEL2      0                    1         56
+     START_MASS      0                    1         56
+          M_R_T      0                   23       1288
+         THRESH      0                    5        280
+           TVAR      0                    5        280
+          EXPON      0                    1         56
+              P      0                   20       1120
+            RHO      0                   30       1680
+             FD      0                   33       1848
+             FG      0                   30       1680
+             FT      0                   11        616
+            ACC      0                  100       5600
+          PRICE      0                    1         56
+        ENDTIME      0                    1         56
+
+SUMMARIZE EQUATIONS
+
+                                                    BASE         CSE
+ EQUATION  COMPARTMENT              FUNCTION     COMPLEXITY  COMPLEXITY    MEMORY
+----------------------------------------------------------------------------------
+     1          1                     Source          1            2          112
+     1          1                   Galerkin          3            3          168
+     1          1       Var  1      Jacobian          1            1           56
+     1          1       Var  2      Jacobian          3            3          168
+     1          1              Surf Galerkin          1            1           56
+     1          1       Var  1 Surf Jacobian          1            1           56
+     1          1       Var  2 Surf Jacobian          1            3          168
+     2          1                     Source         35           36         2016
+     2          1                   Galerkin        111          111         6216
+     2          1       Var  1      Jacobian        166          161         9016
+     2          1       Var  2      Jacobian         57           57         3192
+     2          1              Surf Galerkin          1            1           56
+     2          1       Var  1 Surf Jacobian          1          161         9016
+     2          1       Var  2 Surf Jacobian          1           57         3192
+
+EQUATION 1 PARAMETER DEPENDENCIES:
+
+EQUATION 2 PARAMETER DEPENDENCIES:
+ MFUEL1          MFUEL2          G_EARTH         P0              T0             
+ L               R_GAS           MM              BIG_G           M_EARTH        
+ R_EARTH         CD              A               Q1              V1             
+ M_ENGINE        MASS_TANK       TFUEL1          Q2              V2             
+ M_ENGINE2       MASS_TANK2      TFUEL2          START_MASS      M_R_T          
+ THRESH          TVAR            EXPON           P               RHO            
+ FD              FG              FT              ACC            
+
+SUMMARIZE BOUNDARY CONDITIONS
+
+    BC     COMPARTMENT              FUNCTION     COMPLEXITY    MEMORY
+----------------------------------------------------------------------
+
+--------------------------------
+SUMMARIZE FITS AND INTEGRALS
+---------------------------------
+                                  REGION/       BASE        CSE
+    FIT         KIND            COMPARTMENT  COMPLEXITY  COMPLEXITY    MEMORY
+------------------------------------------------------------------------------
+     1                  VAL          1              1          1           56
+     2                  VAL          1              1          1           56
+     3                  VAL          1              1          1           56
+
+SUMMARIZE PLOT EQUATIONS
+
+                                     BASE        CSE
+   PLOT    ARGUMENT COMPARTMENT  COMPLEXITY  COMPLEXITY    MEMORY
+------------------------------------------------------------------
+     1          1          1          1          1           56
+
+==UNUSED== PARAMETER DEFINITIONS:
+ PRICE          
+
+Lanczos/BInv ITERATION 14, RNORM=5.73528e-032, XNORM=22.003, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=666.283  Var NORMS:  20.40801 695.7819
+Lanczos/BInv ITERATION 14, RNORM=9.76261e-035, XNORM=0.0212248, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=2.84361  Var NORMS:  2.969505 0.097954
+Lanczos/BInv ITERATION 14, RNORM=2.57912e-034, XNORM=0.021087, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=2.84281  Var NORMS:  2.968669 0.040958
+STEP FAILED. RETRY
+Lanczos/BInv ITERATION 14, RNORM=2.03878e-033, XNORM=2.19915, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=66.5945  Var NORMS:  0.972020 69.54294
+Lanczos/BInv ITERATION 14, RNORM=1.95974e-036, XNORM=0.000212087, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0284145  Var NORMS:  0.029672 9.788e-4
+Lanczos/BInv ITERATION 14, RNORM=2.95345e-036, XNORM=0.000211805, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0284137  Var NORMS:  0.029672 8.592e-4
+STEP FAILED. RETRY
+Lanczos/BInv ITERATION 14, RNORM=5.10874e-033, XNORM=1.09954, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=33.2963  Var NORMS:  0.456337 34.77049
+Lanczos/BInv ITERATION 14, RNORM=3.33758e-037, XNORM=5.30195e-005, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.00710332  Var NORMS:  0.007418 2.447e-4
+Lanczos/BInv ITERATION 14, RNORM=6.41599e-037, XNORM=5.2982e-005, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.00710322  Var NORMS:  0.007418 2.288e-4
+RMS Spatial Errors  1.69e-33 4.04e-30
+
+CYCLE 3 TIME (4.26667e-005,6.4e-005), DT=2.13333e-005, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.88102e-037, XNORM=6.17933e-005, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.00828713  Var NORMS:  0.008654 2.585e-4
+RMS Time Errors 6.181e-4 1.846e-5
+Max Time Err=0.00061813 Var 1 at Node 9 (0.5,1,0)
+RMS Spatial Errors  7.38e-34 8.42e-30
+
+CYCLE 4 TIME (6.4e-005,8.79364e-005), DT=2.39364e-005, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.74189e-036, XNORM=7.63603e-005, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0102441  Var NORMS:  0.010698 3.086e-4
+RMS Time Errors 5.383e-4 1.553e-5
+Max Time Err=0.000538337 Var 1 at Node 6 (0,0.5,0)
+RMS Spatial Errors  1.87e-33 1.90e-30
+
+CYCLE 5 TIME (8.79364e-005,0.000114793), DT=2.68571e-005, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.35243e-037, XNORM=0.000106711, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0143207  Var NORMS:  0.014955 4.156e-4
+RMS Time Errors 2.089e-4 5.807e-6
+Max Time Err=0.000208947 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  2.35e-33 2.22e-30
+
+CYCLE 6 TIME (0.000114793,0.000144928), DT=3.01341e-005, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.95602e-036, XNORM=0.000139463, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0187228  Var NORMS:  0.019552 5.217e-4
+RMS Time Errors 8.113e-5 2.166e-6
+Max Time Err=8.11346e-005 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  3.01e-33 1.81e-56
+
+CYCLE 7 TIME (0.000144928,0.000178739), DT=3.38111e-005, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.63973e-036, XNORM=0.000177517, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0238403  Var NORMS:  0.024896 6.360e-4
+RMS Time Errors 3.155e-5 8.077e-7
+Max Time Err=3.1554e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  9.30e-33 2.98e-30
+
+CYCLE 8 TIME (0.000178739,0.000216675), DT=3.79366e-005, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.06264e-036, XNORM=0.000224178, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0301182  Var NORMS:  0.031452 7.667e-4
+RMS Time Errors 1.234e-5 3.031e-7
+Max Time Err=1.23412e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  2.26e-33 3.41e-30
+
+CYCLE 9 TIME (0.000216675,0.000259241), DT=4.25656e-005, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=7.58298e-037, XNORM=0.000282423, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0379581  Var NORMS:  0.039639 9.192e-4
+RMS Time Errors 4.925e-6 1.172e-7
+Max Time Err=4.92489e-006 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  3.01e-33 1.56e-29
+
+CYCLE 10 TIME (0.000259241,0.000307), DT=4.77594e-005, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.06899e-036, XNORM=0.000355538, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0478034  Var NORMS:  0.049920 0.001098
+RMS Time Errors 2.103e-6 5.022e-8
+Max Time Err=2.1028e-006 Var 1 at Node 5 (0.5,0.5,0)
+RMS Spatial Errors  9.67e-35 1.10e-28
+
+CYCLE 11 TIME (0.000307,0.000360587), DT=5.35869e-005, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.19377e-035, XNORM=0.000447479, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0601889  Var NORMS:  0.062854 0.001306
+RMS Time Errors 1.087e-6 2.791e-8
+Max Time Err=1.08669e-006 Var 1 at Node 6 (0,0.5,0)
+RMS Spatial Errors  4.42e-33 4.95e-30
+
+CYCLE 12 TIME (0.000360587,0.000420713), DT=6.01255e-005, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.95253e-036, XNORM=0.000563158, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0757784  Var NORMS:  0.079133 0.001549
+RMS Time Errors 8.041e-7 2.283e-8
+Max Time Err=8.04051e-007 Var 1 at Node 4 (0,1,0)
+RMS Spatial Errors  1.20e-31 1.55e-54
+
+CYCLE 13 TIME (0.000420713,0.000488175), DT=6.74619e-005, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.23244e-036, XNORM=0.000708732, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0954039  Var NORMS:  0.099628 0.001830
+RMS Time Errors 8.521e-7 2.506e-8
+Max Time Err=8.52132e-007 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  3.08e-35 1.23e-29
+
+CYCLE 14 TIME (0.000488175,0.000563868), DT=7.56935e-005, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.16653e-035, XNORM=0.000891939, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.120112  Var NORMS:  0.125430 0.002156
+RMS Time Errors 1.094e-6 3.123e-8
+Max Time Err=1.09366e-006 Var 1 at Node 5 (0.5,0.5,0)
+RMS Spatial Errors  7.21e-32 1.35e-29
+
+CYCLE 15 TIME (0.000563868,0.000648798), DT=8.49295e-005, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.50665e-036, XNORM=0.00112252, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.15122  Var NORMS:  0.157915 0.002532
+RMS Time Errors 1.502e-6 4.047e-8
+Max Time Err=1.50224e-006 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  3.87e-34 7.40e-29
+
+CYCLE 16 TIME (0.000648798,0.00074409), DT=9.52925e-005, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.22797e-035, XNORM=0.00141272, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.190385  Var NORMS:  0.198814 0.002964
+RMS Time Errors 2.106e-6 5.291e-8
+Max Time Err=2.10559e-006 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  5.66e-32 4.03e-29
+
+CYCLE 17 TIME (0.00074409,0.00085101), DT=0.00010692, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=6.14279e-036, XNORM=0.00177799, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.239695  Var NORMS:  0.250307 0.003460
+RMS Time Errors 2.968e-6 6.920e-8
+Max Time Err=2.96809e-006 Var 1 at Node 9 (0.5,1,0)
+RMS Spatial Errors  6.62e-32 1.13e-28
+
+CYCLE 18 TIME (0.00085101,0.000970976), DT=0.000119966, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=6.94154e-035, XNORM=0.00223775, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.301779  Var NORMS:  0.315140 0.004026
+RMS Time Errors 4.191e-6 9.032e-8
+Max Time Err=4.19053e-006 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  3.08e-34 1.87e-29
+
+CYCLE 19 TIME (0.000970976,0.00110558), DT=0.000134604, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=5.45813e-035, XNORM=0.00281646, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.379947  Var NORMS:  0.396768 0.004672
+RMS Time Errors 5.919e-6 1.176e-7
+Max Time Err=5.91908e-006 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  5.68e-31 2.00e-29
+
+CYCLE 20 TIME (0.00110558,0.00125661), DT=0.000151028, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.46316e-035, XNORM=0.00354491, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.478366  Var NORMS:  0.499545 0.005407
+RMS Time Errors 8.362e-6 1.527e-7
+Max Time Err=8.36176e-006 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  3.09e-33 8.52e-29
+
+CYCLE 21 TIME (0.00125661,0.00142607), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.43781e-035, XNORM=0.0044619, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.602286  Var NORMS:  0.628952 0.006242
+RMS Time Errors 1.181e-5 1.978e-7
+Max Time Err=1.18131e-005 Var 1 at Node 4 (0,1,0)
+RMS Spatial Errors  1.93e-31 4.51e-29
+
+CYCLE 22 TIME (0.00142607,0.00159552), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.11271e-035, XNORM=0.00480291, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.648478  Var NORMS:  0.677188 0.006206
+RMS Time Errors 1.224e-5 1.893e-7
+Max Time Err=1.22434e-005 Var 1 at Node 5 (0.5,0.5,0)
+RMS Spatial Errors  7.02e-31 3.99e-29
+
+CYCLE 23 TIME (0.00159552,0.00176498), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.75062e-035, XNORM=0.00498302, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.67294  Var NORMS:  0.702733 0.005981
+RMS Time Errors 1.282e-5 1.841e-7
+Max Time Err=1.28166e-005 Var 1 at Node 7 (0.5,0,0)
+RMS Spatial Errors  1.45e-30 4.31e-29
+
+CYCLE 24 TIME (0.00176498,0.00193444), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.28251e-033, XNORM=0.00498264, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.673014  Var NORMS:  0.702811 0.005584
+RMS Time Errors 1.301e-5 1.744e-7
+Max Time Err=1.30093e-005 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  1.49e-30 3.00e-29
+
+CYCLE 25 TIME (0.00193444,0.00210389), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.84837e-036, XNORM=0.00498239, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.673089  Var NORMS:  0.702889 0.005237
+RMS Time Errors 1.308e-5 1.644e-7
+Max Time Err=1.30752e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  7.02e-31 2.64e-29
+
+CYCLE 26 TIME (0.00210389,0.00227335), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.34501e-034, XNORM=0.00498223, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.673164  Var NORMS:  0.702968 0.004930
+RMS Time Errors 1.310e-5 1.550e-7
+Max Time Err=1.30988e-005 Var 1 at Node 5 (0.5,0.5,0)
+RMS Spatial Errors  1.32e-33 1.17e-29
+
+CYCLE 27 TIME (0.00227335,0.00244281), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.39485e-034, XNORM=0.00498215, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.67324  Var NORMS:  0.703047 0.004657
+RMS Time Errors 1.311e-5 1.465e-7
+Max Time Err=1.31083e-005 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  7.91e-31 5.21e-30
+
+CYCLE 28 TIME (0.00244281,0.00261226), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.66349e-035, XNORM=0.00498214, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.673315  Var NORMS:  0.703125 0.004413
+RMS Time Errors 1.311e-5 1.389e-7
+Max Time Err=1.31132e-005 Var 1 at Node 5 (0.5,0.5,0)
+RMS Spatial Errors  7.46e-31 9.36e-30
+
+CYCLE 29 TIME (0.00261226,0.00278172), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=6.55298e-035, XNORM=0.00498218, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.67339  Var NORMS:  0.703204 0.004193
+RMS Time Errors 1.312e-5 1.320e-7
+Max Time Err=1.31164e-005 Var 1 at Node 4 (0,1,0)
+RMS Spatial Errors  7.46e-31 8.45e-30
+
+CYCLE 30 TIME (0.00278172,0.00295118), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.29625e-035, XNORM=0.00498228, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.673466  Var NORMS:  0.703283 0.003995
+RMS Time Errors 1.312e-5 1.257e-7
+Max Time Err=1.31192e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  6.85e-30 3.06e-29
+
+CYCLE 31 TIME (0.00295118,0.00312063), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.80644e-035, XNORM=0.00498241, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.673541  Var NORMS:  0.703361 0.003814
+RMS Time Errors 1.312e-5 1.201e-7
+Max Time Err=1.31217e-005 Var 1 at Node 5 (0.5,0.5,0)
+RMS Spatial Errors  3.16e-30 2.81e-53
+
+CYCLE 32 TIME (0.00312063,0.00329009), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.383e-035, XNORM=0.00498259, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.673616  Var NORMS:  0.703440 0.003649
+RMS Time Errors 1.312e-5 1.149e-7
+Max Time Err=1.31242e-005 Var 1 at Node 4 (0,1,0)
+RMS Spatial Errors  7.02e-31 1.28e-29
+
+CYCLE 33 TIME (0.00329009,0.00345955), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.32326e-034, XNORM=0.00498279, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.673692  Var NORMS:  0.703519 0.003497
+RMS Time Errors 1.313e-5 1.101e-7
+Max Time Err=1.31267e-005 Var 1 at Node 6 (0,0.5,0)
+RMS Spatial Errors  1.49e-30 5.87e-30
+
+CYCLE 34 TIME (0.00345955,0.003629), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=6.51475e-035, XNORM=0.00498302, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.673767  Var NORMS:  0.703598 0.003358
+RMS Time Errors 1.313e-5 1.058e-7
+Max Time Err=1.31292e-005 Var 1 at Node 8 (1,0.5,0)
+RMS Spatial Errors  6.61e-34 2.70e-30
+
+CYCLE 35 TIME (0.003629,0.00379846), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.79066e-033, XNORM=0.00498328, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.673843  Var NORMS:  0.703676 0.003230
+RMS Time Errors 1.313e-5 1.017e-7
+Max Time Err=1.31317e-005 Var 1 at Node 4 (0,1,0)
+RMS Spatial Errors  1.32e-33 5.00e-30
+
+CYCLE 36 TIME (0.00379846,0.00396792), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.45435e-035, XNORM=0.00498356, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.673918  Var NORMS:  0.703755 0.003111
+RMS Time Errors 1.313e-5 9.797e-8
+Max Time Err=1.31342e-005 Var 1 at Node 7 (0.5,0,0)
+RMS Spatial Errors  1.32e-33 4.64e-30
+
+CYCLE 37 TIME (0.00396792,0.00413737), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.37123e-035, XNORM=0.00498386, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.673994  Var NORMS:  0.703834 0.003000
+RMS Time Errors 1.314e-5 9.450e-8
+Max Time Err=1.31367e-005 Var 1 at Node 5 (0.5,0.5,0)
+RMS Spatial Errors  3.07e-30 4.31e-30
+
+CYCLE 38 TIME (0.00413737,0.00430683), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.82707e-035, XNORM=0.00498418, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.674069  Var NORMS:  0.703913 0.002897
+RMS Time Errors 1.314e-5 9.126e-8
+Max Time Err=1.31391e-005 Var 1 at Node 7 (0.5,0,0)
+RMS Spatial Errors  3.07e-30 1.00e-29
+
+CYCLE 39 TIME (0.00430683,0.00447629), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=8.78119e-035, XNORM=0.00498451, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.674145  Var NORMS:  0.703992 0.002801
+RMS Time Errors 1.314e-5 8.824e-8
+Max Time Err=1.31416e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.23e-29 1.50e-29
+
+CYCLE 40 TIME (0.00447629,0.00464574), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=7.27063e-035, XNORM=0.00498486, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.67422  Var NORMS:  0.704071 0.002711
+RMS Time Errors 1.314e-5 8.542e-8
+Max Time Err=1.31441e-005 Var 1 at Node 4 (0,1,0)
+RMS Spatial Errors  1.55e-29 3.52e-30
+
+CYCLE 41 TIME (0.00464574,0.0048152), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.23012e-035, XNORM=0.00498522, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.674296  Var NORMS:  0.704149 0.002627
+RMS Time Errors 1.315e-5 8.277e-8
+Max Time Err=1.31466e-005 Var 1 at Node 6 (0,0.5,0)
+RMS Spatial Errors  0.000000 0.000000
+
+CYCLE 42 TIME (0.0048152,0.00498466), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.39543e-035, XNORM=0.0049856, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.674371  Var NORMS:  0.704228 0.002548
+RMS Time Errors 1.315e-5 8.028e-8
+Max Time Err=1.31491e-005 Var 1 at Node 8 (1,0.5,0)
+RMS Spatial Errors  6.23e-30 1.55e-30
+
+CYCLE 43 TIME (0.00498466,0.00515411), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.01176e-035, XNORM=0.00498598, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.674447  Var NORMS:  0.704307 0.002473
+RMS Time Errors 1.315e-5 7.794e-8
+Max Time Err=1.31516e-005 Var 1 at Node 7 (0.5,0,0)
+RMS Spatial Errors  3.07e-30 2.92e-30
+
+CYCLE 44 TIME (0.00515411,0.00532357), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.06175e-034, XNORM=0.00498638, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.674522  Var NORMS:  0.704386 0.002403
+RMS Time Errors 1.315e-5 7.573e-8
+Max Time Err=1.31541e-005 Var 1 at Node 4 (0,1,0)
+RMS Spatial Errors  6.61e-34 1.38e-30
+
+CYCLE 45 TIME (0.00532357,0.00549303), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.76795e-035, XNORM=0.00498678, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.674598  Var NORMS:  0.704465 0.002337
+RMS Time Errors 1.316e-5 7.365e-8
+Max Time Err=1.31565e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  5.96e-30 1.04e-29
+
+CYCLE 46 TIME (0.00549303,0.00566248), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=8.86107e-035, XNORM=0.00498719, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.674674  Var NORMS:  0.704544 0.002274
+RMS Time Errors 1.316e-5 7.167e-8
+Max Time Err=1.3159e-005 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  3.07e-30 2.47e-30
+
+CYCLE 47 TIME (0.00566248,0.00583194), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=8.54294e-036, XNORM=0.00498761, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.674749  Var NORMS:  0.704623 0.002214
+RMS Time Errors 1.316e-5 6.981e-8
+Max Time Err=1.31615e-005 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  3.07e-30 1.17e-30
+
+CYCLE 48 TIME (0.00583194,0.0060014), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=5.78367e-035, XNORM=0.00498804, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.674825  Var NORMS:  0.704702 0.002158
+RMS Time Errors 1.316e-5 6.803e-8
+Max Time Err=1.3164e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.21e-29 1.44e-29
+
+CYCLE 49 TIME (0.0060014,0.00617085), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=5.79008e-035, XNORM=0.00498847, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.674901  Var NORMS:  0.704781 0.002104
+RMS Time Errors 1.317e-5 6.635e-8
+Max Time Err=1.31665e-005 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  1.25e-29 2.11e-30
+
+CYCLE 50 TIME (0.00617085,0.00634031), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.67692e-035, XNORM=0.00498891, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.674976  Var NORMS:  0.704860 0.002053
+RMS Time Errors 1.317e-5 6.474e-8
+Max Time Err=1.3169e-005 Var 1 at Node 9 (0.5,1,0)
+RMS Spatial Errors  1.25e-29 2.01e-30
+
+CYCLE 51 TIME (0.00634031,0.00650977), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=6.34194e-036, XNORM=0.00498936, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.675052  Var NORMS:  0.704939 0.002005
+RMS Time Errors 1.317e-5 6.322e-8
+Max Time Err=1.31715e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  3.07e-30 1.91e-30
+
+CYCLE 52 TIME (0.00650977,0.00667922), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.92704e-033, XNORM=0.00498981, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.675128  Var NORMS:  0.705018 0.001958
+RMS Time Errors 1.317e-5 6.176e-8
+Max Time Err=1.3174e-005 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  1.23e-29 7.31e-30
+
+CYCLE 53 TIME (0.00667922,0.00684868), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=9.12547e-036, XNORM=0.00499026, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.675203  Var NORMS:  0.705097 0.001914
+RMS Time Errors 1.318e-5 6.037e-8
+Max Time Err=1.31765e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  2.81e-30 2.18e-29
+
+CYCLE 54 TIME (0.00684868,0.00701814), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.92119e-034, XNORM=0.00499073, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.675279  Var NORMS:  0.705176 0.001872
+RMS Time Errors 1.318e-5 5.905e-8
+Max Time Err=1.3179e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  3.07e-30 1.67e-30
+
+CYCLE 55 TIME (0.00701814,0.00718759), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.44817e-035, XNORM=0.00499119, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.675355  Var NORMS:  0.705255 0.001831
+RMS Time Errors 1.318e-5 5.778e-8
+Max Time Err=1.31815e-005 Var 1 at Node 8 (1,0.5,0)
+RMS Spatial Errors  1.32e-33 1.60e-30
+
+CYCLE 56 TIME (0.00718759,0.00735705), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.92138e-034, XNORM=0.00492013, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.656178  Var NORMS:  0.685229 0.001793
+RMS Time Errors 1.281e-5 5.656e-8
+Max Time Err=1.28082e-005 Var 1 at Node 8 (1,0.5,0)
+RMS Spatial Errors  2.93e-29 7.64e-30
+
+CYCLE 57 TIME (0.00735705,0.00752651), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=5.83647e-035, XNORM=0.00481752, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.629  Var NORMS:  0.656848 0.001756
+RMS Time Errors 1.228e-5 5.539e-8
+Max Time Err=1.22786e-005 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  1.05e-29 7.33e-30
+
+CYCLE 58 TIME (0.00752651,0.00769596), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=5.7231e-034, XNORM=0.00471914, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.603482  Var NORMS:  0.630200 0.001720
+RMS Time Errors 1.178e-5 5.428e-8
+Max Time Err=1.17814e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  1.05e-33 1.41e-30
+
+CYCLE 59 TIME (0.00769596,0.00786542), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.74767e-035, XNORM=0.00462473, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.579491  Var NORMS:  0.605147 0.001686
+RMS Time Errors 1.131e-5 5.320e-8
+Max Time Err=1.13139e-005 Var 1 at Node 9 (0.5,1,0)
+RMS Spatial Errors  1.94e-33 2.70e-30
+
+CYCLE 60 TIME (0.00786542,0.00803488), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.06913e-034, XNORM=0.00453405, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.556906  Var NORMS:  0.581563 0.001653
+RMS Time Errors 1.087e-5 5.217e-8
+Max Time Err=1.08738e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  8.96e-34 1.30e-30
+
+CYCLE 61 TIME (0.00803488,0.00820433), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.38495e-034, XNORM=0.00444689, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.535621  Var NORMS:  0.559335 0.001622
+RMS Time Errors 1.046e-5 5.118e-8
+Max Time Err=1.0459e-005 Var 1 at Node 7 (0.5,0,0)
+RMS Spatial Errors  4.14e-34 6.24e-31
+
+CYCLE 62 TIME (0.00820433,0.00837379), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=5.47492e-035, XNORM=0.00436305, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.515537  Var NORMS:  0.538362 0.001591
+RMS Time Errors 1.007e-5 5.023e-8
+Max Time Err=1.00676e-005 Var 1 at Node 9 (0.5,1,0)
+RMS Spatial Errors  7.24e-30 1.20e-30
+
+CYCLE 63 TIME (0.00837379,0.00854325), DT=0.000169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=5.18605e-035, XNORM=0.00428234, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.496566  Var NORMS:  0.518551 0.001562
+RMS Time Errors 9.698e-6 4.931e-8
+Max Time Err=9.69787e-006 Var 1 at Node 8 (1,0.5,0)
+RMS Spatial Errors  3.56e-33 5.79e-30
+
+CYCLE 64 TIME (0.00854325,0.00873338), DT=0.000190134, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.52359e-036, XNORM=0.00489903, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.55648  Var NORMS:  0.581118 0.001787
+RMS Time Errors 1.265e-5 6.568e-8
+Max Time Err=1.26538e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  2.99e-29 5.38e-30
+
+CYCLE 65 TIME (0.00873338,0.00892351), DT=0.000190134, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.13365e-034, XNORM=0.00498919, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.555353  Var NORMS:  0.579940 0.001820
+RMS Time Errors 1.203e-5 6.373e-8
+Max Time Err=1.20303e-005 Var 1 at Node 5 (0.5,0.5,0)
+RMS Spatial Errors  9.58e-34 1.34e-30
+
+CYCLE 66 TIME (0.00892351,0.00911365), DT=0.000190134, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.49655e-035, XNORM=0.00507586, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.553887  Var NORMS:  0.578410 0.001852
+RMS Time Errors 1.195e-5 6.458e-8
+Max Time Err=1.19484e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  6.73e-30 6.45e-31
+
+CYCLE 67 TIME (0.00911365,0.00930378), DT=0.000190134, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.4733e-034, XNORM=0.00497868, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.532793  Var NORMS:  0.556382 0.001817
+RMS Time Errors 1.162e-5 6.403e-8
+Max Time Err=1.16174e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  6.22e-30 4.07e-53
+
+CYCLE 68 TIME (0.00930378,0.00949391), DT=0.000190134, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.47626e-035, XNORM=0.00488519, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.512885  Var NORMS:  0.535593 0.001783
+RMS Time Errors 1.122e-5 6.306e-8
+Max Time Err=1.12238e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  1.52e-33 2.39e-30
+
+CYCLE 69 TIME (0.00949391,0.00968405), DT=0.000190134, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=6.3312e-034, XNORM=0.00479518, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.494076  Var NORMS:  0.515951 0.001750
+RMS Time Errors 1.083e-5 6.199e-8
+Max Time Err=1.08258e-005 Var 1 at Node 4 (0,1,0)
+RMS Spatial Errors  5.26e-30 1.15e-30
+
+CYCLE 70 TIME (0.00968405,0.00989738), DT=0.000213333, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.59638e-034, XNORM=0.00548616, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.553768  Var NORMS:  0.578286 0.002002
+RMS Time Errors 1.413e-5 8.261e-8
+Max Time Err=1.41332e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.90e-33 2.68e-30
+
+CYCLE 71 TIME (0.00989738,0.0101107), DT=0.000213333, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.2713e-035, XNORM=0.00558756, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.552721  Var NORMS:  0.577192 0.002040
+RMS Time Errors 1.344e-5 8.017e-8
+Max Time Err=1.34406e-005 Var 1 at Node 8 (1,0.5,0)
+RMS Spatial Errors  5.15e-29 5.40e-52
+
+CYCLE 72 TIME (0.0101107,0.010324), DT=0.000213333, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.8366e-035, XNORM=0.00568504, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.551333  Var NORMS:  0.575743 0.002075
+RMS Time Errors 1.335e-5 8.124e-8
+Max Time Err=1.33514e-005 Var 1 at Node 8 (1,0.5,0)
+RMS Spatial Errors  5.29e-30 5.89e-53
+
+CYCLE 73 TIME (0.010324,0.0105374), DT=0.000213333, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.26871e-035, XNORM=0.00557661, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.530403  Var NORMS:  0.553886 0.002036
+RMS Time Errors 1.298e-5 8.056e-8
+Max Time Err=1.29835e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  4.05e-34 6.17e-31
+
+CYCLE 74 TIME (0.0105374,0.0107507), DT=0.000213333, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.15364e-030, XNORM=0.00547227, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.510645  Var NORMS:  0.533254 0.001998
+RMS Time Errors 1.255e-5 7.935e-8
+Max Time Err=1.25452e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  2.24e-29 1.19e-30
+
+CYCLE 75 TIME (0.0107507,0.0109901), DT=0.000239364, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.02312e-035, XNORM=0.00625889, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.571973  Var NORMS:  0.597296 0.002285
+RMS Time Errors 1.638e-5 1.058e-7
+Max Time Err=1.63808e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  2.47e-29 5.53e-30
+
+CYCLE 76 TIME (0.0109901,0.0112294), DT=0.000239364, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.60711e-034, XNORM=0.00637267, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.570538  Var NORMS:  0.595798 0.002327
+RMS Time Errors 1.557e-5 1.027e-7
+Max Time Err=1.55726e-005 Var 1 at Node 8 (1,0.5,0)
+RMS Spatial Errors  1.91e-29 6.89e-31
+
+CYCLE 77 TIME (0.0112294,0.0114688), DT=0.000239364, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=7.78458e-036, XNORM=0.006482, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.568768  Var NORMS:  0.593949 0.002367
+RMS Time Errors 1.546e-5 1.040e-7
+Max Time Err=1.54615e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  2.16e-29 1.32e-29
+
+CYCLE 78 TIME (0.0114688,0.0117082), DT=0.000239364, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.60414e-034, XNORM=0.00635662, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.546863  Var NORMS:  0.571074 0.002322
+RMS Time Errors 1.503e-5 1.031e-7
+Max Time Err=1.50273e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  3.87e-30 6.36e-30
+
+CYCLE 79 TIME (0.0117082,0.0119475), DT=0.000239364, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=6.01021e-035, XNORM=0.00623605, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.526203  Var NORMS:  0.549500 0.002278
+RMS Time Errors 1.451e-5 1.016e-7
+Max Time Err=1.45124e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.51e-29 1.22e-30
+
+CYCLE 80 TIME (0.0119475,0.0121869), DT=0.000239364, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.05838e-034, XNORM=0.00612002, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.506696  Var NORMS:  0.529129 0.002236
+RMS Time Errors 1.399e-5 9.981e-8
+Max Time Err=1.39923e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  3.33e-30 1.06e-29
+
+CYCLE 81 TIME (0.0121869,0.0124555), DT=0.000268571, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.87094e-035, XNORM=0.00700052, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.567661  Var NORMS:  0.592793 0.002557
+RMS Time Errors 1.826e-5 1.330e-7
+Max Time Err=1.82596e-005 Var 1 at Node 4 (0,1,0)
+RMS Spatial Errors  1.54e-29 5.48e-30
+
+CYCLE 82 TIME (0.0124555,0.012724), DT=0.000268571, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.97e-035, XNORM=0.00712855, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.566344  Var NORMS:  0.591418 0.002604
+RMS Time Errors 1.736e-5 1.290e-7
+Max Time Err=1.73577e-005 Var 1 at Node 4 (0,1,0)
+RMS Spatial Errors  8.93e-33 1.23e-29
+
+CYCLE 83 TIME (0.012724,0.0129926), DT=0.000268571, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.12862e-035, XNORM=0.00725159, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.56469  Var NORMS:  0.589691 0.002649
+RMS Time Errors 1.724e-5 1.307e-7
+Max Time Err=1.72359e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  2.29e-32 3.28e-29
+
+CYCLE 84 TIME (0.0129926,0.0132612), DT=0.000268571, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.62539e-035, XNORM=0.00711205, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.543037  Var NORMS:  0.567080 0.002599
+RMS Time Errors 1.675e-5 1.296e-7
+Max Time Err=1.67547e-005 Var 1 at Node 4 (0,1,0)
+RMS Spatial Errors  1.20e-29 3.28e-29
+
+CYCLE 85 TIME (0.0132612,0.0135298), DT=0.000268571, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=8.15692e-035, XNORM=0.00697783, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.522611  Var NORMS:  0.545749 0.002550
+RMS Time Errors 1.618e-5 1.277e-7
+Max Time Err=1.61834e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  5.43e-30 2.06e-29
+
+CYCLE 86 TIME (0.0135298,0.0137983), DT=0.000268571, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=5.5478e-035, XNORM=0.00684865, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.503319  Var NORMS:  0.525603 0.002503
+RMS Time Errors 1.561e-5 1.255e-7
+Max Time Err=1.56062e-005 Var 1 at Node 4 (0,1,0)
+RMS Spatial Errors  2.65e-30 2.34e-29
+
+CYCLE 87 TIME (0.0137983,0.0140997), DT=0.000301341, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.78937e-035, XNORM=0.00783476, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.563976  Var NORMS:  0.588945 0.002863
+RMS Time Errors 2.037e-5 1.672e-7
+Max Time Err=2.03694e-005 Var 1 at Node 4 (0,1,0)
+RMS Spatial Errors  5.42e-30 3.53e-29
+
+CYCLE 88 TIME (0.0140997,0.014401), DT=0.000301341, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.26477e-035, XNORM=0.00797884, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.562762  Var NORMS:  0.587678 0.002916
+RMS Time Errors 1.937e-5 1.623e-7
+Max Time Err=1.93669e-005 Var 1 at Node 9 (0.5,1,0)
+RMS Spatial Errors  5.76e-30 2.71e-30
+
+CYCLE 89 TIME (0.014401,0.0147023), DT=0.000301341, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=8.07357e-035, XNORM=0.00811733, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.561209  Var NORMS:  0.586056 0.002967
+RMS Time Errors 1.923e-5 1.644e-7
+Max Time Err=1.92344e-005 Var 1 at Node 4 (0,1,0)
+RMS Spatial Errors  1.02e-29 3.26e-29
+
+CYCLE 90 TIME (0.0147023,0.0150037), DT=0.000301341, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.72903e-035, XNORM=0.00796187, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.539775  Var NORMS:  0.563673 0.002910
+RMS Time Errors 1.870e-5 1.630e-7
+Max Time Err=1.87005e-005 Var 1 at Node 8 (1,0.5,0)
+RMS Spatial Errors  9.22e-30 4.63e-29
+
+CYCLE 91 TIME (0.0150037,0.015305), DT=0.000301341, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.24834e-035, XNORM=0.00781232, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.519549  Var NORMS:  0.542552 0.002856
+RMS Time Errors 1.807e-5 1.606e-7
+Max Time Err=1.80659e-005 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  1.11e-29 1.21e-29
+
+CYCLE 92 TIME (0.015305,0.0156064), DT=0.000301341, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.44416e-034, XNORM=0.00766835, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.500443  Var NORMS:  0.522600 0.002804
+RMS Time Errors 1.742e-5 1.578e-7
+Max Time Err=1.74243e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.96e-30 3.02e-29
+
+CYCLE 93 TIME (0.0156064,0.0159445), DT=0.000338111, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.08087e-035, XNORM=0.00877332, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.560841  Var NORMS:  0.585671 0.003207
+RMS Time Errors 2.275e-5 2.103e-7
+Max Time Err=2.27464e-005 Var 1 at Node 7 (0.5,0,0)
+RMS Spatial Errors  8.76e-30 6.61e-29
+
+CYCLE 94 TIME (0.0159445,0.0162826), DT=0.000338111, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.08956e-034, XNORM=0.00893548, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.559718  Var NORMS:  0.584499 0.003267
+RMS Time Errors 2.163e-5 2.042e-7
+Max Time Err=2.16305e-005 Var 1 at Node 4 (0,1,0)
+RMS Spatial Errors  8.01e-30 1.10e-28
+
+CYCLE 95 TIME (0.0162826,0.0166207), DT=0.000338111, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.16438e-035, XNORM=0.00909137, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.558254  Var NORMS:  0.582970 0.003324
+RMS Time Errors 2.149e-5 2.069e-7
+Max Time Err=2.1486e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  3.26e-29 7.31e-29
+
+CYCLE 96 TIME (0.0166207,0.0169588), DT=0.000338111, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=8.88644e-035, XNORM=0.00891802, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.537008  Var NORMS:  0.560783 0.003261
+RMS Time Errors 2.089e-5 2.052e-7
+Max Time Err=2.08929e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  3.72e-29 5.53e-29
+
+CYCLE 97 TIME (0.0169588,0.0172969), DT=0.000338111, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.61627e-035, XNORM=0.00875125, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.516957  Var NORMS:  0.539844 0.003200
+RMS Time Errors 2.019e-5 2.021e-7
+Max Time Err=2.01869e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  6.64e-30 7.78e-29
+
+CYCLE 98 TIME (0.0172969,0.017635), DT=0.000338111, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=7.01591e-035, XNORM=0.00859069, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.498011  Var NORMS:  0.520060 0.003142
+RMS Time Errors 1.947e-5 1.987e-7
+Max Time Err=1.94729e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  2.55e-32 4.15e-29
+
+CYCLE 99 TIME (0.017635,0.0180144), DT=0.000379366, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.15949e-034, XNORM=0.00982942, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.558193  Var NORMS:  0.582906 0.003595
+RMS Time Errors 2.542e-5 2.648e-7
+Max Time Err=2.54247e-005 Var 1 at Node 6 (0,0.5,0)
+RMS Spatial Errors  1.32e-29 9.72e-29
+
+CYCLE 100 TIME (0.0180144,0.0183938), DT=0.000379366, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.72678e-035, XNORM=0.010012, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.557151  Var NORMS:  0.581819 0.003662
+RMS Time Errors 2.418e-5 2.570e-7
+Max Time Err=2.41812e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  6.12e-30 1.94e-28
+
+CYCLE 101 TIME (0.0183938,0.0187731), DT=0.000379366, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.73983e-035, XNORM=0.0101875, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.555767  Var NORMS:  0.580372 0.003726
+RMS Time Errors 2.402e-5 2.605e-7
+Max Time Err=2.40232e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  5.16e-30 2.57e-28
+
+CYCLE 102 TIME (0.0187731,0.0191525), DT=0.000379366, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=6.71752e-035, XNORM=0.00999405, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.534683  Var NORMS:  0.558355 0.003656
+RMS Time Errors 2.336e-5 2.584e-7
+Max Time Err=2.33634e-005 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  5.33e-30 1.83e-28
+
+CYCLE 103 TIME (0.0191525,0.0195319), DT=0.000379366, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.2366e-034, XNORM=0.00980794, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.514782  Var NORMS:  0.537573 0.003588
+RMS Time Errors 2.258e-5 2.545e-7
+Max Time Err=2.25771e-005 Var 1 at Node 8 (1,0.5,0)
+RMS Spatial Errors  4.68e-30 2.01e-28
+
+CYCLE 104 TIME (0.0195319,0.0199112), DT=0.000379366, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.84805e-035, XNORM=0.00962874, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.495975  Var NORMS:  0.517934 0.003523
+RMS Time Errors 2.178e-5 2.502e-7
+Max Time Err=2.17816e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.94e-29 1.52e-28
+
+CYCLE 105 TIME (0.0199112,0.0203369), DT=0.000425656, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.67651e-034, XNORM=0.0110181, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.555981  Var NORMS:  0.580596 0.004031
+RMS Time Errors 2.844e-5 3.335e-7
+Max Time Err=2.84433e-005 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  2.09e-29 3.42e-28
+
+CYCLE 106 TIME (0.0203369,0.0207625), DT=0.000425656, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=8.19316e-035, XNORM=0.0112236, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.555012  Var NORMS:  0.579585 0.004107
+RMS Time Errors 2.706e-5 3.238e-7
+Max Time Err=2.7056e-005 Var 1 at Node 5 (0.5,0.5,0)
+RMS Spatial Errors  3.41e-31 4.81e-28
+
+CYCLE 107 TIME (0.0207625,0.0211882), DT=0.000425656, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.10661e-034, XNORM=0.0114213, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.553698  Var NORMS:  0.578212 0.004179
+RMS Time Errors 2.688e-5 3.282e-7
+Max Time Err=2.68829e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  2.52e-31 3.69e-28
+
+CYCLE 108 TIME (0.0211882,0.0216139), DT=0.000425656, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.34108e-034, XNORM=0.0112053, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.532755  Var NORMS:  0.556342 0.004101
+RMS Time Errors 2.615e-5 3.255e-7
+Max Time Err=2.61482e-005 Var 1 at Node 8 (1,0.5,0)
+RMS Spatial Errors  2.62e-31 3.99e-28
+
+CYCLE 109 TIME (0.0216139,0.0220395), DT=0.000425656, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.9783e-035, XNORM=0.0109975, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.512983  Var NORMS:  0.535695 0.004025
+RMS Time Errors 2.527e-5 3.207e-7
+Max Time Err=2.52716e-005 Var 1 at Node 6 (0,0.5,0)
+RMS Spatial Errors  1.85e-29 3.62e-28
+
+CYCLE 110 TIME (0.0220395,0.0224652), DT=0.000425656, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.06719e-035, XNORM=0.0107974, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.494296  Var NORMS:  0.516180 0.003952
+RMS Time Errors 2.438e-5 3.153e-7
+Max Time Err=2.43843e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  2.98e-30 3.70e-28
+
+CYCLE 111 TIME (0.0224652,0.0229428), DT=0.000477594, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.76601e-033, XNORM=0.0123563, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.554163  Var NORMS:  0.578698 0.004523
+RMS Time Errors 3.185e-5 4.204e-7
+Max Time Err=3.18464e-005 Var 1 at Node 5 (0.5,0.5,0)
+RMS Spatial Errors  3.03e-30 8.29e-28
+
+CYCLE 112 TIME (0.0229428,0.0234204), DT=0.000477594, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=5.71988e-035, XNORM=0.0125878, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.55326  Var NORMS:  0.577755 0.004608
+RMS Time Errors 3.030e-5 4.081e-7
+Max Time Err=3.02973e-005 Var 1 at Node 5 (0.5,0.5,0)
+RMS Spatial Errors  7.58e-31 1.07e-27
+
+CYCLE 113 TIME (0.0234204,0.0238979), DT=0.000477594, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.55905e-035, XNORM=0.0128105, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.55201  Var NORMS:  0.576450 0.004689
+RMS Time Errors 3.011e-5 4.137e-7
+Max Time Err=3.01075e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  2.42e-30 1.07e-27
+
+CYCLE 114 TIME (0.0238979,0.0243755), DT=0.000477594, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=9.56029e-035, XNORM=0.0125692, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.531188  Var NORMS:  0.554705 0.004602
+RMS Time Errors 2.929e-5 4.104e-7
+Max Time Err=2.92884e-005 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  2.08e-30 1.14e-27
+
+CYCLE 115 TIME (0.0243755,0.0248531), DT=0.000477594, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.92194e-033, XNORM=0.012337, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.511527  Var NORMS:  0.534174 0.004517
+RMS Time Errors 2.831e-5 4.044e-7
+Max Time Err=2.83101e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  3.34e-30 1.13e-27
+
+CYCLE 116 TIME (0.0248531,0.025389), DT=0.000535869, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.47408e-035, XNORM=0.0141141, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.573109  Var NORMS:  0.598483 0.005168
+RMS Time Errors 3.698e-5 5.394e-7
+Max Time Err=3.698e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.03e-29 2.41e-27
+
+CYCLE 117 TIME (0.025389,0.0259249), DT=0.000535869, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=5.79113e-035, XNORM=0.0143743, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.571817  Var NORMS:  0.597134 0.005263
+RMS Time Errors 3.517e-5 5.237e-7
+Max Time Err=3.51694e-005 Var 1 at Node 5 (0.5,0.5,0)
+RMS Spatial Errors  1.75e-30 2.82e-27
+
+CYCLE 118 TIME (0.0259249,0.0264607), DT=0.000535869, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.46023e-034, XNORM=0.0146246, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.570183  Var NORMS:  0.595427 0.005355
+RMS Time Errors 3.493e-5 5.308e-7
+Max Time Err=3.49316e-005 Var 1 at Node 7 (0.5,0,0)
+RMS Spatial Errors  1.75e-30 3.20e-27
+
+CYCLE 119 TIME (0.0264607,0.0269966), DT=0.000535869, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.10763e-034, XNORM=0.0143454, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.548358  Var NORMS:  0.572636 0.005254
+RMS Time Errors 3.396e-5 5.264e-7
+Max Time Err=3.39634e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.56e-30 2.90e-27
+
+CYCLE 120 TIME (0.0269966,0.0275325), DT=0.000535869, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=6.85745e-035, XNORM=0.0140769, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.52777  Var NORMS:  0.551136 0.005156
+RMS Time Errors 3.281e-5 5.186e-7
+Max Time Err=3.28119e-005 Var 1 at Node 8 (1,0.5,0)
+RMS Spatial Errors  7.41e-30 2.85e-27
+
+CYCLE 121 TIME (0.0275325,0.0280684), DT=0.000535869, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.14073e-033, XNORM=0.0138184, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.508325  Var NORMS:  0.530831 0.005062
+RMS Time Errors 3.165e-5 5.099e-7
+Max Time Err=3.16479e-005 Var 1 at Node 6 (0,0.5,0)
+RMS Spatial Errors  1.38e-30 2.74e-27
+
+CYCLE 122 TIME (0.0280684,0.0286696), DT=0.000601255, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=8.23319e-035, XNORM=0.0158108, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.569628  Var NORMS:  0.594848 0.005791
+RMS Time Errors 4.132e-5 6.796e-7
+Max Time Err=4.13161e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.41e-31 6.16e-27
+
+CYCLE 123 TIME (0.0286696,0.0292709), DT=0.000601255, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.16945e-034, XNORM=0.0161043, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.568448  Var NORMS:  0.593615 0.005899
+RMS Time Errors 3.929e-5 6.598e-7
+Max Time Err=3.92912e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  4.79e-30 6.61e-27
+
+CYCLE 124 TIME (0.0292709,0.0298721), DT=0.000601255, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=8.3378e-035, XNORM=0.0163866, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.566922  Var NORMS:  0.592022 0.006003
+RMS Time Errors 3.903e-5 6.688e-7
+Max Time Err=3.90306e-005 Var 1 at Node 8 (1,0.5,0)
+RMS Spatial Errors  4.18e-34 7.78e-27
+
+CYCLE 125 TIME (0.0298721,0.0304734), DT=0.000601255, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.87979e-033, XNORM=0.0160756, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.545316  Var NORMS:  0.569459 0.005890
+RMS Time Errors 3.796e-5 6.634e-7
+Max Time Err=3.79554e-005 Var 1 at Node 8 (1,0.5,0)
+RMS Spatial Errors  5.07e-30 7.58e-27
+
+CYCLE 126 TIME (0.0304734,0.0310746), DT=0.000601255, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.10339e-034, XNORM=0.0157765, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.524929  Var NORMS:  0.548169 0.005781
+RMS Time Errors 3.668e-5 6.536e-7
+Max Time Err=3.66755e-005 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  4.58e-30 7.29e-27
+
+CYCLE 127 TIME (0.0310746,0.0316759), DT=0.000601255, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=8.11066e-034, XNORM=0.0154885, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.50567  Var NORMS:  0.528058 0.005676
+RMS Time Errors 3.538e-5 6.427e-7
+Max Time Err=3.53811e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  4.30e-30 6.93e-27
+
+CYCLE 128 TIME (0.0316759,0.0323505), DT=0.000674619, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.7355e-034, XNORM=0.0177238, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.56675  Var NORMS:  0.591842 0.006495
+RMS Time Errors 4.620e-5 8.568e-7
+Max Time Err=4.61991e-005 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  1.12e-29 1.55e-26
+
+CYCLE 129 TIME (0.0323505,0.0330251), DT=0.000674619, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.84087e-034, XNORM=0.0180549, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.56567  Var NORMS:  0.590714 0.006617
+RMS Time Errors 4.394e-5 8.319e-7
+Max Time Err=4.39438e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.27e-29 1.77e-26
+
+CYCLE 130 TIME (0.0330251,0.0336997), DT=0.000674619, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=5.05288e-035, XNORM=0.0183734, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.564242  Var NORMS:  0.589224 0.006734
+RMS Time Errors 4.366e-5 8.434e-7
+Max Time Err=4.36607e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  6.84e-30 1.94e-26
+
+CYCLE 131 TIME (0.0336997,0.0343744), DT=0.000674619, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.93604e-035, XNORM=0.0180268, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.542824  Var NORMS:  0.566857 0.006608
+RMS Time Errors 4.247e-5 8.367e-7
+Max Time Err=4.24661e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.24e-29 1.87e-26
+
+CYCLE 132 TIME (0.0343744,0.035049), DT=0.000674619, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=9.61031e-035, XNORM=0.0176933, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.522611  Var NORMS:  0.545748 0.006486
+RMS Time Errors 4.104e-5 8.245e-7
+Max Time Err=4.10417e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  6.05e-30 1.83e-26
+
+CYCLE 133 TIME (0.035049,0.0357236), DT=0.000674619, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=5.10461e-034, XNORM=0.0173723, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.503512  Var NORMS:  0.525804 0.006369
+RMS Time Errors 3.960e-5 8.108e-7
+Max Time Err=3.96005e-005 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  5.60e-30 1.77e-26
+
+CYCLE 134 TIME (0.0357236,0.0364805), DT=0.000756935, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=5.02974e-032, XNORM=0.0198816, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.564421  Var NORMS:  0.589410 0.007290
+RMS Time Errors 5.172e-5 1.081e-6
+Max Time Err=5.17188e-005 Var 1 at Node 8 (1,0.5,0)
+RMS Spatial Errors  1.45e-29 3.80e-26
+
+CYCLE 135 TIME (0.0364805,0.0372375), DT=0.000756935, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.64625e-031, XNORM=0.0202554, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.563433  Var NORMS:  0.588378 0.007427
+RMS Time Errors 4.920e-5 1.050e-6
+Max Time Err=4.92036e-005 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  3.20e-29 4.46e-26
+
+CYCLE 136 TIME (0.0372375,0.0379944), DT=0.000756935, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.01035e-034, XNORM=0.0206151, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.562095  Var NORMS:  0.586981 0.007560
+RMS Time Errors 4.890e-5 1.065e-6
+Max Time Err=4.88957e-005 Var 1 at Node 5 (0.5,0.5,0)
+RMS Spatial Errors  1.96e-29 4.97e-26
+
+CYCLE 137 TIME (0.0379944,0.0387513), DT=0.000756935, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.52554e-033, XNORM=0.0202283, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.540838  Var NORMS:  0.564783 0.007419
+RMS Time Errors 4.757e-5 1.056e-6
+Max Time Err=4.75667e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  3.20e-29 4.82e-26
+
+CYCLE 138 TIME (0.0387513,0.0395083), DT=0.000756935, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.73249e-033, XNORM=0.0198563, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.520773  Var NORMS:  0.543830 0.007283
+RMS Time Errors 4.598e-5 1.041e-6
+Max Time Err=4.59796e-005 Var 1 at Node 7 (0.5,0,0)
+RMS Spatial Errors  4.14e-30 4.62e-26
+
+CYCLE 139 TIME (0.0395083,0.0402652), DT=0.000756935, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.02773e-034, XNORM=0.0194981, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.501812  Var NORMS:  0.524029 0.007153
+RMS Time Errors 4.437e-5 1.024e-6
+Max Time Err=4.43728e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  2.79e-29 4.54e-26
+
+CYCLE 140 TIME (0.0402652,0.0411145), DT=0.000849295, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=5.74476e-034, XNORM=0.0223172, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.562599  Var NORMS:  0.587508 0.008187
+RMS Time Errors 5.796e-5 1.366e-6
+Max Time Err=5.79626e-005 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  6.98e-29 9.75e-26
+
+CYCLE 141 TIME (0.0411145,0.0419638), DT=0.000849295, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.08313e-035, XNORM=0.0227393, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.561696  Var NORMS:  0.586565 0.008343
+RMS Time Errors 5.515e-5 1.326e-6
+Max Time Err=5.51542e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  4.27e-29 1.12e-25
+
+CYCLE 142 TIME (0.0419638,0.0428131), DT=0.000849295, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.54856e-034, XNORM=0.0231457, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.560442  Var NORMS:  0.585254 0.008493
+RMS Time Errors 5.482e-5 1.345e-6
+Max Time Err=5.48192e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  2.27e-29 1.28e-25
+
+CYCLE 143 TIME (0.0428131,0.0436624), DT=0.000849295, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.97271e-035, XNORM=0.0227141, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.539322  Var NORMS:  0.563200 0.008335
+RMS Time Errors 5.334e-5 1.335e-6
+Max Time Err=5.33387e-005 Var 1 at Node 6 (0,0.5,0)
+RMS Spatial Errors  5.79e-29 1.23e-25
+
+CYCLE 144 TIME (0.0436624,0.0445117), DT=0.000849295, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.97191e-033, XNORM=0.0222988, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.519385  Var NORMS:  0.542380 0.008184
+RMS Time Errors 5.157e-5 1.316e-6
+Max Time Err=5.15682e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  5.38e-29 1.19e-25
+
+CYCLE 145 TIME (0.0445117,0.045361), DT=0.000849295, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=7.00876e-034, XNORM=0.021899, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.50054  Var NORMS:  0.522701 0.008038
+RMS Time Errors 4.977e-5 1.295e-6
+Max Time Err=4.9775e-005 Var 1 at Node 4 (0,1,0)
+RMS Spatial Errors  2.97e-29 1.14e-25
+
+CYCLE 146 TIME (0.045361,0.0463139), DT=0.000952925, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=9.78395e-035, XNORM=0.025068, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.561253  Var NORMS:  0.586102 0.009202
+RMS Time Errors 6.503e-5 1.727e-6
+Max Time Err=6.50315e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.43e-28 2.51e-25
+
+CYCLE 147 TIME (0.0463139,0.0472668), DT=0.000952925, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.99709e-034, XNORM=0.0255452, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.56043  Var NORMS:  0.585242 0.009378
+RMS Time Errors 6.189e-5 1.677e-6
+Max Time Err=6.18923e-005 Var 1 at Node 9 (0.5,1,0)
+RMS Spatial Errors  2.09e-28 2.93e-25
+
+CYCLE 148 TIME (0.0472668,0.0482198), DT=0.000952925, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=9.08786e-034, XNORM=0.0260046, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.559253  Var NORMS:  0.584013 0.009548
+RMS Time Errors 6.153e-5 1.701e-6
+Max Time Err=6.15275e-005 Var 1 at Node 4 (0,1,0)
+RMS Spatial Errors  1.54e-28 3.27e-25
+
+CYCLE 149 TIME (0.0482198,0.0491727), DT=0.000952925, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.09123e-034, XNORM=0.0255226, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.538251  Var NORMS:  0.562081 0.009372
+RMS Time Errors 5.988e-5 1.689e-6
+Max Time Err=5.98767e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.06e-28 3.14e-25
+
+CYCLE 150 TIME (0.0491727,0.0501256), DT=0.000952925, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.1325e-034, XNORM=0.0250589, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.51842  Var NORMS:  0.541373 0.009203
+RMS Time Errors 5.790e-5 1.665e-6
+Max Time Err=5.78995e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  7.38e-29 3.06e-25
+
+CYCLE 151 TIME (0.0501256,0.0510785), DT=0.000952925, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=8.4988e-034, XNORM=0.0246123, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.499675  Var NORMS:  0.521797 0.009040
+RMS Time Errors 5.590e-5 1.638e-6
+Max Time Err=5.5896e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  1.17e-28 2.94e-25
+
+CYCLE 152 TIME (0.0510785,0.0521477), DT=0.0010692, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=5.64282e-035, XNORM=0.0281774, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.560358  Var NORMS:  0.585168 0.010351
+RMS Time Errors 7.304e-5 2.186e-6
+Max Time Err=7.30425e-005 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  4.02e-28 6.41e-25
+
+CYCLE 153 TIME (0.0521477,0.0532169), DT=0.0010692, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=5.14747e-035, XNORM=0.0287173, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.559612  Var NORMS:  0.584388 0.010550
+RMS Time Errors 6.953e-5 2.124e-6
+Max Time Err=6.95298e-005 Var 1 at Node 6 (0,0.5,0)
+RMS Spatial Errors  3.63e-28 7.45e-25
+
+CYCLE 154 TIME (0.0532169,0.0542861), DT=0.0010692, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=7.05534e-035, XNORM=0.0292372, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.558509  Var NORMS:  0.583236 0.010742
+RMS Time Errors 6.913e-5 2.154e-6
+Max Time Err=6.91326e-005 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  4.56e-28 8.38e-25
+
+CYCLE 155 TIME (0.0542861,0.0553553), DT=0.0010692, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.418e-034, XNORM=0.0286987, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.537604  Var NORMS:  0.561406 0.010546
+RMS Time Errors 6.729e-5 2.139e-6
+Max Time Err=6.729e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  3.34e-28 8.07e-25
+
+CYCLE 156 TIME (0.0553553,0.0564245), DT=0.0010692, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.74698e-035, XNORM=0.0281806, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.517864  Var NORMS:  0.540792 0.010357
+RMS Time Errors 6.508e-5 2.109e-6
+Max Time Err=6.50799e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  3.94e-28 7.80e-25
+
+CYCLE 157 TIME (0.0564245,0.0574937), DT=0.0010692, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=9.11936e-035, XNORM=0.0276816, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.499201  Var NORMS:  0.521303 0.010176
+RMS Time Errors 6.284e-5 2.076e-6
+Max Time Err=6.28393e-005 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  3.25e-28 7.52e-25
+
+CYCLE 158 TIME (0.0574937,0.0586934), DT=0.00119966, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.17984e-034, XNORM=0.0316953, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.559901  Var NORMS:  0.584690 0.011652
+RMS Time Errors 8.213e-5 2.770e-6
+Max Time Err=8.21316e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.16e-27 1.64e-24
+
+CYCLE 159 TIME (0.0586934,0.059893), DT=0.00119966, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.15833e-034, XNORM=0.0323066, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.559229  Var NORMS:  0.583988 0.011878
+RMS Time Errors 7.820e-5 2.692e-6
+Max Time Err=7.81969e-005 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  1.37e-27 1.93e-24
+
+CYCLE 160 TIME (0.059893,0.0610927), DT=0.00119966, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.14633e-034, XNORM=0.0328955, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.558197  Var NORMS:  0.582911 0.012096
+RMS Time Errors 7.776e-5 2.731e-6
+Max Time Err=7.77648e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  1.30e-27 2.15e-24
+
+CYCLE 161 TIME (0.0610927,0.0622924), DT=0.00119966, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.42072e-034, XNORM=0.0322937, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.537373  Var NORMS:  0.561165 0.011877
+RMS Time Errors 7.571e-5 2.712e-6
+Max Time Err=7.57064e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  9.93e-28 2.08e-24
+
+CYCLE 162 TIME (0.0622924,0.063492), DT=0.00119966, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.18264e-034, XNORM=0.0317146, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.517706  Var NORMS:  0.540627 0.011666
+RMS Time Errors 7.323e-5 2.675e-6
+Max Time Err=7.32335e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  9.89e-28 2.01e-24
+
+CYCLE 163 TIME (0.063492,0.0646917), DT=0.00119966, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.65361e-035, XNORM=0.031157, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.499111  Var NORMS:  0.521208 0.011463
+RMS Time Errors 7.073e-5 2.633e-6
+Max Time Err=7.07254e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.19e-27 1.96e-24
+
+CYCLE 164 TIME (0.0646917,0.0660377), DT=0.00134604, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=7.19694e-034, XNORM=0.0356793, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.559874  Var NORMS:  0.584662 0.013127
+RMS Time Errors 9.246e-5 3.515e-6
+Max Time Err=9.24573e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  2.78e-27 4.25e-24
+
+CYCLE 165 TIME (0.0660377,0.0673838), DT=0.00134604, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=7.28003e-034, XNORM=0.0363723, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.559274  Var NORMS:  0.584035 0.013384
+RMS Time Errors 8.805e-5 3.417e-6
+Max Time Err=8.80457e-005 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  3.03e-27 4.96e-24
+
+CYCLE 166 TIME (0.0673838,0.0687298), DT=0.00134604, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.80632e-033, XNORM=0.0370402, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.558313  Var NORMS:  0.583032 0.013632
+RMS Time Errors 8.758e-5 3.468e-6
+Max Time Err=8.75762e-005 Var 1 at Node 4 (0,1,0)
+RMS Spatial Errors  3.79e-27 5.57e-24
+
+CYCLE 167 TIME (0.0687298,0.0700759), DT=0.00134604, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.61969e-033, XNORM=0.0363674, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.537554  Var NORMS:  0.561353 0.013387
+RMS Time Errors 8.527e-5 3.444e-6
+Max Time Err=8.52747e-005 Var 1 at Node 6 (0,0.5,0)
+RMS Spatial Errors  3.31e-27 5.40e-24
+
+CYCLE 168 TIME (0.0700759,0.0714219), DT=0.00134604, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=8.92763e-035, XNORM=0.0357201, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.517946  Var NORMS:  0.540877 0.013151
+RMS Time Errors 8.251e-5 3.398e-6
+Max Time Err=8.25056e-005 Var 1 at Node 4 (0,1,0)
+RMS Spatial Errors  3.09e-27 5.22e-24
+
+CYCLE 169 TIME (0.0714219,0.0727679), DT=0.00134604, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.96628e-035, XNORM=0.0350967, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.499404  Var NORMS:  0.521515 0.012924
+RMS Time Errors 7.970e-5 3.345e-6
+Max Time Err=7.96954e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  2.89e-27 5.06e-24
+
+CYCLE 170 TIME (0.0727679,0.0742782), DT=0.00151028, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=6.57013e-034, XNORM=0.0401966, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.560277  Var NORMS:  0.585082 0.014804
+RMS Time Errors 1.042e-4 4.466e-6
+Max Time Err=0.000104205 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  7.14e-27 1.10e-23
+
+CYCLE 171 TIME (0.0742782,0.0757885), DT=0.00151028, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.70092e-033, XNORM=0.0409831, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.55975  Var NORMS:  0.584532 0.015096
+RMS Time Errors 9.925e-5 4.342e-6
+Max Time Err=9.92545e-005 Var 1 at Node 4 (0,1,0)
+RMS Spatial Errors  8.42e-27 1.29e-23
+
+CYCLE 172 TIME (0.0757885,0.0772988), DT=0.00151028, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=8.02853e-035, XNORM=0.0417416, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.55886  Var NORMS:  0.583603 0.015378
+RMS Time Errors 9.875e-5 4.408e-6
+Max Time Err=9.87454e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  9.49e-27 1.45e-23
+
+CYCLE 173 TIME (0.0772988,0.0788091), DT=0.00151028, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.61906e-034, XNORM=0.0409893, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.53815  Var NORMS:  0.561976 0.015104
+RMS Time Errors 9.617e-5 4.380e-6
+Max Time Err=9.61703e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  7.89e-27 1.40e-23
+
+CYCLE 174 TIME (0.0788091,0.0803194), DT=0.00151028, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.71725e-034, XNORM=0.0402655, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.518587  Var NORMS:  0.541547 0.014840
+RMS Time Errors 9.307e-5 4.322e-6
+Max Time Err=9.30667e-005 Var 1 at Node 7 (0.5,0,0)
+RMS Spatial Errors  8.26e-27 1.36e-23
+
+CYCLE 175 TIME (0.0803194,0.0818297), DT=0.00151028, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.0925e-032, XNORM=0.0395685, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.500086  Var NORMS:  0.522227 0.014586
+RMS Time Errors 8.992e-5 4.256e-6
+Max Time Err=8.99155e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  7.73e-27 1.32e-23
+
+CYCLE 176 TIME (0.0818297,0.0835242), DT=0.00169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.28459e-034, XNORM=0.0453251, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.561118  Var NORMS:  0.585961 0.016710
+RMS Time Errors 1.176e-4 5.684e-6
+Max Time Err=0.000117595 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  1.98e-26 2.87e-23
+
+CYCLE 177 TIME (0.0835242,0.0853333), DT=0.00180911, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.59282e-031, XNORM=0.0504346, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.611001  Var NORMS:  0.638053 0.018596
+RMS Time Errors 1.332e-4 6.580e-6
+Max Time Err=0.000133195 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  4.19e-26 5.33e-23
+
+CYCLE 178 TIME (0.0853333,0.0870279), DT=0.00169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.97136e-034, XNORM=0.0480829, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.570996  Var NORMS:  0.596276 0.017733
+RMS Time Errors 1.105e-4 5.573e-6
+Max Time Err=0.000110524 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  2.86e-26 4.20e-23
+
+CYCLE 179 TIME (0.0870279,0.0887225), DT=0.00169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.0605e-033, XNORM=0.0472244, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.54993  Var NORMS:  0.574278 0.017420
+RMS Time Errors 1.105e-4 5.684e-6
+Max Time Err=0.000110511 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  2.51e-26 3.99e-23
+
+CYCLE 180 TIME (0.0887225,0.090417), DT=0.00169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.01191e-033, XNORM=0.0453773, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.518359  Var NORMS:  0.541309 0.016743
+RMS Time Errors 1.056e-4 5.537e-6
+Max Time Err=0.000105563 Var 1 at Node 9 (0.5,1,0)
+RMS Spatial Errors  2.18e-26 3.54e-23
+
+CYCLE 181 TIME (0.090417,0.0921116), DT=0.00169457, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.95136e-033, XNORM=0.0446, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.499958  Var NORMS:  0.522093 0.016460
+RMS Time Errors 1.016e-4 5.431e-6
+Max Time Err=0.000101566 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  2.05e-26 3.44e-23
+
+CYCLE 182 TIME (0.0921116,0.0940129), DT=0.00190134, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=7.15432e-034, XNORM=0.0510986, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.561081  Var NORMS:  0.585922 0.018861
+RMS Time Errors 1.327e-4 7.243e-6
+Max Time Err=0.000132671 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  5.23e-26 7.50e-23
+
+CYCLE 183 TIME (0.0940129,0.0959143), DT=0.00190134, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.01224e-031, XNORM=0.0521168, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.560735  Var NORMS:  0.585561 0.019241
+RMS Time Errors 1.264e-4 7.044e-6
+Max Time Err=0.000126371 Var 1 at Node 8 (1,0.5,0)
+RMS Spatial Errors  5.99e-26 8.80e-23
+
+CYCLE 184 TIME (0.0959143,0.0978156), DT=0.00190134, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.66497e-034, XNORM=0.0530995, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.560018  Var NORMS:  0.584813 0.019608
+RMS Time Errors 1.258e-4 7.154e-6
+Max Time Err=0.000125767 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  6.56e-26 9.89e-23
+
+CYCLE 185 TIME (0.0978156,0.0997169), DT=0.00190134, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.06774e-034, XNORM=0.0521609, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.539438  Var NORMS:  0.563321 0.019266
+RMS Time Errors 1.225e-4 7.111e-6
+Max Time Err=0.000122544 Var 1 at Node 6 (0,0.5,0)
+RMS Spatial Errors  6.13e-26 9.59e-23
+
+CYCLE 186 TIME (0.0997169,0.101618), DT=0.00190134, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.41811e-033, XNORM=0.0512579, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.519993  Var NORMS:  0.543015 0.018938
+RMS Time Errors 1.186e-4 7.022e-6
+Max Time Err=0.000118648 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  5.80e-26 9.31e-23
+
+CYCLE 187 TIME (0.101618,0.10352), DT=0.00190134, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.32761e-033, XNORM=0.0503883, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.501599  Var NORMS:  0.523807 0.018621
+RMS Time Errors 1.147e-4 6.920e-6
+Max Time Err=0.000114688 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  5.32e-26 9.06e-23
+
+CYCLE 188 TIME (0.10352,0.105653), DT=0.00213333, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.42509e-035, XNORM=0.0577408, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.563002  Var NORMS:  0.587928 0.021342
+RMS Time Errors 1.501e-4 9.247e-6
+Max Time Err=0.000150075 Var 1 at Node 9 (0.5,1,0)
+RMS Spatial Errors  1.35e-25 1.98e-22
+
+CYCLE 189 TIME (0.105653,0.107786), DT=0.00213333, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.15055e-033, XNORM=0.0589023, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.562735  Var NORMS:  0.587650 0.021776
+RMS Time Errors 1.431e-4 8.999e-6
+Max Time Err=0.000143057 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  1.61e-25 2.32e-22
+
+CYCLE 190 TIME (0.107786,0.10992), DT=0.00213333, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.1595e-034, XNORM=0.0600238, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.562094  Var NORMS:  0.586980 0.022196
+RMS Time Errors 1.424e-4 9.145e-6
+Max Time Err=0.00014243 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.77e-25 2.61e-22
+
+CYCLE 191 TIME (0.10992,0.112053), DT=0.00213333, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.69984e-034, XNORM=0.0589741, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.541516  Var NORMS:  0.565491 0.021814
+RMS Time Errors 1.388e-4 9.094e-6
+Max Time Err=0.000138822 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.63e-25 2.54e-22
+
+CYCLE 192 TIME (0.112053,0.114186), DT=0.00213333, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.46834e-034, XNORM=0.0579641, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.522072  Var NORMS:  0.545186 0.021446
+RMS Time Errors 1.344e-4 8.983e-6
+Max Time Err=0.000134445 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.55e-25 2.47e-22
+
+CYCLE 193 TIME (0.114186,0.11632), DT=0.00213333, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.79595e-034, XNORM=0.0569915, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.503677  Var NORMS:  0.525976 0.021093
+RMS Time Errors 1.300e-4 8.855e-6
+Max Time Err=0.000129993 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  1.44e-25 2.40e-22
+
+CYCLE 194 TIME (0.11632,0.118713), DT=0.00239364, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.0602e-032, XNORM=0.065321, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.56542  Var NORMS:  0.590453 0.024180
+RMS Time Errors 1.702e-4 1.184e-5
+Max Time Err=0.000170151 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  3.68e-25 5.24e-22
+
+CYCLE 195 TIME (0.118713,0.121107), DT=0.00239364, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.35687e-034, XNORM=0.0666487, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.565239  Var NORMS:  0.590264 0.024678
+RMS Time Errors 1.622e-4 1.153e-5
+Max Time Err=0.00016224 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  4.33e-25 6.17e-22
+
+CYCLE 196 TIME (0.121107,0.123501), DT=0.00239364, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.10938e-034, XNORM=0.0679316, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.564679  Var NORMS:  0.589680 0.025159
+RMS Time Errors 1.616e-4 1.172e-5
+Max Time Err=0.000161575 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  4.72e-25 6.95e-22
+
+CYCLE 197 TIME (0.123501,0.125894), DT=0.00239364, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=9.41541e-034, XNORM=0.0667577, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.544092  Var NORMS:  0.568181 0.024732
+RMS Time Errors 1.575e-4 1.166e-5
+Max Time Err=0.000157527 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  4.43e-25 6.76e-22
+
+CYCLE 198 TIME (0.125894,0.128288), DT=0.00239364, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.67141e-034, XNORM=0.0656285, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.524637  Var NORMS:  0.547865 0.024322
+RMS Time Errors 1.526e-4 1.152e-5
+Max Time Err=0.000152604 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  4.13e-25 6.58e-22
+
+CYCLE 199 TIME (0.128288,0.130681), DT=0.00239364, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.49613e-034, XNORM=0.0645411, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.506231  Var NORMS:  0.528644 0.023927
+RMS Time Errors 1.476e-4 1.136e-5
+Max Time Err=0.000147594 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  3.90e-25 6.41e-22
+
+CYCLE 200 TIME (0.130681,0.133367), DT=0.00268571, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.89367e-034, XNORM=0.0739909, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.568381  Var NORMS:  0.593546 0.027436
+RMS Time Errors 1.932e-4 1.519e-5
+Max Time Err=0.00019325 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  9.86e-25 1.40e-21
+
+CYCLE 201 TIME (0.133367,0.136053), DT=0.00268571, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=7.22245e-035, XNORM=0.0755124, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.568295  Var NORMS:  0.593455 0.028008
+RMS Time Errors 1.843e-4 1.480e-5
+Max Time Err=0.000184325 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  1.16e-24 1.65e-21
+
+CYCLE 202 TIME (0.136053,0.138739), DT=0.00268571, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.1297e-034, XNORM=0.0769836, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.567825  Var NORMS:  0.592964 0.028562
+RMS Time Errors 1.836e-4 1.505e-5
+Max Time Err=0.000183626 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.27e-24 1.86e-21
+
+CYCLE 203 TIME (0.138739,0.141424), DT=0.00268571, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=7.49591e-034, XNORM=0.0756714, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.547216  Var NORMS:  0.571443 0.028085
+RMS Time Errors 1.791e-4 1.498e-5
+Max Time Err=0.000179082 Var 1 at Node 8 (1,0.5,0)
+RMS Spatial Errors  1.19e-24 1.81e-21
+
+CYCLE 204 TIME (0.141424,0.14411), DT=0.00268571, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.32818e-034, XNORM=0.0744093, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.52774  Var NORMS:  0.551106 0.027627
+RMS Time Errors 1.735e-4 1.481e-5
+Max Time Err=0.000173543 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.11e-24 1.77e-21
+
+CYCLE 205 TIME (0.14411,0.146796), DT=0.00268571, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.50482e-034, XNORM=0.073194, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.509313  Var NORMS:  0.531862 0.027185
+RMS Time Errors 1.679e-4 1.461e-5
+Max Time Err=0.0001679 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.05e-24 1.73e-21
+
+CYCLE 206 TIME (0.146796,0.149809), DT=0.00301341, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=6.15192e-034, XNORM=0.0839325, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.571945  Var NORMS:  0.597267 0.031182
+RMS Time Errors 2.199e-4 1.955e-5
+Max Time Err=0.000219914 Var 1 at Node 8 (1,0.5,0)
+RMS Spatial Errors  2.68e-24 3.78e-21
+
+CYCLE 207 TIME (0.149809,0.152823), DT=0.00301341, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.28145e-034, XNORM=0.0856811, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.571963  Var NORMS:  0.597286 0.031842
+RMS Time Errors 2.098e-4 1.905e-5
+Max Time Err=0.000209834 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  3.16e-24 4.46e-21
+
+CYCLE 208 TIME (0.152823,0.155836), DT=0.00301341, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=8.23865e-034, XNORM=0.0873731, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.571593  Var NORMS:  0.596900 0.032481
+RMS Time Errors 2.091e-4 1.939e-5
+Max Time Err=0.000209112 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  3.43e-24 5.04e-21
+
+CYCLE 209 TIME (0.155836,0.158849), DT=0.00301341, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.50269e-034, XNORM=0.085907, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.550952  Var NORMS:  0.575344 0.031949
+RMS Time Errors 2.040e-4 1.931e-5
+Max Time Err=0.00020401 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  3.23e-24 4.92e-21
+
+CYCLE 210 TIME (0.158849,0.161863), DT=0.00301341, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=8.37639e-034, XNORM=0.0844972, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.531444  Var NORMS:  0.554973 0.031437
+RMS Time Errors 1.978e-4 1.910e-5
+Max Time Err=0.000197771 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  3.04e-24 4.80e-21
+
+CYCLE 211 TIME (0.161863,0.164876), DT=0.00301341, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.54659e-034, XNORM=0.08314, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.512985  Var NORMS:  0.535697 0.030944
+RMS Time Errors 1.914e-4 1.885e-5
+Max Time Err=0.000191411 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  2.87e-24 4.69e-21
+
+CYCLE 212 TIME (0.164876,0.16789), DT=0.00301341, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.73479e-034, XNORM=0.0818324, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.495498  Var NORMS:  0.517436 0.030470
+RMS Time Errors 1.852e-4 1.860e-5
+Max Time Err=0.000185238 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  2.70e-24 4.59e-21
+
+CYCLE 213 TIME (0.16789,0.170667), DT=0.00277708, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.23594e-034, XNORM=0.0724006, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.430945  Var NORMS:  0.450024 0.026970
+RMS Time Errors 1.446e-4 1.479e-5
+Max Time Err=0.0001446 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.27e-24 2.55e-21
+
+CYCLE 214 TIME (0.170667,0.174048), DT=0.00338111, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=5.43119e-033, XNORM=0.0902716, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.526518  Var NORMS:  0.549829 0.033636
+RMS Time Errors 2.377e-4 2.481e-5
+Max Time Err=0.000237725 Var 1 at Node 8 (1,0.5,0)
+RMS Spatial Errors  5.64e-24 8.71e-21
+
+CYCLE 215 TIME (0.174048,0.177429), DT=0.00338111, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.10811e-034, XNORM=0.0923333, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.52786  Var NORMS:  0.551230 0.034418
+RMS Time Errors 2.206e-4 2.351e-5
+Max Time Err=0.000220591 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  7.08e-24 1.06e-20
+
+CYCLE 216 TIME (0.177429,0.18081), DT=0.00338111, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.49147e-033, XNORM=0.0965742, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.541356  Var NORMS:  0.565324 0.036010
+RMS Time Errors 2.234e-4 2.430e-5
+Max Time Err=0.000223432 Var 1 at Node 8 (1,0.5,0)
+RMS Spatial Errors  8.53e-24 1.33e-20
+
+CYCLE 217 TIME (0.18081,0.184191), DT=0.00338111, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=5.59224e-033, XNORM=0.0950406, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.522546  Var NORMS:  0.545681 0.035453
+RMS Time Errors 2.193e-4 2.434e-5
+Max Time Err=0.000219337 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  8.06e-24 1.30e-20
+
+CYCLE 218 TIME (0.184191,0.187572), DT=0.00338111, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=6.2415e-034, XNORM=0.0935653, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.504741  Var NORMS:  0.527088 0.034919
+RMS Time Errors 2.133e-4 2.414e-5
+Max Time Err=0.000213286 Var 1 at Node 5 (0.5,0.5,0)
+RMS Spatial Errors  7.62e-24 1.27e-20
+
+CYCLE 219 TIME (0.187572,0.191366), DT=0.00379366, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=6.12738e-034, XNORM=0.107388, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.567342  Var NORMS:  0.592460 0.040091
+RMS Time Errors 2.801e-4 3.239e-5
+Max Time Err=0.000280101 Var 1 at Node 5 (0.5,0.5,0)
+RMS Spatial Errors  1.95e-23 2.80e-20
+
+CYCLE 220 TIME (0.191366,0.19516), DT=0.00379366, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.2125e-034, XNORM=0.109723, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.567886  Var NORMS:  0.593029 0.040980
+RMS Time Errors 2.677e-4 3.163e-5
+Max Time Err=0.000267742 Var 1 at Node 5 (0.5,0.5,0)
+RMS Spatial Errors  2.31e-23 3.32e-20
+
+CYCLE 221 TIME (0.19516,0.198953), DT=0.00379366, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.10038e-031, XNORM=0.111988, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.568029  Var NORMS:  0.593178 0.041843
+RMS Time Errors 2.672e-4 3.223e-5
+Max Time Err=0.000267207 Var 1 at Node 5 (0.5,0.5,0)
+RMS Spatial Errors  2.53e-23 3.76e-20
+
+CYCLE 222 TIME (0.198953,0.202747), DT=0.00379366, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=9.44705e-033, XNORM=0.110207, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.548013  Var NORMS:  0.572276 0.041198
+RMS Time Errors 2.610e-4 3.215e-5
+Max Time Err=0.000261045 Var 1 at Node 5 (0.5,0.5,0)
+RMS Spatial Errors  2.39e-23 3.69e-20
+
+CYCLE 223 TIME (0.202747,0.206541), DT=0.00379366, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=6.17551e-034, XNORM=0.108496, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.529083  Var NORMS:  0.552507 0.040579
+RMS Time Errors 2.534e-4 3.185e-5
+Max Time Err=0.000253403 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  2.26e-23 3.62e-20
+
+CYCLE 224 TIME (0.206541,0.210334), DT=0.00379366, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.11324e-031, XNORM=0.106848, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.511155  Var NORMS:  0.533785 0.039983
+RMS Time Errors 2.456e-4 3.149e-5
+Max Time Err=0.00024558 Var 1 at Node 8 (1,0.5,0)
+RMS Spatial Errors  2.15e-23 3.55e-20
+
+CYCLE 225 TIME (0.210334,0.214591), DT=0.00425656, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.11509e-032, XNORM=0.122677, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.574666  Var NORMS:  0.600109 0.045924
+RMS Time Errors 3.222e-4 4.223e-5
+Max Time Err=0.000322247 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  5.52e-23 7.84e-20
+
+CYCLE 226 TIME (0.214591,0.218847), DT=0.00425656, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.16952e-034, XNORM=0.125391, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.575337  Var NORMS:  0.600809 0.046963
+RMS Time Errors 3.080e-4 4.125e-5
+Max Time Err=0.000308047 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  6.55e-23 9.31e-20
+
+CYCLE 227 TIME (0.218847,0.223104), DT=0.00425656, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.75623e-034, XNORM=0.128026, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.575598  Var NORMS:  0.601082 0.047972
+RMS Time Errors 3.075e-4 4.207e-5
+Max Time Err=0.000307537 Var 1 at Node 8 (1,0.5,0)
+RMS Spatial Errors  7.18e-23 1.06e-19
+
+CYCLE 228 TIME (0.223104,0.22736), DT=0.00425656, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=7.05333e-034, XNORM=0.126039, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.555437  Var NORMS:  0.580028 0.047253
+RMS Time Errors 3.006e-4 4.199e-5
+Max Time Err=0.000300578 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  6.80e-23 1.04e-19
+
+CYCLE 229 TIME (0.22736,0.231617), DT=0.00425656, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.07226e-033, XNORM=0.12413, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.536369  Var NORMS:  0.560116 0.046564
+RMS Time Errors 2.919e-4 4.163e-5
+Max Time Err=0.000291919 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  6.45e-23 1.02e-19
+
+CYCLE 230 TIME (0.231617,0.235874), DT=0.00425656, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.70842e-034, XNORM=0.122293, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.518312  Var NORMS:  0.541259 0.045901
+RMS Time Errors 2.830e-4 4.119e-5
+Max Time Err=0.000283049 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  6.13e-23 1.01e-19
+
+CYCLE 231 TIME (0.235874,0.24013), DT=0.00425656, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.83605e-034, XNORM=0.120524, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.501192  Var NORMS:  0.523381 0.045263
+RMS Time Errors 2.744e-4 4.075e-5
+Max Time Err=0.000274421 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  5.83e-23 9.92e-20
+
+CYCLE 232 TIME (0.24013,0.244906), DT=0.00477594, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.38925e-033, XNORM=0.138488, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.563996  Var NORMS:  0.588967 0.052033
+RMS Time Errors 3.605e-4 5.469e-5
+Max Time Err=0.00036045 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.51e-22 2.20e-19
+
+CYCLE 233 TIME (0.244906,0.249682), DT=0.00477594, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.971e-035, XNORM=0.141663, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.565178  Var NORMS:  0.590201 0.053255
+RMS Time Errors 3.450e-4 5.349e-5
+Max Time Err=0.00034497 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  1.80e-22 2.62e-19
+
+CYCLE 234 TIME (0.249682,0.254458), DT=0.00477594, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=8.04799e-033, XNORM=0.14475, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.565941  Var NORMS:  0.590998 0.054444
+RMS Time Errors 3.448e-4 5.461e-5
+Max Time Err=0.000344809 Var 1 at Node 4 (0,1,0)
+RMS Spatial Errors  1.98e-22 2.99e-19
+
+CYCLE 235 TIME (0.254458,0.256), DT=0.0015421, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.20754e-034, XNORM=0.0360353, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.139912  Var NORMS:  0.146106 0.013570
+RMS Time Errors 1.637e-5 2.618e-6
+Max Time Err=1.63662e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.76e-26 1.77e-22
+
+CYCLE 236 TIME (0.256,0.260776), DT=0.00477594, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.74963e-033, XNORM=0.109948, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.418671  Var NORMS:  0.437207 0.041406
+RMS Time Errors 3.937e-4 6.416e-5
+Max Time Err=0.000393682 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  3.56e-23 7.72e-20
+
+CYCLE 237 TIME (0.260776,0.266135), DT=0.00535869, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.96422e-034, XNORM=0.127845, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.476344  Var NORMS:  0.497433 0.048193
+RMS Time Errors 3.536e-4 5.893e-5
+Max Time Err=0.000353576 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  1.82e-22 2.47e-19
+
+CYCLE 238 TIME (0.266135,0.272147), DT=0.00601255, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.7912e-033, XNORM=0.194682, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.708418  Var NORMS:  0.739782 0.073368
+RMS Time Errors 5.394e-4 9.211e-5
+Max Time Err=0.000539404 Var 1 at Node 8 (1,0.5,0)
+RMS Spatial Errors  1.56e-21 1.76e-18
+
+CYCLE 239 TIME (0.272147,0.27816), DT=0.00601255, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.33227e-033, XNORM=0.205954, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.732064  Var NORMS:  0.764475 0.077652
+RMS Time Errors 5.539e-4 9.695e-5
+Max Time Err=0.000553889 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  2.13e-21 2.41e-18
+
+CYCLE 240 TIME (0.27816,0.284172), DT=0.00601255, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.32545e-034, XNORM=0.210128, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.72989  Var NORMS:  0.762205 0.079274
+RMS Time Errors 5.630e-4 1.010e-4
+Max Time Err=0.000562992 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  2.34e-21 2.75e-18
+
+CYCLE 241 TIME (0.284172,0.290185), DT=0.00601255, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=5.16269e-033, XNORM=0.206757, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.702101  Var NORMS:  0.733186 0.078063
+RMS Time Errors 5.526e-4 1.015e-4
+Max Time Err=0.000552572 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  2.22e-21 2.72e-18
+
+CYCLE 242 TIME (0.290185,0.296197), DT=0.00601255, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.32597e-033, XNORM=0.20354, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.675987  Var NORMS:  0.705916 0.076911
+RMS Time Errors 5.367e-4 1.010e-4
+Max Time Err=0.000536728 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  2.11e-21 2.69e-18
+
+CYCLE 243 TIME (0.296197,0.30221), DT=0.00601255, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=8.19739e-034, XNORM=0.200464, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.651397  Var NORMS:  0.680237 0.075811
+RMS Time Errors 5.199e-4 1.001e-4
+Max Time Err=0.000519871 Var 1 at Node 6 (0,0.5,0)
+RMS Spatial Errors  2.01e-21 2.67e-18
+
+CYCLE 244 TIME (0.30221,0.308222), DT=0.00601255, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.35103e-034, XNORM=0.197518, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.628209  Var NORMS:  0.656022 0.074759
+RMS Time Errors 5.033e-4 9.921e-5
+Max Time Err=0.000503349 Var 1 at Node 5 (0.5,0.5,0)
+RMS Spatial Errors  1.92e-21 2.64e-18
+
+CYCLE 245 TIME (0.308222,0.314235), DT=0.00601255, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.48356e-033, XNORM=0.194695, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.606316  Var NORMS:  0.633160 0.073751
+RMS Time Errors 4.875e-4 9.829e-5
+Max Time Err=0.000487544 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  1.83e-21 2.62e-18
+
+CYCLE 246 TIME (0.314235,0.320248), DT=0.00601255, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=9.15175e-034, XNORM=0.191986, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.585622  Var NORMS:  0.611550 0.072786
+RMS Time Errors 4.725e-4 9.742e-5
+Max Time Err=0.000472534 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  1.76e-21 2.60e-18
+
+CYCLE 247 TIME (0.320248,0.32626), DT=0.00601255, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.46533e-034, XNORM=0.189387, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.56604  Var NORMS:  0.591101 0.071860
+RMS Time Errors 4.583e-4 9.658e-5
+Max Time Err=0.000458302 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  1.69e-21 2.59e-18
+
+CYCLE 248 TIME (0.32626,0.332273), DT=0.00601255, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.84406e-033, XNORM=0.186891, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.547491  Var NORMS:  0.571730 0.070972
+RMS Time Errors 4.448e-4 9.579e-5
+Max Time Err=0.000444808 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  1.62e-21 2.58e-18
+
+CYCLE 249 TIME (0.332273,0.338285), DT=0.00601255, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.27092e-034, XNORM=0.184492, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.529903  Var NORMS:  0.553364 0.070120
+RMS Time Errors 4.320e-4 9.504e-5
+Max Time Err=0.000432006 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  1.56e-21 2.56e-18
+
+CYCLE 250 TIME (0.338285,0.341333), DT=0.0030481, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.95351e-034, XNORM=0.0777156, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.220931  Var NORMS:  0.230713 0.029575
+RMS Time Errors 6.911e-5 1.541e-5
+Max Time Err=6.91076e-005 Var 1 at Node 6 (0,0.5,0)
+RMS Spatial Errors  5.20e-24 2.69e-20
+
+CYCLE 251 TIME (0.341333,0.347346), DT=0.00601255, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=5.51869e-033, XNORM=0.151373, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.422222  Var NORMS:  0.440916 0.057630
+RMS Time Errors 4.543e-4 1.032e-4
+Max Time Err=0.00045434 Var 1 at Node 6 (0,0.5,0)
+RMS Spatial Errors  4.77e-22 1.02e-18
+
+CYCLE 252 TIME (0.347346,0.354092), DT=0.00674619, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.44294e-034, XNORM=0.175785, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.480014  Var NORMS:  0.501266 0.066996
+RMS Time Errors 4.688e-4 1.089e-4
+Max Time Err=0.000468763 Var 1 at Node 4 (0,1,0)
+RMS Spatial Errors  1.96e-21 2.90e-18
+
+CYCLE 253 TIME (0.354092,0.361661), DT=0.00756935, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.85168e-033, XNORM=0.249615, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.666023  Var NORMS:  0.695511 0.095133
+RMS Time Errors 6.823e-4 1.624e-4
+Max Time Err=0.000682292 Var 1 at Node 9 (0.5,1,0)
+RMS Spatial Errors  1.28e-20 1.56e-17
+
+CYCLE 254 TIME (0.361661,0.369231), DT=0.00756935, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.33362e-032, XNORM=0.264779, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.690437  Var NORMS:  0.721005 0.100978
+RMS Time Errors 6.950e-4 1.696e-4
+Max Time Err=0.000694975 Var 1 at Node 5 (0.5,0.5,0)
+RMS Spatial Errors  1.77e-20 2.17e-17
+
+CYCLE 255 TIME (0.369231,0.3768), DT=0.00756935, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.61289e-034, XNORM=0.270872, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.690532  Var NORMS:  0.721104 0.103385
+RMS Time Errors 7.070e-4 1.769e-4
+Max Time Err=0.000707038 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.97e-20 2.51e-17
+
+CYCLE 256 TIME (0.3768,0.384369), DT=0.00756935, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=6.03423e-032, XNORM=0.267258, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.666305  Var NORMS:  0.695805 0.102110
+RMS Time Errors 6.962e-4 1.784e-4
+Max Time Err=0.000696172 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.90e-20 2.51e-17
+
+CYCLE 257 TIME (0.384369,0.391939), DT=0.00756935, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.30772e-033, XNORM=0.263821, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.643474  Var NORMS:  0.671963 0.100904
+RMS Time Errors 6.788e-4 1.782e-4
+Max Time Err=0.000678839 Var 1 at Node 9 (0.5,1,0)
+RMS Spatial Errors  1.84e-20 2.52e-17
+
+CYCLE 258 TIME (0.391939,0.399508), DT=0.00756935, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.86336e-034, XNORM=0.260541, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.621914  Var NORMS:  0.649448 0.099757
+RMS Time Errors 6.602e-4 1.775e-4
+Max Time Err=0.000660206 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  1.78e-20 2.53e-17
+
+CYCLE 259 TIME (0.399508,0.407078), DT=0.00756935, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=8.04152e-034, XNORM=0.257408, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.601524  Var NORMS:  0.628156 0.098664
+RMS Time Errors 6.419e-4 1.767e-4
+Max Time Err=0.000641863 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  1.72e-20 2.54e-17
+
+CYCLE 260 TIME (0.407078,0.414647), DT=0.00756935, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.20319e-033, XNORM=0.254412, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.58222  Var NORMS:  0.607997 0.097622
+RMS Time Errors 6.243e-4 1.759e-4
+Max Time Err=0.000624266 Var 1 at Node 9 (0.5,1,0)
+RMS Spatial Errors  1.67e-20 2.55e-17
+
+CYCLE 261 TIME (0.414647,0.422216), DT=0.00756935, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=7.23925e-034, XNORM=0.251547, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.563924  Var NORMS:  0.588892 0.096628
+RMS Time Errors 6.075e-4 1.751e-4
+Max Time Err=0.000607518 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.63e-20 2.57e-17
+
+CYCLE 262 TIME (0.422216,0.426667), DT=0.00445042, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.32262e-032, XNORM=0.126876, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.280933  Var NORMS:  0.293371 0.048812
+RMS Time Errors 1.447e-4 4.240e-5
+Max Time Err=0.000144725 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.83e-22 7.13e-19
+
+CYCLE 263 TIME (0.426667,0.434236), DT=0.00756935, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.23891e-034, XNORM=0.213424, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.463273  Var NORMS:  0.483784 0.082166
+RMS Time Errors 6.254e-4 1.869e-4
+Max Time Err=0.000625352 Var 1 at Node 6 (0,0.5,0)
+RMS Spatial Errors  6.24e-21 1.23e-17
+
+CYCLE 264 TIME (0.434236,0.442729), DT=0.00849295, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.77147e-033, XNORM=0.247939, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.526383  Var NORMS:  0.549688 0.095582
+RMS Time Errors 6.799e-4 2.081e-4
+Max Time Err=0.000679854 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  2.38e-20 3.38e-17
+
+CYCLE 265 TIME (0.442729,0.451222), DT=0.00849295, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.76522e-034, XNORM=0.293114, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.608941  Var NORMS:  0.635901 0.113036
+RMS Time Errors 7.152e-4 2.243e-4
+Max Time Err=0.000715228 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  5.09e-20 7.23e-17
+
+CYCLE 266 TIME (0.451222,0.459715), DT=0.00849295, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.04983e-033, XNORM=0.30072, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.611436  Var NORMS:  0.638507 0.116077
+RMS Time Errors 7.364e-4 2.365e-4
+Max Time Err=0.000736367 Var 1 at Node 9 (0.5,1,0)
+RMS Spatial Errors  5.75e-20 8.45e-17
+
+CYCLE 267 TIME (0.459715,0.468208), DT=0.00849295, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.18981e-031, XNORM=0.297575, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.5923  Var NORMS:  0.618523 0.115000
+RMS Time Errors 7.301e-4 2.402e-4
+Max Time Err=0.000730135 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  5.63e-20 8.56e-17
+
+CYCLE 268 TIME (0.468208,0.476701), DT=0.00849295, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.80532e-034, XNORM=0.294601, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.574198  Var NORMS:  0.599620 0.113992
+RMS Time Errors 7.159e-4 2.411e-4
+Max Time Err=0.000715868 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  5.52e-20 8.68e-17
+
+CYCLE 269 TIME (0.476701,0.485194), DT=0.00849295, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.57093e-034, XNORM=0.291777, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.557034  Var NORMS:  0.581696 0.113042
+RMS Time Errors 6.997e-4 2.413e-4
+Max Time Err=0.000699674 Var 1 at Node 9 (0.5,1,0)
+RMS Spatial Errors  5.43e-20 8.82e-17
+
+CYCLE 270 TIME (0.485194,0.493687), DT=0.00849295, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.16432e-033, XNORM=0.289089, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.540736  Var NORMS:  0.564676 0.112143
+RMS Time Errors 6.835e-4 2.412e-4
+Max Time Err=0.000683459 Var 1 at Node 6 (0,0.5,0)
+RMS Spatial Errors  5.34e-20 8.96e-17
+
+CYCLE 271 TIME (0.493687,0.50218), DT=0.00849295, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.69735e-034, XNORM=0.286532, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.525244  Var NORMS:  0.548498 0.111294
+RMS Time Errors 6.678e-4 2.412e-4
+Max Time Err=0.000667798 Var 1 at Node 5 (0.5,0.5,0)
+RMS Spatial Errors  5.27e-20 9.12e-17
+
+CYCLE 272 TIME (0.50218,0.512), DT=0.00982036, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.75697e-034, XNORM=0.345003, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.618149  Var NORMS:  0.645516 0.134152
+RMS Time Errors 9.577e-4 3.546e-4
+Max Time Err=0.00095775 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.84e-19 2.59e-16
+
+CYCLE 273 TIME (0.512,0.520493), DT=0.00849295, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.54249e-033, XNORM=0.295985, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.519938  Var NORMS:  0.542957 0.115258
+RMS Time Errors 6.267e-4 2.376e-4
+Max Time Err=0.000626727 Var 1 at Node 5 (0.5,0.5,0)
+RMS Spatial Errors  6.93e-20 1.22e-16
+
+CYCLE 274 TIME (0.520493,0.528986), DT=0.00849295, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=5.6143e-033, XNORM=0.293627, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.505882  Var NORMS:  0.528280 0.114476
+RMS Time Errors 6.513e-4 2.525e-4
+Max Time Err=0.000651291 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  6.22e-20 1.19e-16
+
+CYCLE 275 TIME (0.528986,0.538515), DT=0.00952925, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.05711e-034, XNORM=0.3232, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.544999  Var NORMS:  0.569129 0.126192
+RMS Time Errors 8.388e-4 3.331e-4
+Max Time Err=0.000838828 Var 1 at Node 6 (0,0.5,0)
+RMS Spatial Errors  1.38e-19 2.23e-16
+
+CYCLE 276 TIME (0.538515,0.548044), DT=0.00952925, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.21679e-032, XNORM=0.333101, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.549899  Var NORMS:  0.574245 0.130231
+RMS Time Errors 8.036e-4 3.270e-4
+Max Time Err=0.000803554 Var 1 at Node 5 (0.5,0.5,0)
+RMS Spatial Errors  1.72e-19 2.77e-16
+
+CYCLE 277 TIME (0.548044,0.557574), DT=0.00952925, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=9.80388e-034, XNORM=0.342882, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.55431  Var NORMS:  0.578851 0.134218
+RMS Time Errors 8.095e-4 3.374e-4
+Max Time Err=0.000809453 Var 1 at Node 9 (0.5,1,0)
+RMS Spatial Errors  1.98e-19 3.29e-16
+
+CYCLE 278 TIME (0.557574,0.567103), DT=0.00952925, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.32448e-033, XNORM=0.340411, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.538999  Var NORMS:  0.562863 0.133445
+RMS Time Errors 8.000e-4 3.416e-4
+Max Time Err=0.000799972 Var 1 at Node 9 (0.5,1,0)
+RMS Spatial Errors  1.97e-19 3.39e-16
+
+CYCLE 279 TIME (0.567103,0.576632), DT=0.00952925, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.27348e-033, XNORM=0.338105, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.524455  Var NORMS:  0.547675 0.132740
+RMS Time Errors 7.862e-4 3.439e-4
+Max Time Err=0.000786184 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.97e-19 3.49e-16
+
+CYCLE 280 TIME (0.576632,0.586161), DT=0.00952925, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=8.11884e-034, XNORM=0.335947, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.510615  Var NORMS:  0.533221 0.132092
+RMS Time Errors 7.716e-4 3.456e-4
+Max Time Err=0.00077158 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  1.97e-19 3.60e-16
+
+CYCLE 281 TIME (0.586161,0.597333), DT=0.0111719, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.27896e-034, XNORM=0.413296, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.613686  Var NORMS:  0.640857 0.162717
+RMS Time Errors 0.001153 5.299e-4
+Max Time Err=0.00115267 Var 1 at Node 9 (0.5,1,0)
+RMS Spatial Errors  7.92e-19 1.15e-15
+
+CYCLE 282 TIME (0.597333,0.608025), DT=0.010692, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=7.13458e-032, XNORM=6.68547, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=5.72013  Var NORMS:  0.461562 5.973387
+RMS Time Errors 0.037457 1.499443
+Max Time Err=1.49944 Var 2 at Node 3 (1,1,0)
+Step Failed - Retry at DT=0.00117695
+Lanczos/BInv ITERATION 14, RNORM=7.53284e-035, XNORM=0.0315796, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0467228  Var NORMS:  0.048791 0.012462
+RMS Time Errors 2.249e-6 1.049e-6
+Max Time Err=2.24917e-006 Var 1 at Node 9 (0.5,1,0)
+RMS Spatial Errors  1.30e-26 8.72e-22
+
+CYCLE 283 TIME (0.59851,0.599687), DT=0.00117695, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=5.99543e-035, XNORM=0.0195262, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0288143  Var NORMS:  0.030090 0.007711
+RMS Time Errors 8.045e-6 3.765e-6
+Max Time Err=8.04546e-006 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  5.50e-28 6.86e-23
+
+CYCLE 284 TIME (0.599687,0.601008), DT=0.00132056, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=6.45629e-034, XNORM=0.821867, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.708868  Var NORMS:  0.006880 0.740252
+RMS Time Errors 6.064e-4 0.196330
+Max Time Err=0.19633 Var 2 at Node 3 (1,1,0)
+Step Failed - Retry at DT=0.000286268
+Lanczos/BInv ITERATION 14, RNORM=5.2112e-036, XNORM=0.000932762, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.00137439  Var NORMS:  0.001435 3.697e-4
+RMS Time Errors 9.514e-8 4.461e-8
+Max Time Err=9.51369e-008 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  3.81e-32 3.46e-29
+
+CYCLE 285 TIME (0.599974,0.60026), DT=0.000286268, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.14251e-033, XNORM=0.181872, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.156991  Var NORMS:  8.381e-4 0.163941
+RMS Time Errors 2.812e-5 0.041047
+Max Time Err=0.0410466 Var 2 at Node 3 (1,1,0)
+Step Failed - Retry at DT=0.000104558
+Lanczos/BInv ITERATION 14, RNORM=1.00377e-034, XNORM=0.078637, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0678921  Var NORMS:  2.903e-4 0.070898
+RMS Time Errors 2.815e-6 0.009494
+Max Time Err=0.00949442 Var 2 at Node 3 (1,1,0)
+Step Failed - Retry at DT=6.22126e-005
+Lanczos/BInv ITERATION 14, RNORM=3.55454e-034, XNORM=0.0503282, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0434533  Var NORMS:  1.717e-4 0.045377
+RMS Time Errors 7.695e-7 0.004055
+Max Time Err=0.00405463 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  4.52e-29 1.25e-21
+
+CYCLE 286 TIME (0.600036,0.600098), DT=6.22126e-005, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.02523e-034, XNORM=0.0473699, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0408988  Var NORMS:  3.284e-5 0.042710
+RMS Time Errors 1.382e-6 0.002702
+Max Time Err=0.00270239 Var 2 at Node 3 (1,1,0)
+RMS Spatial Errors  1.34e-29 6.05e-22
+
+CYCLE 287 TIME (0.600098,0.600154), DT=5.62737e-005, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=8.80229e-035, XNORM=0.0045494, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.00392802  Var NORMS:  6.243e-6 0.004102
+RMS Time Errors 4.183e-7 7.120e-4
+Max Time Err=0.000712019 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  8.25e-34 4.35e-26
+
+CYCLE 288 TIME (0.600154,0.600217), DT=6.31401e-005, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=6.58216e-034, XNORM=0.00172364, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0014882  Var NORMS:  5.149e-6 0.001554
+RMS Time Errors 2.241e-7 3.427e-4
+Max Time Err=0.000342745 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  1.54e-34 1.05e-27
+
+CYCLE 289 TIME (0.600217,0.600288), DT=7.08444e-005, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.40186e-035, XNORM=0.0005874, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.000507151  Var NORMS:  5.165e-6 5.296e-4
+RMS Time Errors 9.683e-8 1.330e-4
+Max Time Err=0.000133007 Var 2 at Node 2 (1,0,0)
+RMS Spatial Errors  1.74e-34 1.79e-29
+
+CYCLE 290 TIME (0.600288,0.600368), DT=7.94887e-005, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=9.64344e-036, XNORM=0.000227922, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.000196759  Var NORMS:  6.149e-6 2.055e-4
+RMS Time Errors 4.187e-8 5.162e-5
+Max Time Err=5.16154e-005 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  2.33e-34 5.09e-31
+
+CYCLE 291 TIME (0.600368,0.600457), DT=8.91878e-005, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.57615e-035, XNORM=8.84798e-005, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=7.62946e-005  Var NORMS:  7.586e-6 7.967e-5
+RMS Time Errors 1.812e-8 2.003e-5
+Max Time Err=2.003e-005 Var 2 at Node 3 (1,1,0)
+RMS Spatial Errors  2.37e-33 1.44e-32
+
+CYCLE 292 TIME (0.600457,0.600557), DT=0.00010007, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.25119e-035, XNORM=3.4651e-005, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=2.95311e-005  Var NORMS:  9.481e-6 3.084e-5
+RMS Time Errors 7.841e-9 7.773e-6
+Max Time Err=7.77286e-006 Var 2 at Node 2 (1,0,0)
+RMS Spatial Errors  7.46e-34 4.38e-34
+
+CYCLE 293 TIME (0.600557,0.600669), DT=0.000112281, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.4108e-037, XNORM=1.48885e-005, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=1.18852e-005  Var NORMS:  1.190e-5 1.187e-5
+RMS Time Errors 3.390e-9 3.016e-6
+Max Time Err=3.01633e-006 Var 2 at Node 2 (1,0,0)
+RMS Spatial Errors  9.38e-34 9.04e-36
+
+CYCLE 294 TIME (0.600669,0.600795), DT=0.000125981, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.98505e-036, XNORM=1.00615e-005, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=1.4331e-005  Var NORMS:  1.497e-5 4.480e-6
+RMS Time Errors 1.460e-9 1.171e-6
+Max Time Err=1.17051e-006 Var 2 at Node 3 (1,1,0)
+RMS Spatial Errors  2.95e-33 4.55e-35
+
+CYCLE 295 TIME (0.600795,0.600937), DT=0.000141353, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.97339e-036, XNORM=1.11471e-005, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=1.80275e-005  Var NORMS:  1.883e-5 1.580e-6
+RMS Time Errors 6.19e-10 4.542e-7
+Max Time Err=4.54222e-007 Var 2 at Node 3 (1,1,0)
+RMS Spatial Errors  7.42e-34 8.12e-47
+
+CYCLE 296 TIME (0.600937,0.601095), DT=0.000158601, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=9.37526e-038, XNORM=1.38612e-005, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=2.26803e-005  Var NORMS:  2.368e-5 4.141e-7
+RMS Time Errors 2.49e-10 1.763e-7
+Max Time Err=1.76261e-007 Var 2 at Node 2 (1,0,0)
+RMS Spatial Errors  2.51e-42 1.80e-35
+
+CYCLE 297 TIME (0.601095,0.601273), DT=0.000177953, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.98803e-037, XNORM=1.74349e-005, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=2.85337e-005  Var NORMS:  2.980e-5 8.994e-8
+RMS Time Errors 8.15e-11 6.840e-8
+Max Time Err=6.83958e-008 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  2.35e-33 4.54e-35
+
+CYCLE 298 TIME (0.601273,0.601473), DT=0.000199667, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.89158e-035, XNORM=2.19443e-005, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=3.58959e-005  Var NORMS:  3.749e-5 3.504e-7
+RMS Time Errors 2.75e-12 2.654e-8
+Max Time Err=2.65376e-008 Var 2 at Node 2 (1,0,0)
+RMS Spatial Errors  1.47e-33 3.23e-46
+
+CYCLE 299 TIME (0.601473,0.601697), DT=0.00022403, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.65925e-035, XNORM=2.76173e-005, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=4.51541e-005  Var NORMS:  4.715e-5 5.331e-7
+RMS Time Errors 5.48e-11 1.029e-8
+Max Time Err=1.02932e-008 Var 2 at Node 2 (1,0,0)
+RMS Spatial Errors  1.48e-32 4.10e-45
+
+CYCLE 300 TIME (0.601697,0.601948), DT=0.000251365, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.08978e-035, XNORM=3.47536e-005, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=5.67949e-005  Var NORMS:  5.931e-5 7.067e-7
+RMS Time Errors 9.96e-11 3.988e-9
+Max Time Err=3.98772e-009 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  2.33e-33 4.53e-35
+
+CYCLE 301 TIME (0.601948,0.60223), DT=0.000282037, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.04336e-035, XNORM=4.37308e-005, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=7.1429e-005  Var NORMS:  7.459e-5 9.034e-7
+RMS Time Errors 1.50e-10 1.538e-9
+Max Time Err=1.53795e-009 Var 2 at Node 3 (1,1,0)
+RMS Spatial Errors  5.85e-33 2.58e-45
+
+CYCLE 302 TIME (0.60223,0.602547), DT=0.00031645, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.75063e-038, XNORM=5.50235e-005, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=8.9823e-005  Var NORMS:  9.380e-5 1.142e-6
+RMS Time Errors 2.16e-10 5.84e-10
+Max Time Err=5.83916e-010 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  7.35e-33 1.43e-34
+
+CYCLE 303 TIME (0.602547,0.602902), DT=0.000355063, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=8.17947e-036, XNORM=6.92275e-005, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.000112938  Var NORMS:  1.179e-4 1.440e-6
+RMS Time Errors 3.06e-10 2.08e-10
+Max Time Err=3.0641e-010 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  9.23e-33 7.22e-34
+
+CYCLE 304 TIME (0.602902,0.6033), DT=0.000398387, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.97304e-037, XNORM=8.70916e-005, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.000141981  Var NORMS:  1.483e-4 1.813e-6
+RMS Time Errors 4.33e-10 5.48e-11
+Max Time Err=4.33042e-010 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  1.16e-32 1.14e-34
+
+CYCLE 305 TIME (0.6033,0.603747), DT=0.000446998, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.90328e-034, XNORM=0.000109556, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.000178462  Var NORMS:  1.864e-4 2.282e-6
+RMS Time Errors 6.11e-10 1.56e-11
+Max Time Err=6.10747e-010 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  3.64e-32 4.07e-44
+
+CYCLE 306 TIME (0.603747,0.604249), DT=0.00050154, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.27842e-036, XNORM=0.000137803, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.000224273  Var NORMS:  2.342e-4 2.872e-6
+RMS Time Errors 8.61e-10 5.76e-11
+Max Time Err=8.6129e-010 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  9.12e-33 1.29e-44
+
+CYCLE 307 TIME (0.604249,0.604811), DT=0.000562737, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.12489e-035, XNORM=0.000173314, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.000281784  Var NORMS:  2.943e-4 3.615e-6
+RMS Time Errors 1.214e-9 9.54e-11
+Max Time Err=1.21407e-009 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  1.49e-31 2.66e-43
+
+CYCLE 308 TIME (0.604811,0.605443), DT=0.000631401, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.96186e-037, XNORM=0.00021795, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.00035396  Var NORMS:  3.696e-4 4.549e-6
+RMS Time Errors 1.711e-9 1.40e-10
+Max Time Err=1.71085e-009 Var 1 at Node 6 (0,0.5,0)
+RMS Spatial Errors  5.74e-32 2.85e-34
+
+CYCLE 309 TIME (0.605443,0.606151), DT=0.000708444, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.89374e-034, XNORM=0.000274046, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.000444504  Var NORMS:  4.642e-4 5.724e-6
+RMS Time Errors 2.410e-9 1.99e-10
+Max Time Err=2.41006e-009 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  1.80e-32 5.15e-44
+
+CYCLE 310 TIME (0.606151,0.606946), DT=0.000794887, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.89534e-035, XNORM=0.00034453, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.000558044  Var NORMS:  5.828e-4 7.203e-6
+RMS Time Errors 3.394e-9 2.81e-10
+Max Time Err=3.39437e-009 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  4.49e-32 9.02e-34
+
+CYCLE 311 TIME (0.606946,0.607838), DT=0.000891878, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.30964e-035, XNORM=0.000433071, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.000700354  Var NORMS:  7.314e-4 9.062e-6
+RMS Time Errors 4.778e-9 3.97e-10
+Max Time Err=4.77843e-009 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  5.62e-32 5.67e-34
+
+CYCLE 312 TIME (0.607838,0.608839), DT=0.0010007, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.27625e-036, XNORM=0.000544267, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.000878631  Var NORMS:  9.175e-4 1.140e-5
+RMS Time Errors 6.724e-9 5.59e-10
+Max Time Err=6.72413e-009 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  7.02e-32 5.71e-33
+
+CYCLE 313 TIME (0.608839,0.609962), DT=0.00112281, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.56158e-035, XNORM=0.000683875, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.00110184  Var NORMS:  0.001151 1.434e-5
+RMS Time Errors 9.458e-9 7.87e-10
+Max Time Err=9.45804e-009 Var 1 at Node 6 (0,0.5,0)
+RMS Spatial Errors  4.38e-32 2.87e-32
+
+CYCLE 314 TIME (0.609962,0.611221), DT=0.00125981, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=9.18881e-036, XNORM=0.000859099, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.00138111  Var NORMS:  0.001442 1.804e-5
+RMS Time Errors 1.330e-8 1.108e-9
+Max Time Err=1.32969e-008 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  2.19e-31 2.03e-32
+
+CYCLE 315 TIME (0.611221,0.612635), DT=0.00141353, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.48692e-035, XNORM=0.00107895, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.00173029  Var NORMS:  0.001807 2.269e-5
+RMS Time Errors 1.868e-8 1.559e-9
+Max Time Err=1.86839e-008 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  5.99e-37 5.82e-32
+
+CYCLE 316 TIME (0.612635,0.614221), DT=0.00158601, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.50163e-035, XNORM=0.00135468, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.00216651  Var NORMS:  0.002262 2.854e-5
+RMS Time Errors 2.624e-8 2.191e-9
+Max Time Err=2.62369e-008 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.65e-36 1.29e-31
+
+CYCLE 317 TIME (0.614221,0.616), DT=0.00177953, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.07773e-036, XNORM=0.00170034, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.00271101  Var NORMS:  0.002831 3.589e-5
+RMS Time Errors 3.682e-8 3.079e-9
+Max Time Err=3.68178e-008 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  5.25e-31 4.49e-31
+
+CYCLE 318 TIME (0.616,0.617997), DT=0.00199667, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.97358e-036, XNORM=0.00213346, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.00338998  Var NORMS:  0.003540 4.513e-5
+RMS Time Errors 5.163e-8 4.324e-9
+Max Time Err=5.16269e-008 Var 1 at Node 6 (0,0.5,0)
+RMS Spatial Errors  4.26e-35 2.15e-30
+
+CYCLE 319 TIME (0.617997,0.620237), DT=0.0022403, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.92882e-035, XNORM=0.00267589, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.00423571  Var NORMS:  0.004423 5.673e-5
+RMS Time Errors 7.233e-8 6.066e-9
+Max Time Err=7.23317e-008 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  3.13e-31 5.56e-30
+
+CYCLE 320 TIME (0.620237,0.622751), DT=0.00251365, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.94116e-035, XNORM=0.00335481, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.00528789  Var NORMS:  0.005522 7.130e-5
+RMS Time Errors 1.012e-7 8.504e-9
+Max Time Err=1.01245e-007 Var 1 at Node 6 (0,0.5,0)
+RMS Spatial Errors  9.64e-31 1.84e-29
+
+CYCLE 321 TIME (0.622751,0.625571), DT=0.00282037, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.99572e-034, XNORM=0.00420402, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.00659518  Var NORMS:  0.006887 8.961e-5
+RMS Time Errors 1.416e-7 1.191e-8
+Max Time Err=1.41571e-007 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  2.17e-31 6.13e-29
+
+CYCLE 322 TIME (0.625571,0.628736), DT=0.0031645, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.20648e-035, XNORM=0.00526547, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.00821707  Var NORMS:  0.008581 1.126e-4
+RMS Time Errors 1.977e-7 1.666e-8
+Max Time Err=1.97734e-007 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  2.42e-31 1.92e-28
+
+CYCLE 323 TIME (0.628736,0.632287), DT=0.00355063, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.23612e-035, XNORM=0.00659116, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.010226  Var NORMS:  0.010679 1.414e-4
+RMS Time Errors 2.758e-7 2.328e-8
+Max Time Err=2.75831e-007 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  1.22e-30 6.10e-28
+
+CYCLE 324 TIME (0.632287,0.63627), DT=0.00398387, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.00346e-036, XNORM=0.00824548, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.01271  Var NORMS:  0.013273 1.776e-4
+RMS Time Errors 3.842e-7 3.247e-8
+Max Time Err=3.84244e-007 Var 1 at Node 6 (0,0.5,0)
+RMS Spatial Errors  2.43e-30 1.90e-27
+
+CYCLE 325 TIME (0.63627,0.64074), DT=0.00446998, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.39638e-035, XNORM=0.010308, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0157756  Var NORMS:  0.016474 2.230e-4
+RMS Time Errors 5.345e-7 4.522e-8
+Max Time Err=5.3446e-007 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  1.25e-30 5.96e-27
+
+CYCLE 326 TIME (0.64074,0.645756), DT=0.0050154, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=7.4991e-035, XNORM=0.0128767, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0195507  Var NORMS:  0.020416 2.798e-4
+RMS Time Errors 7.422e-7 6.285e-8
+Max Time Err=7.42175e-007 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  1.98e-30 1.86e-26
+
+CYCLE 327 TIME (0.645756,0.651383), DT=0.00562737, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.90939e-035, XNORM=0.0160724, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0241892  Var NORMS:  0.025260 3.511e-4
+RMS Time Errors 1.029e-6 8.714e-8
+Max Time Err=1.02876e-006 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  3.80e-30 5.82e-26
+
+CYCLE 328 TIME (0.651383,0.657697), DT=0.00631401, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.49975e-034, XNORM=0.0200435, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0298744  Var NORMS:  0.031197 4.402e-4
+RMS Time Errors 1.423e-6 1.205e-7
+Max Time Err=1.42322e-006 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  1.56e-29 1.82e-25
+
+CYCLE 329 TIME (0.657697,0.664782), DT=0.00708444, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.66566e-035, XNORM=0.0249717, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0368238  Var NORMS:  0.038454 5.519e-4
+RMS Time Errors 1.965e-6 1.661e-7
+Max Time Err=1.96476e-006 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  6.63e-29 5.69e-25
+
+CYCLE 330 TIME (0.664782,0.67273), DT=0.00794887, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.04074e-035, XNORM=0.0310793, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0452942  Var NORMS:  0.047300 6.915e-4
+RMS Time Errors 2.706e-6 2.282e-7
+Max Time Err=2.70613e-006 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  3.78e-28 1.77e-24
+
+CYCLE 331 TIME (0.67273,0.682667), DT=0.00993622, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.49156e-033, XNORM=0.0448099, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0643731  Var NORMS:  0.067223 0.001005
+RMS Time Errors 4.959e-6 4.166e-7
+Max Time Err=4.95856e-006 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  4.01e-27 1.20e-23
+
+CYCLE 332 TIME (0.682667,0.691585), DT=0.00891878, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.58767e-034, XNORM=0.0426504, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0605024  Var NORMS:  0.063181 9.634e-4
+RMS Time Errors 3.714e-6 3.088e-7
+Max Time Err=3.71417e-006 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  2.44e-27 9.15e-24
+
+CYCLE 333 TIME (0.691585,0.701592), DT=0.010007, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.52368e-035, XNORM=0.0508414, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0711317  Var NORMS:  0.074281 0.001157
+RMS Time Errors 5.337e-6 4.395e-7
+Max Time Err=5.33719e-006 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  6.81e-27 2.23e-23
+
+CYCLE 334 TIME (0.701592,0.712821), DT=0.0112281, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=7.55152e-034, XNORM=0.0587307, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0809356  Var NORMS:  0.084519 0.001348
+RMS Time Errors 6.911e-6 5.602e-7
+Max Time Err=6.91103e-006 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.96e-26 5.20e-23
+
+CYCLE 335 TIME (0.712821,0.725419), DT=0.0125981, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.29675e-034, XNORM=0.0727619, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0986293  Var NORMS:  0.102996 0.001685
+RMS Time Errors 9.278e-6 7.366e-7
+Max Time Err=9.27793e-006 Var 1 at Node 4 (0,1,0)
+RMS Spatial Errors  7.29e-26 1.61e-22
+
+CYCLE 336 TIME (0.725419,0.739554), DT=0.0141353, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.21136e-034, XNORM=0.0900173, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.119844  Var NORMS:  0.125150 0.002105
+RMS Time Errors 1.256e-5 9.699e-7
+Max Time Err=1.25574e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  2.62e-25 4.94e-22
+
+CYCLE 337 TIME (0.739554,0.755414), DT=0.0158601, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.38591e-034, XNORM=0.111199, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.145178  Var NORMS:  0.151605 0.002627
+RMS Time Errors 1.699e-5 1.264e-6
+Max Time Err=1.69946e-005 Var 1 at Node 4 (0,1,0)
+RMS Spatial Errors  9.54e-25 1.52e-21
+
+CYCLE 338 TIME (0.755414,0.768), DT=0.0125859, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.535e-032, XNORM=0.0869414, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.111805  Var NORMS:  0.116755 0.002070
+RMS Time Errors 9.150e-6 6.472e-7
+Max Time Err=9.14998e-006 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  1.76e-25 4.15e-22
+
+CYCLE 339 TIME (0.768,0.785795), DT=0.0177953, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=5.05976e-034, XNORM=0.130854, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.164839  Var NORMS:  0.172137 0.003150
+RMS Time Errors 2.370e-5 1.588e-6
+Max Time Err=2.37014e-005 Var 1 at Node 6 (0,0.5,0)
+RMS Spatial Errors  2.42e-24 3.69e-21
+
+CYCLE 340 TIME (0.785795,0.805762), DT=0.0199667, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.17712e-034, XNORM=0.15645, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.192724  Var NORMS:  0.201257 0.003811
+RMS Time Errors 2.869e-5 1.749e-6
+Max Time Err=2.86908e-005 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  8.86e-24 1.07e-20
+
+CYCLE 341 TIME (0.805762,0.828165), DT=0.022403, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=6.73272e-032, XNORM=0.204932, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.246433  Var NORMS:  0.257344 0.005057
+RMS Time Errors 3.977e-5 2.142e-6
+Max Time Err=3.97682e-005 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  4.02e-23 4.20e-20
+
+CYCLE 342 TIME (0.828165,0.853333), DT=0.0251684, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=9.06061e-033, XNORM=0.252047, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.295312  Var NORMS:  0.308387 0.006307
+RMS Time Errors 5.386e-5 2.406e-6
+Max Time Err=5.38564e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  1.42e-22 1.28e-19
+
+CYCLE 343 TIME (0.853333,0.87847), DT=0.0251365, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.75842e-033, XNORM=0.264582, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.302363  Var NORMS:  0.315750 0.006709
+RMS Time Errors 5.294e-5 1.759e-6
+Max Time Err=5.2944e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  1.81e-22 1.70e-19
+
+CYCLE 344 TIME (0.87847,0.906674), DT=0.0282037, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.38308e-033, XNORM=0.312415, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.347591  Var NORMS:  0.362980 0.008038
+RMS Time Errors 7.146e-5 1.389e-6
+Max Time Err=7.14618e-005 Var 1 at Node 6 (0,0.5,0)
+RMS Spatial Errors  4.99e-22 4.24e-19
+
+CYCLE 345 TIME (0.906674,0.938667), DT=0.0319931, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.95937e-033, XNORM=0.37464, 0 MS/IT 39.6825 uS/NODE
+EQSET 1 PASS 1 DNORM=0.404895  Var NORMS:  0.422822 0.009797
+RMS Time Errors 9.501e-5 1.434e-7
+Max Time Err=9.50056e-005 Var 1 at Node 8 (1,0.5,0)
+RMS Spatial Errors  1.64e-21 1.20e-18
+
+CYCLE 346 TIME (0.938667,0.970312), DT=0.031645, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.86747e-033, XNORM=0.388493, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.40848  Var NORMS:  0.426565 0.010322
+RMS Time Errors 8.969e-5 1.774e-6
+Max Time Err=8.96887e-005 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  1.94e-21 1.50e-18
+
+CYCLE 347 TIME (0.970312,1.00582), DT=0.0355063, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.40789e-033, XNORM=0.457533, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.467123  Var NORMS:  0.487804 0.012375
+RMS Time Errors 1.208e-4 5.408e-6
+Max Time Err=0.000120824 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  5.30e-21 3.73e-18
+
+CYCLE 348 TIME (1.00582,1.024), DT=0.018182, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.65694e-034, XNORM=0.198883, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.200055  Var NORMS:  0.208912 0.005433
+RMS Time Errors 1.941e-5 1.316e-6
+Max Time Err=1.94071e-005 Var 1 at Node 6 (0,0.5,0)
+RMS Spatial Errors  2.20e-23 4.74e-20
+
+CYCLE 349 TIME (1.024,1.06384), DT=0.0398387, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.46557e-032, XNORM=0.463892, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.452574  Var NORMS:  0.472612 0.012929
+RMS Time Errors 1.682e-4 1.587e-5
+Max Time Err=0.000168212 Var 1 at Node 9 (0.5,1,0)
+RMS Spatial Errors  5.84e-21 4.59e-18
+
+CYCLE 350 TIME (1.06384,1.10933), DT=0.0454946, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.09249e-032, XNORM=0.568159, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.536079  Var NORMS:  0.559813 0.016227
+RMS Time Errors 1.847e-4 2.581e-5
+Max Time Err=0.000184663 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  3.27e-20 1.81e-17
+
+CYCLE 351 TIME (1.10933,1.15403), DT=0.0446998, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.04179e-033, XNORM=0.6807, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.622513  Var NORMS:  0.650074 0.019901
+RMS Time Errors 1.890e-4 3.495e-5
+Max Time Err=0.000188969 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  6.95e-20 4.17e-17
+
+CYCLE 352 TIME (1.15403,1.19467), DT=0.0406335, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.20897e-033, XNORM=0.60682, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.539986  Var NORMS:  0.563893 0.018165
+RMS Time Errors 1.510e-4 3.511e-5
+Max Time Err=0.000150966 Var 1 at Node 4 (0,1,0)
+RMS Spatial Errors  3.25e-20 2.49e-17
+
+CYCLE 353 TIME (1.19467,1.23937), DT=0.0446998, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=7.70774e-033, XNORM=0.645964, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.558543  Var NORMS:  0.583272 0.019873
+RMS Time Errors 1.920e-4 5.493e-5
+Max Time Err=0.000191989 Var 1 at Node 2 (1,0,0)
+RMS Spatial Errors  5.66e-20 4.17e-17
+
+CYCLE 354 TIME (1.23937,1.28), DT=0.0406335, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.51431e-033, XNORM=0.555768, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.468593  Var NORMS:  0.489339 0.017572
+RMS Time Errors 1.393e-4 4.797e-5
+Max Time Err=0.000139302 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  2.59e-20 2.33e-17
+
+CYCLE 355 TIME (1.28,1.3247), DT=0.0446998, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.86343e-033, XNORM=0.615802, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.505602  Var NORMS:  0.527987 0.020061
+RMS Time Errors 1.792e-4 7.257e-5
+Max Time Err=0.00017921 Var 1 at Node 5 (0.5,0.5,0)
+RMS Spatial Errors  5.48e-20 4.70e-17
+
+CYCLE 356 TIME (1.3247,1.36533), DT=0.0406335, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.79933e-033, XNORM=0.530819, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.425744  Var NORMS:  0.444594 0.017828
+RMS Time Errors 1.312e-4 6.148e-5
+Max Time Err=0.000131231 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  2.62e-20 2.73e-17
+
+CYCLE 357 TIME (1.36533,1.41549), DT=0.050154, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.94075e-033, XNORM=0.687041, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.536023  Var NORMS:  0.559755 0.023916
+RMS Time Errors 2.303e-4 1.238e-4
+Max Time Err=0.000230339 Var 1 at Node 3 (1,1,0)
+RMS Spatial Errors  1.59e-19 1.30e-16
+
+CYCLE 358 TIME (1.41549,1.45067), DT=0.0351793, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.32904e-033, XNORM=0.44049, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.33718  Var NORMS:  0.352108 0.015819
+RMS Time Errors 8.421e-5 5.083e-5
+Max Time Err=8.42117e-005 Var 1 at Node 8 (1,0.5,0)
+RMS Spatial Errors  1.09e-20 1.58e-17
+
+CYCLE 359 TIME (1.45067,1.50082), DT=0.050154, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=7.30482e-035, XNORM=0.659728, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.492108  Var NORMS:  0.513895 0.024606
+RMS Time Errors 2.338e-4 1.567e-4
+Max Time Err=0.000233806 Var 1 at Node 6 (0,0.5,0)
+RMS Spatial Errors  1.65e-19 1.60e-16
+
+CYCLE 360 TIME (1.50082,1.536), DT=0.0351793, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.65336e-031, XNORM=0.405243, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.296907  Var NORMS:  0.310053 0.015671
+RMS Time Errors 7.959e-5 5.885e-5
+Max Time Err=7.95943e-005 Var 1 at Node 6 (0,0.5,0)
+RMS Spatial Errors  1.08e-20 1.77e-17
+
+CYCLE 361 TIME (1.536,1.59227), DT=0.0562737, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=6.54028e-032, XNORM=0.743164, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.529868  Var NORMS:  0.553327 0.029995
+RMS Time Errors 3.058e-4 2.479e-4
+Max Time Err=0.00030578 Var 1 at Node 4 (0,1,0)
+RMS Spatial Errors  5.57e-19 5.06e-16
+
+CYCLE 362 TIME (1.59227,1.62133), DT=0.0290596, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.41054e-033, XNORM=0.322771, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.226899  Var NORMS:  0.236945 0.013500
+RMS Time Errors 4.584e-5 4.030e-5
+Max Time Err=4.58387e-005 Var 1 at Node 1 (0,0,0)
+RMS Spatial Errors  3.55e-21 8.63e-18
+
+CYCLE 363 TIME (1.62133,1.67761), DT=0.0562737, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.86529e-031, XNORM=0.717719, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.491717  Var NORMS:  0.513487 0.031360
+RMS Time Errors 3.203e-4 3.023e-4
+Max Time Err=0.000320261 Var 1 at Node 4 (0,1,0)
+RMS Spatial Errors  6.23e-19 6.65e-16
+
+CYCLE 364 TIME (1.67761,1.70667), DT=0.0290596, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.71475e-033, XNORM=0.296227, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.200235  Var NORMS:  0.209100 0.013486
+RMS Time Errors 4.406e-5 4.458e-5
+Max Time Err=4.45781e-005 Var 2 at Node 2 (1,0,0)
+RMS Spatial Errors  3.68e-21 9.97e-18
+
+CYCLE 365 TIME (1.70667,1.76981), DT=0.0631401, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.28861e-034, XNORM=0.815371, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.536281  Var NORMS:  0.560024 0.038949
+RMS Time Errors 4.261e-4 4.593e-4
+Max Time Err=0.000459285 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  2.30e-18 2.24e-15
+
+CYCLE 366 TIME (1.76981,1.792), DT=0.0221932, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.12716e-034, XNORM=0.21922, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.142748  Var NORMS:  0.149068 0.010884
+RMS Time Errors 2.069e-5 2.367e-5
+Max Time Err=2.36705e-005 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  7.01e-22 3.18e-18
+
+CYCLE 367 TIME (1.792,1.85514), DT=0.0631401, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.13706e-032, XNORM=0.791253, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.501976  Var NORMS:  0.524201 0.041210
+RMS Time Errors 4.587e-4 5.510e-4
+Max Time Err=0.00055101 Var 2 at Node 2 (1,0,0)
+RMS Spatial Errors  2.60e-18 2.97e-15
+
+CYCLE 368 TIME (1.85514,1.87733), DT=0.0221932, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.77768e-033, XNORM=0.200171, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.125773  Var NORMS:  0.131341 0.010900
+RMS Time Errors 2.006e-5 2.537e-5
+Max Time Err=2.53666e-005 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  7.17e-22 3.57e-18
+
+CYCLE 369 TIME (1.87733,1.96267), DT=0.0853333, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.51996e-032, XNORM=1.18681, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.721201  Var NORMS:  0.753131 0.068643
+RMS Time Errors 9.975e-4 0.001325
+Max Time Err=0.00132533 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  5.95e-17 4.43e-14
+
+CYCLE 370 TIME (1.96267,2.048), DT=0.0853333, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.47489e-031, XNORM=1.30781, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.769024  Var NORMS:  0.803072 0.082873
+RMS Time Errors 8.590e-4 0.001221
+Max Time Err=0.00122135 Var 2 at Node 3 (1,1,0)
+RMS Spatial Errors  2.57e-16 1.45e-13
+
+CYCLE 371 TIME (2.048,2.13333), DT=0.0853333, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.69414e-032, XNORM=1.69271, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.964592  Var NORMS:  1.007298 0.114880
+RMS Time Errors 0.001067 0.001622
+Max Time Err=0.0016221 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  9.33e-16 5.71e-13
+
+CYCLE 372 TIME (2.13333,2.21867), DT=0.0853333, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.28275e-032, XNORM=1.65623, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.915132  Var NORMS:  0.955648 0.123028
+RMS Time Errors 0.001159 0.001872
+Max Time Err=0.00187237 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  1.19e-15 7.85e-13
+
+CYCLE 373 TIME (2.21867,2.304), DT=0.0853333, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.94846e-032, XNORM=1.62405, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.87079  Var NORMS:  0.909344 0.132355
+RMS Time Errors 0.001221 0.002080
+Max Time Err=0.00207986 Var 2 at Node 6 (0,0.5,0)
+RMS Spatial Errors  1.52e-15 1.08e-12
+
+CYCLE 374 TIME (2.304,2.38933), DT=0.0853333, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.22257e-032, XNORM=1.59581, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.830879  Var NORMS:  0.867665 0.142728
+RMS Time Errors 0.001278 0.002281
+Max Time Err=0.00228116 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  1.94e-15 1.47e-12
+
+CYCLE 375 TIME (2.38933,2.47467), DT=0.0853333, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.6135e-032, XNORM=1.57134, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.794882  Var NORMS:  0.830075 0.154142
+RMS Time Errors 0.001338 0.002490
+Max Time Err=0.0024895 Var 2 at Node 6 (0,0.5,0)
+RMS Spatial Errors  2.45e-15 1.98e-12
+
+CYCLE 376 TIME (2.47467,2.56), DT=0.0853333, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.83128e-033, XNORM=1.55057, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.76239  Var NORMS:  0.796144 0.166643
+RMS Time Errors 0.001403 0.002711
+Max Time Err=0.00271069 Var 2 at Node 3 (1,1,0)
+RMS Spatial Errors  3.08e-15 2.65e-12
+
+CYCLE 377 TIME (2.56,2.64533), DT=0.0853333, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.00607e-033, XNORM=1.53351, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.733061  Var NORMS:  0.765516 0.180298
+RMS Time Errors 0.001474 0.002948
+Max Time Err=0.00294833 Var 2 at Node 3 (1,1,0)
+RMS Spatial Errors  3.84e-15 3.50e-12
+
+CYCLE 378 TIME (2.64533,2.73067), DT=0.0853333, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.72923e-033, XNORM=1.52022, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.706607  Var NORMS:  0.737891 0.195196
+RMS Time Errors 0.001551 0.003206
+Max Time Err=0.00320566 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  4.77e-15 4.60e-12
+
+CYCLE 379 TIME (2.73067,2.816), DT=0.0853333, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.80557e-032, XNORM=1.51082, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.682788  Var NORMS:  0.713017 0.211440
+RMS Time Errors 0.001635 0.003486
+Max Time Err=0.00348613 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  5.89e-15 6.00e-12
+
+CYCLE 380 TIME (2.816,2.90133), DT=0.0853333, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.26617e-032, XNORM=1.50547, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.661398  Var NORMS:  0.690681 0.229155
+RMS Time Errors 0.001726 0.003794
+Max Time Err=0.00379378 Var 2 at Node 7 (0.5,0,0)
+RMS Spatial Errors  7.24e-15 7.76e-12
+
+CYCLE 381 TIME (2.90133,2.98667), DT=0.0853333, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.16834e-032, XNORM=1.50441, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.642268  Var NORMS:  0.670703 0.248490
+RMS Time Errors 0.001826 0.004133
+Max Time Err=0.00413343 Var 2 at Node 6 (0,0.5,0)
+RMS Spatial Errors  8.85e-15 9.98e-12
+
+CYCLE 382 TIME (2.98667,3.05366), DT=0.0669924, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=6.08306e-033, XNORM=1.10037, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.458791  Var NORMS:  0.479103 0.194859
+RMS Time Errors 0.001009 0.002359
+Max Time Err=0.00235858 Var 2 at Node 3 (1,1,0)
+RMS Spatial Errors  1.33e-15 2.32e-12
+
+CYCLE 383 TIME (3.05366,3.072), DT=0.018341, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.47295e-033, XNORM=0.217893, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0900675  Var NORMS:  0.094055 0.040066
+RMS Time Errors 3.381e-5 8.169e-5
+Max Time Err=8.16945e-005 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  2.40e-20 4.03e-16
+
+CYCLE 384 TIME (3.072,3.13541), DT=0.0634092, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=5.10248e-033, XNORM=0.659445, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.266583  Var NORMS:  0.278386 0.128302
+RMS Time Errors 0.001138 0.002760
+Max Time Err=0.00276024 Var 2 at Node 6 (0,0.5,0)
+RMS Spatial Errors  7.13e-17 2.21e-13
+
+CYCLE 385 TIME (3.13541,3.15733), DT=0.0219242, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.68164e-034, XNORM=0.161026, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0643512  Var NORMS:  0.067200 0.032886
+RMS Time Errors 3.842e-5 9.450e-5
+Max Time Err=9.45005e-005 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  1.52e-20 2.00e-16
+
+CYCLE 386 TIME (3.15733,3.21429), DT=0.0569525, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.02357e-032, XNORM=0.574263, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.225211  Var NORMS:  0.235181 0.121124
+RMS Time Errors 7.136e-4 0.001766
+Max Time Err=0.00176559 Var 2 at Node 6 (0,0.5,0)
+RMS Spatial Errors  3.48e-17 1.31e-13
+
+CYCLE 387 TIME (3.21429,3.24267), DT=0.0283808, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.96778e-033, XNORM=0.218179, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0844477  Var NORMS:  0.088186 0.047914
+RMS Time Errors 8.327e-5 2.099e-4
+Max Time Err=0.000209921 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  1.30e-19 1.20e-15
+
+CYCLE 388 TIME (3.24267,3.29962), DT=0.0569525, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.94252e-033, XNORM=0.582502, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.221092  Var NORMS:  0.230879 0.132107
+RMS Time Errors 7.097e-4 0.001808
+Max Time Err=0.00180752 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  4.76e-17 1.75e-13
+
+CYCLE 389 TIME (3.29962,3.328), DT=0.0283808, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.38312e-033, XNORM=0.234696, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0879014  Var NORMS:  0.091791 0.055126
+RMS Time Errors 9.242e-5 2.411e-4
+Max Time Err=0.000241065 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  1.96e-19 1.88e-15
+
+CYCLE 390 TIME (3.328,3.38495), DT=0.0569525, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.10265e-033, XNORM=0.592785, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.217515  Var NORMS:  0.227136 0.143822
+RMS Time Errors 7.690e-4 0.002027
+Max Time Err=0.00202747 Var 2 at Node 2 (1,0,0)
+RMS Spatial Errors  5.68e-17 2.18e-13
+
+CYCLE 391 TIME (3.38495,3.41333), DT=0.0283808, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.87925e-034, XNORM=0.239403, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0866068  Var NORMS:  0.090433 0.060091
+RMS Time Errors 9.911e-5 2.679e-4
+Max Time Err=0.000267915 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  2.33e-19 2.33e-15
+
+CYCLE 392 TIME (3.41333,3.47029), DT=0.0569525, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=5.63433e-034, XNORM=0.606138, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.214671  Var NORMS:  0.224129 0.156917
+RMS Time Errors 8.240e-4 0.002253
+Max Time Err=0.00225254 Var 2 at Node 2 (1,0,0)
+RMS Spatial Errors  6.75e-17 2.69e-13
+
+CYCLE 393 TIME (3.47029,3.49867), DT=0.0283808, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=8.10072e-034, XNORM=0.245386, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0856098  Var NORMS:  0.089360 0.065626
+RMS Time Errors 1.062e-4 2.982e-4
+Max Time Err=0.000298172 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  2.75e-19 2.85e-15
+
+CYCLE 394 TIME (3.49867,3.55562), DT=0.0569525, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=6.55699e-034, XNORM=0.622894, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.212638  Var NORMS:  0.221828 0.171534
+RMS Time Errors 8.844e-4 0.002512
+Max Time Err=0.00251178 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  7.97e-17 3.30e-13
+
+CYCLE 395 TIME (3.55562,3.584), DT=0.0283808, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.13388e-034, XNORM=0.25283, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0849991  Var NORMS:  0.088572 0.071817
+RMS Time Errors 1.142e-4 3.335e-4
+Max Time Err=0.000333505 Var 2 at Node 2 (1,0,0)
+RMS Spatial Errors  3.22e-19 3.46e-15
+
+CYCLE 396 TIME (3.584,3.63679), DT=0.0527873, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.30434e-032, XNORM=0.578733, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.190803  Var NORMS:  0.198347 0.168759
+RMS Time Errors 7.806e-4 0.002310
+Max Time Err=0.00230962 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  4.66e-17 2.27e-13
+
+CYCLE 397 TIME (3.63679,3.66933), DT=0.0325461, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.71412e-034, XNORM=0.300412, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0976591  Var NORMS:  0.100999 0.090339
+RMS Time Errors 1.804e-4 5.479e-4
+Max Time Err=0.000547932 Var 2 at Node 2 (1,0,0)
+RMS Spatial Errors  9.63e-19 8.77e-15
+
+CYCLE 398 TIME (3.66933,3.72212), DT=0.0527873, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.16089e-033, XNORM=0.601796, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.192985  Var NORMS:  0.197639 0.185605
+RMS Time Errors 8.106e-4 0.002502
+Max Time Err=0.00250181 Var 2 at Node 2 (1,0,0)
+RMS Spatial Errors  5.80e-17 2.81e-13
+
+CYCLE 399 TIME (3.72212,3.75467), DT=0.0325461, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.29663e-033, XNORM=0.324299, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.103637  Var NORMS:  0.104391 0.102790
+RMS Time Errors 1.999e-4 6.355e-4
+Max Time Err=0.000635543 Var 2 at Node 2 (1,0,0)
+RMS Spatial Errors  1.26e-18 1.19e-14
+
+CYCLE 400 TIME (3.75467,3.80366), DT=0.0489916, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.06644e-033, XNORM=0.56752, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.181612  Var NORMS:  0.178400 0.184147
+RMS Time Errors 7.282e-4 0.002356
+Max Time Err=0.00235581 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  3.33e-17 1.89e-13
+
+CYCLE 401 TIME (3.80366,3.84), DT=0.0363418, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=5.11949e-034, XNORM=0.37997, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.1231  Var NORMS:  0.116704 0.126641
+RMS Time Errors 2.958e-4 9.843e-4
+Max Time Err=0.000984347 Var 2 at Node 2 (1,0,0)
+RMS Spatial Errors  2.95e-18 2.44e-14
+
+CYCLE 402 TIME (3.84,3.88639), DT=0.0463893, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.48672e-033, XNORM=0.554923, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.182375  Var NORMS:  0.166300 0.189011
+RMS Time Errors 6.627e-4 0.002253
+Max Time Err=0.00225274 Var 2 at Node 2 (1,0,0)
+RMS Spatial Errors  2.37e-17 1.46e-13
+
+CYCLE 403 TIME (3.88639,3.92533), DT=0.0389441, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.9792e-034, XNORM=0.443718, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.148803  Var NORMS:  0.129644 0.154842
+RMS Time Errors 3.992e-4 0.001397
+Max Time Err=0.00139684 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  5.59e-18 4.33e-14
+
+CYCLE 404 TIME (3.92533,3.97172), DT=0.0463893, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=4.79272e-033, XNORM=0.589078, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.20141  Var NORMS:  0.167507 0.209979
+RMS Time Errors 7.133e-4 0.002558
+Max Time Err=0.00255833 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  2.49e-17 1.55e-13
+
+CYCLE 405 TIME (3.97172,4.01067), DT=0.0389441, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=5.72636e-033, XNORM=0.482578, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.168472  Var NORMS:  0.133570 0.175796
+RMS Time Errors 4.449e-4 0.001647
+Max Time Err=0.00164721 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  5.78e-18 4.60e-14
+
+CYCLE 406 TIME (4.01067,4.0534), DT=0.0427342, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.2122e-033, XNORM=0.563895, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.200596  Var NORMS:  0.151782 0.209401
+RMS Time Errors 6.342e-4 0.002413
+Max Time Err=0.002413 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  1.07e-17 7.79e-14
+
+CYCLE 407 TIME (4.0534,4.096), DT=0.0425992, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.4178e-032, XNORM=0.567455, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.20603  Var NORMS:  0.148083 0.215118
+RMS Time Errors 6.312e-4 0.002476
+Max Time Err=0.00247632 Var 2 at Node 5 (0.5,0.5,0)
+RMS Spatial Errors  8.20e-18 5.91e-14
+
+CYCLE 408 TIME (4.096,4.13567), DT=0.0396712, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.31852e-033, XNORM=0.551716, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.203823  Var NORMS:  0.139826 0.212831
+RMS Time Errors 5.569e-4 0.002258
+Max Time Err=0.0022584 Var 2 at Node 3 (1,1,0)
+RMS Spatial Errors  3.83e-18 3.14e-14
+
+CYCLE 409 TIME (4.13567,4.18133), DT=0.0456621, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.16133e-033, XNORM=0.67885, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.255379  Var NORMS:  0.166280 0.266677
+RMS Time Errors 8.660e-4 0.003621
+Max Time Err=0.00362089 Var 2 at Node 7 (0.5,0,0)
+RMS Spatial Errors  6.86e-18 4.61e-14
+
+CYCLE 410 TIME (4.18133,4.2188), DT=0.0374651, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.20563e-033, XNORM=0.558555, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.2136  Var NORMS:  0.132521 0.223054
+RMS Time Errors 5.213e-4 0.002267
+Max Time Err=0.00226678 Var 2 at Node 5 (0.5,0.5,0)
+RMS Spatial Errors  5.17e-19 4.65e-15
+
+CYCLE 411 TIME (4.2188,4.25626), DT=0.0374651, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.18075e-033, XNORM=0.572287, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.221982  Var NORMS:  0.131574 0.231809
+RMS Time Errors 5.841e-4 0.002627
+Max Time Err=0.00262656 Var 2 at Node 7 (0.5,0,0)
+RMS Spatial Errors  7.79e-21 7.56e-17
+
+CYCLE 412 TIME (4.25626,4.26667), DT=0.010403, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.00831e-032, XNORM=5.39871, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=2.79889  Var NORMS:  0.015879 2.922811
+RMS Time Errors 0.001102 0.322671
+Max Time Err=0.322671 Var 2 at Node 1 (0,0,0)
+Step Failed - Retry at DT=0.00191096
+Lanczos/BInv ITERATION 14, RNORM=5.10723e-035, XNORM=0.0190161, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.00743295  Var NORMS:  0.004324 0.007762
+RMS Time Errors 1.420e-7 6.732e-7
+Max Time Err=6.73214e-007 Var 2 at Node 6 (0,0.5,0)
+RMS Spatial Errors  3.90e-30 7.55e-24
+
+CYCLE 413 TIME (4.25817,4.26009), DT=0.00191096, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.66556e-034, XNORM=0.0102728, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.00402284  Var NORMS:  0.002328 0.004201
+RMS Time Errors 9.797e-7 4.653e-6
+Max Time Err=4.65297e-006 Var 2 at Node 6 (0,0.5,0)
+RMS Spatial Errors  1.13e-31 5.30e-25
+
+CYCLE 414 TIME (4.26009,4.26223), DT=0.00214413, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.05648e-034, XNORM=0.00173431, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.000688735  Var NORMS:  3.853e-4 7.192e-4
+RMS Time Errors 5.003e-7 2.378e-6
+Max Time Err=2.37808e-006 Var 2 at Node 7 (0.5,0,0)
+RMS Spatial Errors  1.71e-33 4.35e-27
+
+CYCLE 415 TIME (4.26223,4.26464), DT=0.00240575, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.12654e-035, XNORM=0.00212547, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.000846344  Var NORMS:  4.699e-4 8.838e-4
+RMS Time Errors 2.994e-7 1.423e-6
+Max Time Err=1.42256e-006 Var 2 at Node 3 (1,1,0)
+RMS Spatial Errors  6.39e-33 1.57e-26
+
+CYCLE 416 TIME (4.26464,4.26667), DT=0.00203126, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=3.42712e-033, XNORM=0.89812, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.465614  Var NORMS:  1.293e-4 0.486229
+RMS Time Errors 6.293e-5 0.111472
+Max Time Err=0.111472 Var 2 at Node 1 (0,0,0)
+Step Failed - Retry at DT=0.000531766
+Lanczos/BInv ITERATION 14, RNORM=2.68476e-035, XNORM=0.000370529, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.000147668  Var NORMS:  8.180e-5 1.542e-4
+RMS Time Errors 3.474e-9 1.653e-8
+Max Time Err=1.65253e-008 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  4.85e-38 1.45e-30
+
+CYCLE 417 TIME (4.26517,4.2657), DT=0.000531766, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.17468e-034, XNORM=0.000253325, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.000101002  Var NORMS:  5.588e-5 1.055e-4
+RMS Time Errors 6.405e-9 3.046e-8
+Max Time Err=3.04648e-008 Var 2 at Node 7 (0.5,0,0)
+RMS Spatial Errors  2.88e-34 1.39e-31
+
+CYCLE 418 TIME (4.2657,4.2663), DT=0.000596651, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=2.65512e-035, XNORM=0.000136415, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=5.44388e-005  Var NORMS:  3.004e-5 5.685e-5
+RMS Time Errors 4.408e-9 2.096e-8
+Max Time Err=2.09583e-008 Var 2 at Node 3 (1,1,0)
+RMS Spatial Errors  1.75e-34 1.70e-32
+
+CYCLE 419 TIME (4.2663,4.26667), DT=0.000371078, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=7.7663e-034, XNORM=0.173256, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0898216  Var NORMS:  6.665e-6 0.093798
+RMS Time Errors 1.958e-6 0.017990
+Max Time Err=0.0179897 Var 2 at Node 3 (1,1,0)
+Step Failed - Retry at DT=0.00017843
+Lanczos/BInv ITERATION 14, RNORM=1.74678e-035, XNORM=3.21366e-005, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=1.28276e-005  Var NORMS:  7.075e-6 1.340e-5
+RMS Time Errors 1.20e-10 5.69e-10
+Max Time Err=5.68669e-010 Var 2 at Node 1 (0,0,0)
+RMS Spatial Errors  2.04e-42 5.87e-34
+
+CYCLE 420 TIME (4.26647,4.26667), DT=0.000192648, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=8.02535e-035, XNORM=0.0819298, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.042475  Var NORMS:  3.373e-6 0.044356
+RMS Time Errors 5.927e-7 0.011517
+Max Time Err=0.0115166 Var 2 at Node 1 (0,0,0)
+Step Failed - Retry at DT=0.000107482
+Lanczos/BInv ITERATION 14, RNORM=1.30922e-035, XNORM=1.30779e-005, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=5.22072e-006  Var NORMS:  2.878e-6 5.452e-6
+RMS Time Errors 5.02e-11 2.39e-10
+Max Time Err=2.38653e-010 Var 2 at Node 7 (0.5,0,0)
+RMS Spatial Errors  2.81e-35 7.96e-44
+
+CYCLE 421 TIME (4.26658,4.26667), DT=8.51666e-005, 9 NODES, 2 CELLS
+Lanczos/BInv ITERATION 14, RNORM=1.46012e-034, XNORM=0.0381636, 0 MS/IT 0 uS/NODE
+EQSET 1 PASS 1 DNORM=0.0197852  Var NORMS:  4.638e-7 0.020661
+RMS Time Errors 1.095e-7 0.004567
+Max Time Err=0.00456739 Var 2 at Node 7 (0.5,0,0)
+RMS Spatial Errors  5.19e-31 9.10e-22
+DO_NEXTSTAGE pde 02E371B8  MAXSTAGE=0
