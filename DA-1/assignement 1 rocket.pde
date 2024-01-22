@@ -12,8 +12,8 @@ DEFINITIONS    { parameter definitions }
 
 !parameters
 
-mfuel1  = 1100
-mfuel2 = 1000
+mfuel1  = 1000
+mfuel2 = 1300
 
 ! constants
 g_earth = 9.80665
@@ -82,9 +82,9 @@ MONITORS         { show progress }
 PLOTS            { save result displays }
 for t = 0 by endtime/50 to endtime
 history(h) at (0,0)
+history(acc) at (0,0)
 
-
-
+SUMMARY
 report val (price,0,0)
 report val (h,0,0)
 report val (v,0,0)
