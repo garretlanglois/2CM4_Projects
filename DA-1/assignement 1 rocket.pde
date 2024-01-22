@@ -45,7 +45,7 @@ tfuel2 = mfuel2/q2 + tfuel1
 
 !equations
 start_mass = m_engine +m_engine2 +200+mass_tank2 + mass_tank + mfuel1 + mfuel2
-m_r_t =   if ( t < tfuel1) then (start_mass - q1*t) else (if  ( t < tfuel2)  then (start_mass - (q1*tfuel1 + q2*t)-m_engine) else start_mass - mfuel1 - mfuel2-m_engine) !mass rocket total
+m_r_t =   if ( t < tfuel1) then (start_mass - q1*t) else (if  ( t < tfuel2)  then (start_mass - (q1*tfuel1 + q2*t)-m_engine-30) else 200) !mass rocket total
 thresh = (L*h)/t0
 Tvar = t0 - L*h
 expon = (g_earth*mm)/(R_gas*L)
