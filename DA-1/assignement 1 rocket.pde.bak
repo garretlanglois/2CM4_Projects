@@ -45,7 +45,7 @@ tfuel2 = mfuel2/q2 + tfuel1
 
 !equations
 start_mass = m_engine +m_engine2 +200+mass_tank2 + mass_tank + mfuel1 + mfuel2
-m_r_t =   if ( t < tfuel1) then (start_mass - q1*t) else (if  ( t < tfuel2)  then (start_mass - (q1*tfuel1 + q2*t)-m_engine) else start_mass - mfuel1 - mfuel2-m_engine) !mass rocket total
+m_r_t =   if ( t < tfuel1) then (start_mass - q1*t) else (if  ( t < tfuel2)  then (start_mass - (q1*tfuel1 + q2*t)-m_engine-30) else 200) !mass rocket total
 thresh = (L*h)/t0
 Tvar = t0 - L*h
 expon = (g_earth*mm)/(R_gas*L)
@@ -77,7 +77,7 @@ BOUNDARIES       { The domain definition }
   REGION 1       { For each material region }
     START(0,0)   { Walk the domain boundary }
     LINE TO (1,0) TO (1,1) TO (0,1) TO CLOSE
-TIME 0 TO tfuel2   { if time dependent }
+TIME 0 TO 300 halt p=0   { if time dependent }
 MONITORS         { show progress }
 PLOTS            { save result displays }
 for t = 0 by endtime/50 to endtime
@@ -85,7 +85,7 @@ history(h) at (0,0)
 
 
 
-report price
-report h
-report v
+report val (price,0,0)
+report val (h,0,0)
+report val (v,0,0)
 END

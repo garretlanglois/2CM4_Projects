@@ -12,8 +12,8 @@ DEFINITIONS    { parameter definitions }
 
 !parameters
 
-mfuel1  = 1200
-mfuel2 = 1100
+mfuel1  = 1100
+mfuel2 = 1000
 
 ! constants
 g_earth = 9.80665
@@ -77,7 +77,7 @@ BOUNDARIES       { The domain definition }
   REGION 1       { For each material region }
     START(0,0)   { Walk the domain boundary }
     LINE TO (1,0) TO (1,1) TO (0,1) TO CLOSE
-TIME 0 TO 300 halt p=0   { if time dependent }
+TIME 0 TO 300 halt p=0 or val (h,0,0)<=0   { if time dependent }
 MONITORS         { show progress }
 PLOTS            { save result displays }
 for t = 0 by endtime/50 to endtime
