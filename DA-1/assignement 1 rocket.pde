@@ -1,6 +1,6 @@
 { Fill in the following sections (removing comment marks ! if necessary),
   and delete those that are unused.}
-TITLE 'Rocket 1a'     { the problem identification }
+TITLE 'Rocket DA1'     { the problem identification }
 COORDINATES cartesian2  { coordinate system, 1D,2D,3D, etc }
 VARIABLES        { system variables }
 h(threshold = 0.0001)
@@ -12,12 +12,12 @@ DEFINITIONS    { parameter definitions }
 
 !parameters
 
-mfuel1  = 1100
-mfuel2 = 1000
+mfuel1  = 15000
+mfuel2 = (614000/17) - mfuel1
 
 ! constants
 g_earth = 9.80665
- p0 = 101.325e3
+p0 = 101.325e3
 t0 = 288.15
 L= 0.0065
 R_gas = 8.31447
@@ -45,22 +45,22 @@ tfuel2 = mfuel2/q2 + tfuel1
 
 !equations
 start_mass = m_engine +m_engine2 +200+mass_tank2 + mass_tank + mfuel1 + mfuel2
-m_r_t =   if ( t < tfuel1) then (start_mass - q1*t) else (if  ( t < tfuel2)  then (start_mass - (q1*tfuel1 + q2*t)-m_engine-30) else 200) !mass rocket total
-thresh = (L*h)/t0
+m_r_t =   if ( t < tfuel1) then (start_mass - q1*t) else (if  ( t < tfuel2)  then (start_mass - (q1*tfuel1 + q2*t)-m_engine) else (200)) !mass rocket total
+thresh = (L*h)/t0 +0.0001
 Tvar = t0 - L*h
 expon = (g_earth*mm)/(R_gas*L)
-p = if  (thresh < 1) then  p0*(1-(L*h)/t0)^(expon) else 0
+p = if  (thresh < 1) then  p0*((1-(L*h)/t0)^(expon)) else 0
 rho = p*mm/(R_gas*Tvar)
 
 
 ! equations
  
 FD = 1/2*rho*CD*A*v^2
-FG = (big_G*m_r_t*M_earth)/(R_earth+h)^2
+FG = (big_G*m_r_t*M_earth)/((R_earth+h)^2)
 FT = if ( t < tfuel1) then q1*v1 else(if  (t < tfuel2) then q2*v2 else 0)
 acc =( FT - (FD +FG))/m_r_t
 
-price = 5000*(320+150) + 8000*(mass_tank+ mass_tank2) + 5*(mfuel1 + mfuel2)
+price = 5000*(320+150) + 800*(mass_tank+ mass_tank2) + 5*(mfuel1 + mfuel2)
 
 INITIAL VALUES
 
@@ -77,15 +77,15 @@ BOUNDARIES       { The domain definition }
   REGION 1       { For each material region }
     START(0,0)   { Walk the domain boundary }
     LINE TO (1,0) TO (1,1) TO (0,1) TO CLOSE
-TIME 0 TO 300 halt p=0 or val (h,0,0)<=0   { if time dependent }
+TIME 0 TO 500  halt p<0.001 !or val(h,0,0)<=0  { if time dependent }
 MONITORS         { show progress }
 PLOTS            { save result displays }
-for t = 0 by endtime/50 to endtime
-history(h) at (0,0)
+	for t = 0 by endtime/150 to endtime
+	history(p) at (0,0)
+	history(h, v) at (0,0) Export Format '#t#b#1#b#2' file = 'DA1test.txt'
+SUMMARY
+	report eval (h, 0, 0)
+	report eval (v, 0, 0)
+    report val (price, 0, 0)
 
-
-
-report val (price,0,0)
-report val (h,0,0)
-report val (v,0,0)
 END
