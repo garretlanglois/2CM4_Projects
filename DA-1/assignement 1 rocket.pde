@@ -1,21 +1,16 @@
-import subprocess
-import numpy as np
-import matplotlib.pyplot as plt
-
-
-flexcode = """TITLE 'Rocket DA1'     { the problem identification }
+TITLE 'Rocket DA1'     { the problem identification }
 COORDINATES cartesian2  { coordinate system, 1D,2D,3D, etc }
 VARIABLES        { system variables }
 h(threshold = 0.0001)
 v(threshold = 0.0001)
-
+ 
  SELECT         { method controls n}
 ngrid =1
 DEFINITIONS    { parameter definitions }
 
 !parameters
 
-mfuel1  = %s
+mfuel1  = 20000
 mfuel2 = (614000/17) - mfuel1
 
 ! constants
@@ -57,7 +52,7 @@ rho = p*mm/(R_gas*Tvar)
 
 
 ! equations
- 
+
 FD = 1/2*rho*CD*A*(v^2)
 FG = (big_G*m_r_t*M_earth)/((R_earth+h)^2)
 FT = if ( t < tfuel1) then q1*v1 else(if  (t < tfuel2) then q2*v2 else 0)
@@ -80,7 +75,7 @@ BOUNDARIES       { The domain definition }
   REGION 1       { For each material region }
     START(0,0)   { Walk the domain boundary }
     LINE TO (1,0) TO (1,1) TO (0,1) TO CLOSE
-TIME 0 TO 500  halt (t>tfuel2)   { if time dependent }
+TIME 0 TO 500  halt (t>tfuel2) and (p=0)  { if time dependent }
 MONITORS         { show progress }
 PLOTS            { save result displays }
 	for t = 0 by endtime/250 to endtime
@@ -90,6 +85,8 @@ PLOTS            { save result displays }
     history (acc) at (0,0)
     history (v) at (0,0)
     history(rho) at (0,0)
+	history(m_r_t) at(0,0)
+	
 	history(h, v) at (0,0) Export Format '#t#b#1#b#2' file = 'DA1test.txt'
 SUMMARY
 	report eval (h, 0, 0)
@@ -101,54 +98,3 @@ SUMMARY
     report val (tfuel2,0,0)
 
 END
-"""
-
-flexfilename = "assignment 1 rocket.pde"
-
-def runflexsim(mfuel1):
-    with open(flexfilename, "w") as f:
-        print(flexcode%mfuel1, file=f)
-        
-    completed =subprocess.run(["C:\Program Files\FlexPDE7\FlexPDE7.exe", "-S", flexfilename], timeout = 5) 
-    #print('returned: ', completed.returncode)
-    
-    with open(flexfilename[:-4]+"_output\\DA1test.txt") as f:
-        data=np.loadtxt(f, skiprows=8)
-
-    return(data)
-
-def bestfuel(fuelrange):
-    lowlim = 100
-    highlim = 36117
-    numpoints = 50
-    fuel = np.linspace(lowlim,highlim,numpoints)
-    #print(fuel)
-    bestspeed = 0
-    bestfuel = 0
-    
-    for fuelamt in fuelrange:
-        
-        v = runflexsim(fuelamt)[:,2]
-        finalv = v[-1]
-        plt.plot(fuelamt, finalv, "*-")
-        if (finalv > bestspeed).any():
-            lowlim = lowlim + (0.1*(lowlim-fuelamt))
-            bestspeed = finalv
-            bestfuel = fuelamt
-            print(f"current best speed is {bestspeed:.3f}m/s, with fuel in the first tank being {fuelamt:.2f}kg")
-        else:
-            print("wasnt fast enough lol")
-            highlim = highlim - (0.1*(highlim-fuelamt))
-            
-        
-        
-            
-bestfuel(fuel)
-
-
-
-
-
-
-
-
