@@ -10,7 +10,7 @@ DEFINITIONS    { parameter definitions }
 
 !parameters
 
-mfuel1  = 20000
+mfuel1  = 36117.0
 mfuel2 = (614000/17) - mfuel1
 
 ! constants
@@ -75,7 +75,7 @@ BOUNDARIES       { The domain definition }
   REGION 1       { For each material region }
     START(0,0)   { Walk the domain boundary }
     LINE TO (1,0) TO (1,1) TO (0,1) TO CLOSE
-TIME 0 TO 500  halt (t>tfuel2) and (p=0)  { if time dependent }
+TIME 0 TO 500  halt (t>tfuel2)   { if time dependent }
 MONITORS         { show progress }
 PLOTS            { save result displays }
 	for t = 0 by endtime/250 to endtime
@@ -85,8 +85,6 @@ PLOTS            { save result displays }
     history (acc) at (0,0)
     history (v) at (0,0)
     history(rho) at (0,0)
-	history(m_r_t) at(0,0)
-	
 	history(h, v) at (0,0) Export Format '#t#b#1#b#2' file = 'DA1test.txt'
 SUMMARY
 	report eval (h, 0, 0)
