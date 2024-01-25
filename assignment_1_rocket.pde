@@ -1,9 +1,4 @@
-import subprocess
-import numpy as np
-import matplotlib.pyplot as plt
-
-
-flexcode = """TITLE 'Rocket DA1'     { the problem identification }
+TITLE 'Rocket DA1'     { the problem identification }
 COORDINATES cartesian2  { coordinate system, 1D,2D,3D, etc }
 VARIABLES        { system variables }
 h(threshold = 0.0001)
@@ -15,7 +10,7 @@ DEFINITIONS    { parameter definitions }
 
 !parameters
 
-mfuel1  = %s
+mfuel1  = 0.5062997337565378
 mfuel2 = (614000/17) - mfuel1
 
 ! constants
@@ -101,84 +96,4 @@ SUMMARY
     report val (tfuel2,0,0)
 
 END
-"""
-
-flexfilename = "assignment_1_rocket.pde"
-
-
-def run_code(mfuel1):
-    with open(flexfilename, "w") as f:
-        print(flexcode%mfuel1, file=f)
-    
-    subprocess.run(["/Applications/FlexPDE7/FlexPDE7.app/Contents/MacOS/FlexPDE7", "-S", flexfilename])
-
-    data = np.loadtxt("assignment_1_rocket_output/DA1test.txt", skiprows=8)
-    
-    return data
-
-
-def optimization():
-
-    #Chose the value for the precision of the optimization
-    precision = 30
-
-    #Choose all the possible values for the fuel
-    mfuel = np.linspace(100, 36117, precision)
-
-    #Create an empty array to store the velocities
-    v = np.empty(len(mfuel))
-
-    #Run the code for each fuel value and store the velocity
-    for i, fuel in enumerate(mfuel):
-        v[i] = run_code(fuel)[:, 2][-1]
-
-    #Set the low and high values for the fuel 
-    xlow, xhigh = 100, 36117
-    ylow, yhigh = run_code(xlow)[:, 2][-1], run_code(xhigh)[:, 2][-1]
-
-    plt.plot(xlow, ylow, '*')
-    plt.plot(xhigh, yhigh, '*')
-
-    optimum_fuel = None
-    max_velocity = -np.inf
-
-    #Run the optimization
-    for _ in range(precision):
-        xmid = (xlow + xhigh) / 2
-        ymid = run_code(xmid)[:, 2][-1]
-        plt.plot(xmid, ymid, '*')
-
-        if ymid > max_velocity:
-            max_velocity = ymid
-            optimum_fuel = xmid
-
-        xvals = [xlow, xmid, xhigh]
-        yvals = [ylow, ymid, yhigh]
-
-        # Fit a parabola to the three points
-        coeffs = np.polyfit(xvals, yvals, 2)
-
-        # If the coefficient is 0 we break
-        if coeffs[0] == 0:
-            break
-
-        # Find the x value of the peak of the parabola
-        xpeak = -coeffs[1] / (2 * coeffs[0])
-
-        # Find the y value of the peak of the parabola
-        ypeak = run_code(xpeak)[:, 2][-1]
-
-        # Plot the peak
-        plt.plot(xpeak, ypeak, '*')
-
-        # If the peak is between the low and mid points, replace the high point with the peak
-        if ymid > ylow:
-            xlow, ylow = xmid, ymid
-        else:
-            xhigh, yhigh = xmid, ymid
-
-    plt.show()
-    print(f"Optimum Fuel Amount: {optimum_fuel}, Maximum Velocity: {max_velocity}")
-
-optimization()
 

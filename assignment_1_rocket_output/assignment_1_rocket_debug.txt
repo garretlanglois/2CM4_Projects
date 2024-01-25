@@ -1,0 +1,3458 @@
+
+================================================================
+===  FlexPDE Version 7.21/OSXm  12:20:20 Dec  9 2022  Copyright (c) 1996-2020 PDE Solutions Inc.
+===  /Users/garretlanglois/Documents/GitHub/2CM4_Projects/assignment_1_rocket.pde 20:13:43 1/24/24
+================================================================
+    1| TITLE 'Rocket DA1'     { the problem identification }
+    2| COORDINATES cartesian2  { coordinate system, 1D,2D,3D, etc }
+    3| VARIABLES        { system variables }
+    4| h(threshold = 0.0001)
+    5| v(threshold = 0.0001)
+    6|  
+    7|  SELECT         { method controls n}
+    8| ngrid =1
+    9| DEFINITIONS    { parameter definitions }
+   10| 
+   11| !parameters
+   12| 
+   13| mfuel1  = 0.5062997337565378
+   14| mfuel2 = (614000/17) - mfuel1
+   15| 
+   16| ! constants
+   17| g_earth = 9.80665
+   18| p0 = 101.325e3
+   19| t0 = 288.15
+   20| L= 0.0065
+   21| R_gas = 8.31447
+   22| mm = 0.0289644
+   23| big_G = 6.67e-11
+   24| M_earth = 5.9722e24
+   25| R_earth = 6.3781e6
+   26| CD = 0.2
+   27| A = 1
+   28| 
+   29| !stage 1 specific constants 
+   30| q1 = 2000
+   31| v1 = 2500
+   32| m_engine = 320
+   33| mass_tank = 30*(1+mfuel1/2000)
+   34| tfuel1 =  mfuel1/q1
+   35| 
+   36| 
+   37| !stage 2 specific constants 
+   38| q2 = 300
+   39| v2 = 2800
+   40| m_engine2 = 150
+   41| mass_tank2 = 15*(1+mfuel2/1000)
+   42| tfuel2 = mfuel2/q2 + tfuel1
+   43| 
+   44| !equations
+   45| start_mass = m_engine +m_engine2 +200+mass_tank2 + mass_tank + mfuel1 + mfuel2
+   46| m_r_t =   if ( t < tfuel1) then (start_mass - q1*t) else (if  ( t < tfuel2)  then (start_mass - mfuel1 - q2*(t-tfuel1) - m_engine - mass_tank) else (200)) !mass rocket total
+   47| thresh = (L*h)/t0 
+   48| Tvar = t0 - L*h
+   49| expon = (g_earth*mm)/(R_gas*L)
+   50| p = if  (thresh < 1) then  p0*((1-(L*h)/t0)^(expon)) else 0
+   51| rho = p*mm/(R_gas*Tvar)
+   52| 
+   53| 
+   54| ! equations
+   55| 
+   56| FD = 1/2*rho*CD*A*(v^2)
+   57| FG = (big_G*m_r_t*M_earth)/((R_earth+h)^2)
+   58| FT = if ( t < tfuel1) then q1*v1 else(if  (t < tfuel2) then q2*v2 else 0)
+   59| acc =( FT - (FD +FG))/m_r_t
+   60| 
+   61| price = 5000*(320+150) + 800*(mass_tank+ mass_tank2) + 5*(mfuel1 + mfuel2)
+   62| 
+   63| INITIAL VALUES
+   64| 
+   65| h = 0
+   66| v = 1  
+   67| 
+   68| EQUATIONS        { PDE's, one for each variable }
+   69| h: dt(h) = v
+   70| v: dt(v) = acc
+   71| 
+   72| 
+   73| ! CONSTRAINTS    { Integral constraints }
+   74| BOUNDARIES       { The domain definition }
+   75|   REGION 1       { For each material region }
+   76|     START(0,0)   { Walk the domain boundary }
+   77|     LINE TO (1,0) TO (1,1) TO (0,1) TO CLOSE
+   78| TIME 0 TO 500  halt (t>tfuel2)   { if time dependent }
+   79| MONITORS         { show progress }
+   80| PLOTS            { save result displays }
+   81| 	for t = 0 by endtime/250 to endtime
+   82| 	history(FD) at (0,0)
+   83|     history(FG) at (0,0)
+   84|     history(FT) at (0,0)
+   85|     history (acc) at (0,0)
+   86|     history (v) at (0,0)
+   87|     history(rho) at (0,0)
+   88| 	history(h, v, p) at (0,0) Export Format '#t#b#1#b#2#b#3' file = 'DA1test.txt'
+   89| SUMMARY
+   90| 	report eval (h, 0, 0)
+   91| 	report eval (v, 0, 0)
+   92|     report (start_mass)
+   93|     report val (m_r_t,0,0)
+   94|     report val (price, 0, 0)
+   95|     report val (tfuel1,0,0)
+   96|     report val (tfuel2,0,0)
+   97| 
+   98| END
+Uorder=3
+ H order=3
+ V order=3
+FlexPDE Lite Version 7.21/OSXm 3D
+Copyright (c) 1996-2020 PDE Solutions Inc.
+FlexPDE Lite Version 7.21/OSXm 3D
+Copyright (c) 1996-2020 PDE Solutions Inc.
+FlexPDE Lite Version 7.21/OSXm 3D
+Copyright (c) 1996-2020 PDE Solutions Inc.
+STUDENT VERSION SETS GROW2=0.35 GRIDARC=30
+IMPORTMESH(0) NDIM=2 NB=10 NAB=3 NODES=4 CELLS=2 SIDES=5 LEGS=0 imaging=0 time(0)=0
+MESH IMPORT ABORTED: Different GRID2D
+Transferred mesh does not match local domain!
+(Boundary descriptions must match exactly.)
+
+==========================
+ SUMMARIZE PARAMETERS
+==========================
+ Param         name     Type       Domain               Definition
+-------------------------------------------------------------------
+     1       MFUEL1   Scalar      (GLOBAL)               :  0.50630
+                                             [1]=>  0.50630
+     2       MFUEL2   Scalar      (GLOBAL)               :  36117.6-MFUEL1
+                                             [1]=>  36117.1
+     3      G_EARTH   Scalar      (GLOBAL)               :  9.80665
+                                             [1]=>  9.80665
+     4           P0   Scalar      (GLOBAL)               : 101325
+                                             [1]=> 101325
+     5           T0   Scalar      (GLOBAL)               :  288.150
+                                             [1]=>  288.150
+     6            L   Scalar      (GLOBAL)               :  0.00650
+                                             [1]=>  0.00650
+     7        R_GAS   Scalar      (GLOBAL)               :  8.31447
+                                             [1]=>  8.31447
+     8           MM   Scalar      (GLOBAL)               :  0.02896
+                                             [1]=>  0.02896
+     9        BIG_G   Scalar      (GLOBAL)               :  6.7e-11
+                                             [1]=>  6.7e-11
+    10      M_EARTH   Scalar      (GLOBAL)               :  6.0e+24
+                                             [1]=>  6.0e+24
+    11      R_EARTH   Scalar      (GLOBAL)               :  6.38e+6
+                                             [1]=>  6.38e+6
+    12           CD   Scalar      (GLOBAL)               :  0.20000
+                                             [1]=>  0.20000
+    13            A   Scalar      (GLOBAL)               : 1
+                                             [1]=> 1
+    14           Q1   Scalar      (GLOBAL)               : 2000
+                                             [1]=> 2000
+    15           V1   Scalar      (GLOBAL)               : 2500
+                                             [1]=> 2500
+    16     M_ENGINE   Scalar      (GLOBAL)               : 320
+                                             [1]=> 320
+    17    MASS_TANK   Scalar      (GLOBAL)               : 30*(1+(MFUEL1* 5.00e-4))
+                                             [1]=>  30.0076
+    18       TFUEL1   Scalar      (GLOBAL)               : MFUEL1/Q1
+                                             [1]=>  2.53e-4
+    19           Q2   Scalar      (GLOBAL)               : 300
+                                             [1]=> 300
+    20           V2   Scalar      (GLOBAL)               : 2800
+                                             [1]=> 2800
+    21    M_ENGINE2   Scalar      (GLOBAL)               : 150
+                                             [1]=> 150
+    22   MASS_TANK2   Scalar      (GLOBAL)               : 15*(1+(MFUEL2* 0.00100))
+                                             [1]=>  556.757
+    23       TFUEL2   Scalar      (GLOBAL)               : (MFUEL2/Q2)+TFUEL1
+                                             [1]=>  120.391
+    24   START_MASS   Scalar      (GLOBAL)               : (((((M_ENGINE+M_ENGINE2)+200)+MASS_TANK2)+MASS_TANK)+MFUEL1)+MFUEL2
+                                             [1]=>  37374.4
+    25        M_R_T   Scalar      (GLOBAL)               : If(T<TFUEL1) Then(START_MASS-(Q1*T)) Else(If(T<TFUEL2) Then((((START_MASS-MFUEL1)-(Q2*(T-TFUEL1)))-M_ENGINE)-MASS_TANK) Else(200))
+                                             [25]=> If(T< 2.53e-4) Then( 37374.4-(2000*T)) Else(If(T< 120.391) Then((( 37373.9-(300*(T- 2.53e-4)))-320)- 30.0076) Else(200))
+    26       THRESH   Scalar      (GLOBAL)               : (L*H)/T0
+                                             [5]=> ( 0.00650*H)/ 288.150
+    27         TVAR   Scalar      (GLOBAL)               : T0-(L*H)
+                                             [5]=>  288.150-( 0.00650*H)
+    28        EXPON   Scalar      (GLOBAL)               : (G_EARTH*MM)/(R_GAS*L)
+                                             [1]=>  5.25578
+    29            P   Scalar      (GLOBAL)               : If(THRESH<1) Then(P0*((1-((L*H)/T0))^EXPON)) Else(0)
+                                             [20]=> If((( 0.00650*H)/ 288.150)<1) Then(101325*((1-(( 0.00650*H)/ 288.150))^ 5.25578)) Else(0)
+    30          RHO   Scalar      (GLOBAL)               : (P*MM)/(R_GAS*TVAR)
+                                             [30]=> ((If((( 0.00650*H)/ 288.150)<1) Then(101325*((1-(( 0.00650*H)/ 288.150))^ 5.25578)) Else(0))* 0.02896)/( 8.31447*( 288.150-( 0.00650*H)))
+    31           FD   Scalar      (GLOBAL)               : ((( 0.50000*RHO)*CD)*A)*Sqr(V)
+                                             [33]=> ( 0.00290*((If((( 0.00650*H)/ 288.150)<1) Then(101325*((1-(( 0.00650*H)/ 288.150))^ 5.25578)) Else(0))*Sqr(V)))/( 8.31447*( 288.150-( 0.00650*H)))
+    32           FG   Scalar      (GLOBAL)               : ((BIG_G*M_R_T)*M_EARTH)/Sqr(R_EARTH+H)
+                                             [32]=> ( 4.0e+14*(If(T< 2.53e-4) Then( 37374.4-(2000*T)) Else(If(T< 120.391) Then((( 37373.9-(300*(T- 2.53e-4)))-320)- 30.0076) Else(200))))/Sqr( 6.38e+6+H)
+    33           FT   Scalar      (GLOBAL)               : If(T<TFUEL1) Then(Q1*V1) Else(If(T<TFUEL2) Then(Q2*V2) Else(0))
+                                             [11]=> If(T< 2.53e-4) Then( 5.00e+6) Else(If(T< 120.391) Then(840000) Else(0))
+    34          ACC   Scalar      (GLOBAL)               : (FT-(FD+FG))/M_R_T
+                                             [104]=> ((If(T< 2.53e-4) Then( 5.00e+6) Else(If(T< 120.391) Then(840000) Else(0)))-((( 0.00290*((If((( 0.00650*H)/ 288.150)<1) Then(101325*((1-(( 0.00650*H)/ 288.150))^ 5.25578)) Else(0))*Sqr(V)))/( 8.31447*( 288.150-( 0.00650*H))))+(( 4.0e+14*(If(T< 2.53e-4) Then( 37374.4-(2000*T)) Else(If(T< 120.391) Then((( 37373.9-(300*(T- 2.53e-4)))-320)- 30.0076) Else(200))))/Sqr( 6.38e+6+H))))/(If(T< 2.53e-4) Then( 37374.4-(2000*T)) Else(If(T< 120.391) Then((( 37373.9-(300*(T- 2.53e-4)))-320)- 30.0076) Else(200)))
+    35        PRICE   Scalar      (GLOBAL)               : ( 2.35e+6+(800*(MASS_TANK+MASS_TANK2)))+(5*(MFUEL1+MFUEL2))
+                                             [1]=>  3.00e+6
+    36      ENDTIME   Scalar      (GLOBAL)               : 500
+                                             [1]=> 500
+
+
+
+==========================
+SUMMARIZE EQUATIONS
+==========================
+In the following equation definitions
+Derivatives are represented by appending a dot and the differentiated coordinate.
+The operator <V> represents volume integration. <Vb> is weighted by basis function.
+<Vu> is weighted by the upwind modifer. <Vbu> is weighted by both.
+A dotted volume integral represents volume integration weighted by the indicated
+derivative of the basis function. 'Beta' represents a basis function.
+The operator <S>.c represents surface integration weighted by the indicated
+direction cosine.
+
+            DEFINES     REGION/     DEPENDS                      BASE          CSE
+ EQUATION     VAR    COMPARTMENT      VAR         FUNCTION     COMPLEXITY   COMPLEXITY     MEMORY  DEFINITION
+-----------------------------------------------------------------------------------------------------------
+
+PRIMARY EQUATIONS
+     1          H                            Field Equation                                      : (DT(H))-V
+                           1                         Source          1            2          160 : <Vb>(0)
+                                             Space Galerkin          3            3          240 : -(<Vb>(V))
+                                              Time Galerkin          0            2          160 : <Vb>(H.T)
+                                        H    Space Jacobian          1            1           80 : 0
+                                        H     Time Jacobian          0            4          320 : <Vb>(Beta*/Dt)
+                                        V    Space Jacobian          3            3          240 : -(<Vb>(Beta))
+                                           Surface Galerkin          1            1           80 : 0
+     2          V                            Field Equation                                      : (DT(V))-ACC
+                           1                         Source         37           38         3040 : <Vb>((If(T< 2.53e-4) Then( 5.00e+6) Else(If(T< 120.391) Then(840000) Else(0)))/(If(T< 2.53e-4) Then( 37374.4-(2000*T)) Else(If(T< 120.391) Then((( 37373.9-(300*(T- 2.53e-4)))-320)- 30.0076) Else(200))))
+                                             Space Galerkin         91           91         7280 : <Vb>(((( 0.00290*((If((( 0.00650*H)/ 288.150)<1) Then(101325*((1-(( 0.00650*H)/ 288.150))^ 5.25578)) Else(0))*Sqr(V)))/( 2395.81-( 0.05404*H)))+(( 4.0e+14*(If(T< 2.53e-4) Then( 37374.4-(2000*T)) Else(If(T< 120.391) Then((( 37373.9-((300*T)- 0.07594))-320)- 30.0076) Else(200))))/Sqr( 6.38e+6+H)))/(If(T< 2.53e-4) Then( 37374.4-(2000*T)) Else(If(T< 120.391) Then((( 37373.9-((300*T)- 0.07594))-320)- 30.0076) Else(200))))
+                                              Time Galerkin          0            2          160 : <Vb>(V.T)
+                                        H    Space Jacobian        146          141        11280 : <Vb>((((( 0.00290*((If((( 0.00650*H)/ 288.150)<1) Then(-((( 3461.52*(((def#1(1-(( 0.00650*H)/ 288.150)))^ 5.25578)*Beta))/ 288.150)/(ref#1))) Else(0))*Sqr(V)))/( 2395.81-( 0.05404*H)))+(( 1.57e-4*(Beta*((If((( 0.00650*H)/ 288.150)<1) Then(101325*((1-(( 0.00650*H)/ 288.150))^ 5.25578)) Else(0))*Sqr(V))))/Sqr( 2395.81-( 0.05404*H))))-(( 8.0e+14*((( 6.38e+6+H)*Beta)*(If(T< 2.53e-4) Then( 37374.4-(2000*T)) Else(If(T< 120.391) Then((( 37373.9-((300*T)- 0.07594))-320)- 30.0076) Else(200)))))/Sqr(Sqr( 6.38e+6+H))))/(If(T< 2.53e-4) Then( 37374.4-(2000*T)) Else(If(T< 120.391) Then((( 37373.9-((300*T)- 0.07594))-320)- 30.0076) Else(200))))
+                                        V    Space Jacobian         59           59         4720 : <Vb>((( 0.00579*((If((( 0.00650*H)/ 288.150)<1) Then(101325*((1-(( 0.00650*H)/ 288.150))^ 5.25578)) Else(0))*(V*Beta)))/( 2395.81-( 0.05404*H)))/(If(T< 2.53e-4) Then( 37374.4-(2000*T)) Else(If(T< 120.391) Then((( 37373.9-((300*T)- 0.07594))-320)- 30.0076) Else(200))))
+                                        V     Time Jacobian          0            4          320 : <Vb>(Beta*/Dt)
+                                           Surface Galerkin          1            1           80 : 0
+
+EQUATION 2 PARAMETER DEPENDENCIES:
+       MFUEL1       MFUEL2      G_EARTH           P0           T0            L        R_GAS           MM        BIG_G      M_EARTH
+       R_EARTH           CD            A           Q1           V1     M_ENGINE    MASS_TANK       TFUEL1           Q2           V2
+     M_ENGINE2   MASS_TANK2       TFUEL2   START_MASS        M_R_T       THRESH         TVAR        EXPON            P          RHO
+            FD           FG           FT          ACC
+
+========================================================
+     SUMMARIZE BOUNDARY CONDITIONS
+========================================================
+
+BOUNDARY CONDITION TAGS with associated BC INDEX
+
+    BC  KIND     DEFINES   COMPARTMENT     DEPENDS     FUNCTION     COMPLEXITY    MEMORY    DEFINITION
+-----------------------------------------------------------------------------------------------------
+
+================================
+SUMMARIZE FITS AND INTEGRALS
+=================================
+                             REGION/       BASE        CSE
+    FIT         KIND       COMPARTMENT  COMPLEXITY  COMPLEXITY  MEMORY  DEFINITION
+-----------------------------------------------------------------------------------------
+     1                  VAL       1          25         25       2000     : If(T< 2.53e-4) Then( 37374.4-(2000*T)) Else(If(T< 120.391) Then((( 37373.9-(300*(T- 2.53e-4)))-320)- 30.0076) Else(200))
+     2                  VAL       1           1          1         80     :  3.00e+6
+     3                  VAL       1           1          1         80     :  2.53e-4
+     4                  VAL       1           1          1         80     :  120.391
+
+===============================
+  SUMMARIZE PLOTS
+===============================
+                      REGION/       BASE        CSE
+  PLOT    TYPE     COMPARTMENT  COMPLEXITY  COMPLEXITY    MEMORY    DEFINITION
+------------------------------------------------------------------------------
+     1     HISTORY          0         33         32         2560  : ( 0.00290*((If(((def#2( 0.00650*H))/ 288.150)<1) Then(101325*((1-(( 0.00650*H)/ 288.150))^ 5.25578)) Else(0))*Sqr(V)))/( 8.31447*( 288.150-(ref#2)))
+     2     HISTORY          0         32         32         2560  : ( 4.0e+14*(If(T< 2.53e-4) Then( 37374.4-(2000*T)) Else(If(T< 120.391) Then((( 37373.9-(300*(T- 2.53e-4)))-320)- 30.0076) Else(200))))/Sqr( 6.38e+6+H)
+     3     HISTORY          0         11         11          880  : If(T< 2.53e-4) Then( 5.00e+6) Else(If(T< 120.391) Then(840000) Else(0))
+     4     HISTORY          0        104         81         6480  : ((If(T< 2.53e-4) Then( 5.00e+6) Else(If(T< 120.391) Then(840000) Else(0)))-((( 0.00290*((If(((def#3( 0.00650*(def#4(H))))/ 288.150)<1) Then(101325*((1-(( 0.00650*H)/ 288.150))^ 5.25578)) Else(0))*Sqr(V)))/( 8.31447*( 288.150-(ref#3))))+(( 4.0e+14*(def#5(If(T< 2.53e-4) Then( 37374.4-(2000*T)) Else(If(T< 120.391) Then((( 37373.9-(300*(T- 2.53e-4)))-320)- 30.0076) Else(200)))))/Sqr( 6.38e+6+(ref#4)))))/(ref#5)
+     5     HISTORY          0          1          1           80  : V
+     6     HISTORY          0         30         29         2320  : ((If(((def#6( 0.00650*H))/ 288.150)<1) Then(101325*((1-(( 0.00650*H)/ 288.150))^ 5.25578)) Else(0))* 0.02896)/( 8.31447*( 288.150-(ref#6)))
+     7     HISTORY          0          1          1           80  : H
+                            0          1          1           80  : V
+                            0         20         20         1600  : If((( 0.00650*H)/ 288.150)<1) Then(101325*((1-(( 0.00650*H)/ 288.150))^ 5.25578)) Else(0)
+
+==UNUSED== PARAMETER DEFINITIONS:
+ PRICE
+Uorder=3
+ H order=3
+ V order=3
+LOG Threads=1 Order=3 Speed=1 Stability=0
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.9981e-15 XNORM=8.79728 Flag=Ok
+EQset 1 Newton Step 1 of 5 DNORM=634.376, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  691.7435  271.2953
+Lanczos/BInv FINAL ITERATION 14 of 4000 RNORM=4.94376e-17 XNORM=7.14667e-07 Flag=Ok
+EQset 1 Newton Step 2 of 5 DNORM=1.76082e-05, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  1.761e-5  1.761e-5
+Lanczos/BInv FINAL ITERATION 23 of 4000 RNORM=4.89696e-31 XNORM=7.83724e-14 Flag=Ok
+EQset 1 Newton Step 3 of 5 DNORM=6.31037e-12, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  6.88e-12  1.73e-12
+Large-Error Escape (634.376)
+STEP FAILED. RETRY
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=7.13697e-16 XNORM=0.861313 Flag=Ok
+EQset 1 Newton Step 1 of 5 DNORM=41.1338, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  44.75603  27.11214
+Lanczos/BInv FINAL ITERATION 18 of 4000 RNORM=1.46257e-26 XNORM=8.86477e-10 Flag=Ok
+EQset 1 Newton Step 2 of 5 DNORM=2.49155e-08, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  2.893e-9  2.717e-8
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.04267e-17 XNORM=5.92339e-05 Flag=Ok
+EQset 1 Newton Step 1 of 5 DNORM=0.00166484, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  1.933e-4  0.001816
+Lanczos/BInv FINAL ITERATION 24 of 4000 RNORM=2.7755e-31 XNORM=1.68465e-14 Flag=Ok
+EQset 1 Newton Step 2 of 5 DNORM=4.83581e-13, Max error at Var 2 (V) Coef 15 
+Variable Convergence:  4.34e-13  5.12e-13
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=5.98362e-16 XNORM=0.836039 Flag=Ok
+EQset 1 Newton Step 1 of 5 DNORM=42.7414, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  46.56340  25.46903
+Lanczos/BInv FINAL ITERATION 17 of 4000 RNORM=1.40343e-25 XNORM=5.73856e-10 Flag=Ok
+EQset 1 Newton Step 2 of 5 DNORM=1.56615e-08, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  1.285e-9  1.708e-8
+STEP FAILED. RETRY
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.21316e-18 XNORM=0.00191713 Flag=Ok
+EQset 1 Newton Step 1 of 5 DNORM=0.248621, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.271123  1.738e-4
+Lanczos/BInv FINAL ITERATION 24 of 4000 RNORM=1.99111e-33 XNORM=1.07193e-15 Flag=Ok
+EQset 1 Newton Step 2 of 5 DNORM=3.22185e-14, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  1.73e-14  3.51e-14
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=8.94084e-17 XNORM=0.0861415 Flag=Ok
+EQset 1 Newton Step 1 of 5 DNORM=4.13786, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  4.502716  2.711234
+Lanczos/BInv FINAL ITERATION 22 of 4000 RNORM=1.31259e-29 XNORM=9.12496e-13 Flag=Ok
+EQset 1 Newton Step 2 of 5 DNORM=2.63759e-11, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  3.03e-13  2.88e-11
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.65904e-17 XNORM=0.028759 Flag=Ok
+EQset 1 Newton Step 1 of 5 DNORM=1.63135, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  1.778055  0.898127
+Lanczos/BInv FINAL ITERATION 23 of 4000 RNORM=2.92141e-32 XNORM=6.76053e-14 Flag=Ok
+EQset 1 Newton Step 2 of 5 DNORM=1.95635e-12, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  1.05e-13  2.13e-12
+STEP FAILED. RETRY
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.19484e-16 XNORM=0.0824273 Flag=Ok
+EQset 1 Newton Step 1 of 5 DNORM=2.39024, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.450167  2.606577
+Lanczos/BInv FINAL ITERATION 24 of 4000 RNORM=5.20216e-32 XNORM=8.34966e-14 Flag=Ok
+EQset 1 Newton Step 2 of 5 DNORM=2.41408e-12, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  6.32e-15  2.63e-12
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.63655e-18 XNORM=0.000191713 Flag=Ok
+EQset 1 Newton Step 1 of 5 DNORM=0.0248621, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.027112  9.797e-6
+Lanczos/BInv FINAL ITERATION 23 of 4000 RNORM=5.21259e-34 XNORM=9.67539e-16 Flag=Ok
+EQset 1 Newton Step 2 of 5 DNORM=2.75159e-14, Max error at Var 2 (V) Coef 15 
+Variable Convergence:  4.11e-15  3.00e-14
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.80954e-15 XNORM=0.082173 Flag=Ok
+EQset 1 Newton Step 1 of 5 DNORM=2.37552, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.460942  2.590521
+Lanczos/BInv FINAL ITERATION 24 of 4000 RNORM=2.56534e-31 XNORM=5.54977e-14 Flag=Ok
+EQset 1 Newton Step 2 of 5 DNORM=1.60108e-12, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  6.14e-15  1.75e-12
+STEP FAILED. RETRY
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.50105e-20 XNORM=2.10144e-05 Flag=Ok
+EQset 1 Newton Step 1 of 5 DNORM=0.00272523, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.002972  2.415e-6
+Lanczos/BInv FINAL ITERATION 23 of 4000 RNORM=2.31198e-35 XNORM=2.87159e-17 Flag=Ok
+EQset 1 Newton Step 2 of 5 DNORM=7.93365e-16, Max error at Var 2 (V) Coef 7 
+Variable Convergence:  4.77e-16  8.64e-16
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.68744e-18 XNORM=0.00824273 Flag=Ok
+EQset 1 Newton Step 1 of 5 DNORM=0.239024, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.045043  0.260658
+Lanczos/BInv FINAL ITERATION 24 of 4000 RNORM=8.82392e-32 XNORM=1.68751e-16 Flag=Ok
+EQset 1 Newton Step 2 of 5 DNORM=5.11183e-15, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  9.36e-16  5.57e-15
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=8.32863e-17 XNORM=0.0027468 Flag=Ok
+EQset 1 Newton Step 1 of 5 DNORM=0.0796276, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.017992  0.086835
+Lanczos/BInv FINAL ITERATION 24 of 4000 RNORM=1.64051e-33 XNORM=6.50811e-17 Flag=Ok
+EQset 1 Newton Step 2 of 5 DNORM=1.98971e-15, Max error at Var 2 (V) Coef 13 
+Variable Convergence:  4.31e-16  2.17e-15
+STEP FAILED. RETRY
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.80137e-18 XNORM=0.00412136 Flag=Ok
+EQset 1 Newton Step 1 of 5 DNORM=0.119512, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.022515  0.130329
+Lanczos/BInv FINAL ITERATION 24 of 4000 RNORM=3.35011e-33 XNORM=6.35638e-17 Flag=Ok
+EQset 1 Newton Step 2 of 5 DNORM=1.80327e-15, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  2.39e-16  1.97e-15
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.20524e-20 XNORM=1.05072e-05 Flag=Ok
+EQset 1 Newton Step 1 of 5 DNORM=0.00136262, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.001486  1.189e-6
+Lanczos/BInv FINAL ITERATION 24 of 4000 RNORM=1.84603e-34 XNORM=2.18146e-17 Flag=Ok
+EQset 1 Newton Step 2 of 5 DNORM=6.65509e-16, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  4.29e-16  7.24e-16
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=8.85361e-18 XNORM=0.00412074 Flag=Ok
+EQset 1 Newton Step 1 of 5 DNORM=0.119475, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.023015  0.130289
+Lanczos/BInv FINAL ITERATION 24 of 4000 RNORM=1.33751e-33 XNORM=5.05477e-17 Flag=Ok
+EQset 1 Newton Step 2 of 5 DNORM=1.55518e-15, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  2.97e-16  1.70e-15
+STEP FAILED. RETRY
+Orthomin/ILU FINAL ITERATION 20 of 4000 RNORM=5.809e-13 XNORM=2.52064e-05 Flag=Ok
+EQset 1 Newton Step 1 of 5 DNORM=0.000684296, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  7.462e-4  6.086e-7
+Orthomin/ILU FINAL ITERATION 27 of 4000 RNORM=9.36562e-21 XNORM=7.12644e-13 Flag=Ok
+EQset 1 Newton Step 2 of 5 DNORM=9.57465e-11, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  1.04e-10  9.95e-14
+Orthomin/ILU FINAL ITERATION 18 of 4000 RNORM=3.0282e-12 XNORM=0.044023 Flag=Ok
+EQset 1 Newton Step 1 of 5 DNORM=0.0597561, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.011259  0.065164
+Orthomin/ILU FINAL ITERATION 25 of 4000 RNORM=6.3412e-22 XNORM=5.21242e-12 Flag=Ok
+EQset 1 Newton Step 2 of 5 DNORM=5.81551e-10, Max error at Var 2 (V) Coef 12 
+Variable Convergence:  6.34e-10  1.51e-11
+Orthomin/ILU FINAL ITERATION 19 of 4000 RNORM=6.07904e-16 XNORM=0.0179728 Flag=Ok
+EQset 1 Newton Step 1 of 5 DNORM=0.0199162, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.004500  0.021719
+Orthomin/ILU FINAL ITERATION 19 of 4000 RNORM=3.90187e-29 XNORM=4.43861e-16 Flag=Ok
+EQset 1 Newton Step 2 of 5 DNORM=6.68967e-15, Max error at Var 2 (V) Coef 13 
+Variable Convergence:  7.30e-15  1.83e-15
+STEP FAILED. RETRY
+Orthomin/ILU FINAL ITERATION 20 of 4000 RNORM=7.21605e-10 XNORM=0.0311289 Flag=Ok
+EQset 1 Newton Step 1 of 5 DNORM=0.029878, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.005629  0.032582
+Orthomin/ILU FINAL ITERATION 20 of 4000 RNORM=2.05381e-20 XNORM=8.81302e-10 Flag=Ok
+EQset 1 Newton Step 2 of 5 DNORM=4.18244e-09, Max error at Var 2 (V) Coef 13 
+Variable Convergence:  7.64e-10  4.561e-9
+Orthomin/ILU FINAL ITERATION 20 of 4000 RNORM=4.1079e-13 XNORM=1.78236e-05 Flag=Ok
+EQset 1 Newton Step 1 of 5 DNORM=0.000342148, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  3.731e-4  3.031e-7
+Orthomin/ILU FINAL ITERATION 27 of 4000 RNORM=6.62953e-21 XNORM=5.03936e-13 Flag=Ok
+EQset 1 Newton Step 2 of 5 DNORM=4.78744e-11, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  5.22e-11  4.96e-14
+Orthomin/ILU FINAL ITERATION 19 of 4000 RNORM=2.90881e-16 XNORM=0.0381251 Flag=Ok
+EQset 1 Newton Step 1 of 5 DNORM=0.0298758, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.005754  0.032580
+Orthomin/ILU FINAL ITERATION 19 of 4000 RNORM=3.33801e-30 XNORM=3.17861e-16 Flag=Ok
+EQset 1 Newton Step 2 of 5 DNORM=3.67998e-15, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  4.01e-15  1.03e-15
+STEP FAILED. RETRY
+Orthomin/ILU FINAL ITERATION 20 of 4000 RNORM=2.90778e-13 XNORM=1.2617e-05 Flag=Ok
+EQset 1 Newton Step 1 of 5 DNORM=0.000171261, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  1.868e-4  1.524e-7
+Orthomin/ILU FINAL ITERATION 27 of 4000 RNORM=4.68925e-21 XNORM=3.56725e-13 Flag=Ok
+EQset 1 Newton Step 2 of 5 DNORM=2.39634e-11, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  2.61e-11  2.50e-14
+Orthomin/ILU FINAL ITERATION 18 of 4000 RNORM=1.53151e-12 XNORM=0.0220115 Flag=Ok
+EQset 1 Newton Step 1 of 5 DNORM=0.014939, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.002815  0.016291
+Orthomin/ILU FINAL ITERATION 25 of 4000 RNORM=2.95522e-22 XNORM=2.62155e-12 Flag=Ok
+EQset 1 Newton Step 2 of 5 DNORM=1.46009e-10, Max error at Var 2 (V) Coef 12 
+Variable Convergence:  1.59e-10  3.94e-12
+Orthomin/ILU FINAL ITERATION 19 of 4000 RNORM=6.68777e-17 XNORM=0.0089864 Flag=Ok
+EQset 1 Newton Step 1 of 5 DNORM=0.00497962, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.001125  0.005430
+Orthomin/ILU FINAL ITERATION 19 of 4000 RNORM=3.92253e-31 XNORM=6.63615e-17 Flag=Ok
+EQset 1 Newton Step 2 of 5 DNORM=4.63905e-16, Max error at Var 2 (V) Coef 9 
+Variable Convergence:  5.06e-16  1.58e-16
+RMS Spatial Errors   2.85e-18  6.69e-20
+
+CYCLE 3 TIME (6.25e-07,7.98909e-07), DT=1.73909e-07, 4 NODES, 2 CELLS, 16 DOF
+Orthomin/ILU FINAL ITERATION 13 of 4000 RNORM=1.92984e-15 XNORM=2.45091e-09 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=2.13004e-08, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  2.323e-8  6.70e-11
+CYCLE 3 Max Time Err=0.000715037 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   1.235e-4  7.150e-4
+RMS Spatial Errors   2.07e-14  3.31e-19
+
+CYCLE 4 TIME (7.98909e-07,1.01629e-06), DT=2.17386e-07, 4 NODES, 2 CELLS, 16 DOF
+Orthomin/ILU FINAL ITERATION 20 of 4000 RNORM=7.68679e-11 XNORM=0.00490354 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.00222536, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  4.194e-4  0.002427
+CYCLE 4 Max Time Err=0.00200756 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   3.469e-4  0.002008
+RMS Spatial Errors   2.12e-10  5.77e-14
+
+CYCLE 5 TIME (1.01629e-06,1.23368e-06), DT=2.17386e-07, 4 NODES, 2 CELLS, 16 DOF
+Orthomin/ILU FINAL ITERATION 13 of 4000 RNORM=5.40935e-16 XNORM=6.35835e-09 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=5.87332e-08, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  6.405e-8  2.01e-10
+CYCLE 5 Max Time Err=2.71599e-09 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   2.669e-9  5.25e-11
+RMS Spatial Errors   2.83e-10  7.70e-14
+
+CYCLE 6 TIME (1.23368e-06,1.50541e-06), DT=2.71732e-07, 4 NODES, 2 CELLS, 16 DOF
+Orthomin/ILU FINAL ITERATION 13 of 4000 RNORM=5.06313e-19 XNORM=8.83738e-09 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=8.95603e-08, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  9.767e-8  3.73e-10
+CYCLE 6 Max Time Err=1.49169e-09 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   1.469e-9  2.24e-11
+RMS Spatial Errors   3.15e-10  8.56e-14
+
+CYCLE 7 TIME (1.50541e-06,1.84508e-06), DT=3.39665e-07, 4 NODES, 2 CELLS, 16 DOF
+Orthomin/ILU FINAL ITERATION 14 of 4000 RNORM=1.86763e-19 XNORM=1.17883e-08 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.33704e-07, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  1.458e-7  4.23e-10
+CYCLE 7 Max Time Err=6.65935e-10 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   6.56e-10  9.80e-12
+RMS Spatial Errors   3.29e-10  8.94e-14
+
+CYCLE 8 TIME (1.84508e-06,2.26966e-06), DT=4.24582e-07, 4 NODES, 2 CELLS, 16 DOF
+Orthomin/ILU FINAL ITERATION 14 of 4000 RNORM=3.03919e-19 XNORM=1.65467e-08 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=2.09883e-07, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  2.289e-7  6.54e-10
+CYCLE 8 Max Time Err=2.97294e-10 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   2.93e-10  4.65e-12
+RMS Spatial Errors   3.35e-10  9.11e-14
+
+CYCLE 9 TIME (2.26966e-06,2.80039e-06), DT=5.30727e-07, 4 NODES, 2 CELLS, 16 DOF
+Orthomin/ILU FINAL ITERATION 16 of 4000 RNORM=1.84565e-15 XNORM=2.31534e-08 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=3.28376e-07, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  3.581e-7  1.029e-9
+CYCLE 9 Max Time Err=1.32725e-10 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   1.31e-10  1.91e-12
+RMS Spatial Errors   3.38e-10  9.19e-14
+
+CYCLE 10 TIME (2.80039e-06,3.4638e-06), DT=6.63409e-07, 4 NODES, 2 CELLS, 16 DOF
+Orthomin/ILU FINAL ITERATION 15 of 4000 RNORM=1.26356e-16 XNORM=3.23694e-08 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=5.1328e-07, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  5.597e-7  1.613e-9
+CYCLE 10 Max Time Err=5.9257e-11 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   5.84e-11  1.02e-12
+RMS Spatial Errors   3.39e-10  9.22e-14
+
+CYCLE 11 TIME (3.4638e-06,4.29306e-06), DT=8.29261e-07, 4 NODES, 2 CELLS, 16 DOF
+Orthomin/ILU FINAL ITERATION 14 of 4000 RNORM=1.45268e-18 XNORM=4.52421e-08 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=8.02087e-07, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  8.747e-7  2.523e-9
+CYCLE 11 Max Time Err=2.64691e-11 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   2.61e-11  3.98e-13
+RMS Spatial Errors   3.40e-10  9.23e-14
+
+CYCLE 12 TIME (4.29306e-06,5.32963e-06), DT=1.03658e-06, 4 NODES, 2 CELLS, 16 DOF
+Orthomin/ILU FINAL ITERATION 15 of 4000 RNORM=9.64474e-16 XNORM=6.32297e-08 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.2533e-06, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  1.367e-6  3.942e-9
+CYCLE 12 Max Time Err=1.18428e-11 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   1.17e-11  5.11e-13
+RMS Spatial Errors   3.40e-10  9.24e-14
+
+CYCLE 13 TIME (5.32963e-06,6.62535e-06), DT=1.29572e-06, 4 NODES, 2 CELLS, 16 DOF
+Orthomin/ILU FINAL ITERATION 16 of 4000 RNORM=6.35559e-19 XNORM=8.83669e-08 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.9583e-06, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  2.136e-6  6.159e-9
+CYCLE 13 Max Time Err=5.3328e-12 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   5.26e-12  4.14e-13
+RMS Spatial Errors   3.40e-10  9.24e-14
+
+CYCLE 14 TIME (6.62535e-06,8.245e-06), DT=1.61965e-06, 4 NODES, 2 CELLS, 16 DOF
+Orthomin/ILU FINAL ITERATION 16 of 4000 RNORM=1.02524e-18 XNORM=1.23497e-07 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=3.05985e-06, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  3.337e-6  9.623e-9
+CYCLE 14 Max Time Err=2.48115e-12 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   2.44e-12  3.60e-13
+RMS Spatial Errors   3.40e-10  9.24e-14
+
+CYCLE 15 TIME (8.245e-06,1.02696e-05), DT=2.02456e-06, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 14 of 4000 RNORM=1.27758e-18 XNORM=3.68667e-08 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=4.78102e-06, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  5.214e-6  1.503e-8
+CYCLE 15 Max Time Err=1.29822e-12 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   1.28e-12  3.20e-13
+RMS Spatial Errors   3.40e-10  9.24e-14
+
+CYCLE 16 TIME (1.02696e-05,1.28003e-05), DT=2.5307e-06, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 14 of 4000 RNORM=2.95708e-18 XNORM=5.76042e-08 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=7.47034e-06, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  8.146e-6  2.348e-8
+CYCLE 16 Max Time Err=9.52175e-13 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.45e-13  2.71e-13
+RMS Spatial Errors   3.40e-10  9.24e-14
+
+CYCLE 17 TIME (1.28003e-05,1.59636e-05), DT=3.16338e-06, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 14 of 4000 RNORM=8.1401e-19 XNORM=9.00066e-08 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.16724e-05, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  1.273e-5  3.667e-8
+CYCLE 17 Max Time Err=1.15325e-12 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   1.15e-12  2.68e-13
+RMS Spatial Errors   3.40e-10  9.23e-14
+
+CYCLE 18 TIME (1.59636e-05,1.99179e-05), DT=3.95422e-06, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.87215e-19 XNORM=1.40635e-07 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.82381e-05, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  1.989e-5  5.727e-8
+CYCLE 18 Max Time Err=1.9374e-12 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   1.94e-12  3.07e-13
+RMS Spatial Errors   3.40e-10  9.23e-14
+
+CYCLE 19 TIME (1.99179e-05,2.48607e-05), DT=4.94278e-06, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=5.09899e-19 XNORM=2.19743e-07 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=2.84971e-05, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  3.108e-5  8.943e-8
+CYCLE 19 Max Time Err=3.64348e-12 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   3.64e-12  4.24e-13
+RMS Spatial Errors   3.40e-10  9.22e-14
+
+CYCLE 20 TIME (2.48607e-05,3.10391e-05), DT=6.17848e-06, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.69704e-18 XNORM=3.43348e-07 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=4.45267e-05, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  4.856e-5  1.396e-7
+CYCLE 20 Max Time Err=7.05311e-12 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   7.05e-12  1.57e-13
+RMS Spatial Errors   3.40e-10  9.21e-14
+
+CYCLE 21 TIME (3.10391e-05,3.87622e-05), DT=7.72309e-06, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.71315e-18 XNORM=5.36482e-07 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=6.9573e-05, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  7.587e-5  2.180e-7
+CYCLE 21 Max Time Err=1.3748e-11 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   1.37e-11  5.11e-13
+RMS Spatial Errors   3.40e-10  9.21e-14
+
+CYCLE 22 TIME (3.87622e-05,4.84161e-05), DT=9.65387e-06, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=9.22285e-18 XNORM=8.38253e-07 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.000108708, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  1.185e-4  3.402e-7
+CYCLE 22 Max Time Err=2.68385e-11 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   2.68e-11  2.97e-13
+RMS Spatial Errors   3.40e-10  9.19e-14
+
+CYCLE 23 TIME (4.84161e-05,6.04834e-05), DT=1.20673e-05, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.80104e-19 XNORM=1.30977e-06 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.000169856, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  1.852e-4  5.307e-7
+CYCLE 23 Max Time Err=5.24133e-11 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   5.24e-11  1.47e-13
+RMS Spatial Errors   3.09e-10  9.18e-14
+
+CYCLE 24 TIME (6.04834e-05,7.55676e-05), DT=1.50842e-05, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.53055e-18 XNORM=2.04652e-06 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.000265401, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  2.894e-4  8.277e-7
+CYCLE 24 Max Time Err=1.02367e-10 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   1.02e-10  7.36e-13
+RMS Spatial Errors   2.47e-10  9.16e-14
+
+CYCLE 25 TIME (7.55676e-05,9.44228e-05), DT=1.88552e-05, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.76019e-20 XNORM=3.19769e-06 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.000414689, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  4.522e-4  1.290e-6
+CYCLE 25 Max Time Err=1.99935e-10 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   2.00e-10  9.13e-13
+RMS Spatial Errors   1.97e-10  9.14e-14
+
+CYCLE 26 TIME (9.44228e-05,0.000117992), DT=2.3569e-05, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.46297e-19 XNORM=4.99639e-06 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.000647952, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  7.066e-4  2.010e-6
+CYCLE 26 Max Time Err=3.90498e-10 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   3.90e-10  1.57e-12
+RMS Spatial Errors   1.57e-10  9.12e-14
+
+CYCLE 27 TIME (0.000117992,0.000147453), DT=2.94613e-05, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.47491e-17 XNORM=7.80687e-06 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.00101243, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.001104  3.130e-6
+CYCLE 27 Max Time Err=7.62694e-10 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   7.63e-10  3.59e-12
+RMS Spatial Errors   1.26e-10  9.08e-14
+
+CYCLE 28 TIME (0.000147453,0.00018428), DT=3.68266e-05, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.70768e-19 XNORM=1.21983e-05 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.00158192, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.001725  4.869e-6
+CYCLE 28 Max Time Err=1.48964e-09 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   1.490e-9  6.87e-12
+RMS Spatial Errors   1.00e-10  9.04e-14
+
+CYCLE 29 TIME (0.00018428,0.000230313), DT=4.60332e-05, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.51575e-18 XNORM=1.90598e-05 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.00247175, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.002695  7.565e-6
+CYCLE 29 Max Time Err=2.90946e-09 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   2.909e-9  1.33e-11
+RMS Spatial Errors   7.99e-11  8.99e-14
+
+CYCLE 30 TIME (0.000230313,0.000287854), DT=5.75415e-05, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=5.09477e-17 XNORM=0.0536905 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.5299, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.002933  1.668372
+CYCLE 30 Max Time Err=1.10225 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   8.445e-4  1.102252
+Step Failed - Retry at DT=1.1876e-05
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.53686e-18 XNORM=4.14734e-06 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.000537843, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  5.865e-4  1.644e-6
+CYCLE 30 Max Time Err=7.6111e-11 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   7.61e-11  3.47e-13
+RMS Spatial Errors   7.59e-11  8.98e-14
+
+CYCLE 31 TIME (0.000242189,0.000254065), DT=1.1876e-05, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.23013e-15 XNORM=0.0115149 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.328781, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  3.735e-4  0.358538
+CYCLE 31 Max Time Err=0.213189 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   3.482e-5  0.213189
+Step Failed - Retry at DT=3.69603e-06
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.62302e-18 XNORM=8.39343e-07 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.000108849, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  1.187e-4  3.325e-7
+CYCLE 31 Max Time Err=6.9418e-12 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   6.94e-12  5.16e-14
+RMS Spatial Errors   7.48e-11  8.98e-14
+
+CYCLE 32 TIME (0.000245885,0.000249581), DT=3.69603e-06, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.06646e-17 XNORM=2.62518e-07 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=3.40444e-05, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  3.713e-5  1.040e-7
+CYCLE 32 Max Time Err=8.63983e-12 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   8.64e-12  8.46e-14
+RMS Spatial Errors   7.36e-11  8.97e-14
+
+CYCLE 33 TIME (0.000249581,0.000254201), DT=4.62003e-06, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.54904e-18 XNORM=0.00431956 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.123334, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  2.069e-5  0.134497
+CYCLE 33 Max Time Err=0.0888581 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   5.444e-6  0.088858
+Step Failed - Retry at DT=1.78949e-06
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=9.03502e-19 XNORM=6.05664e-08 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=7.85449e-06, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  8.565e-6  2.398e-8
+CYCLE 33 Max Time Err=6.52687e-13 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   6.53e-13  5.46e-14
+RMS Spatial Errors   7.31e-11  8.97e-14
+
+CYCLE 34 TIME (0.00025137,0.00025316), DT=1.78949e-06, 4 NODES, 2 CELLS, 16 DOF
+Orthomin/ILU FINAL ITERATION 19 of 4000 RNORM=2.47575e-15 XNORM=0.0385345 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0495467, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  5.457e-6  0.054031
+CYCLE 34 Max Time Err=0.0321271 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   7.906e-7  0.032127
+Step Failed - Retry at DT=8.93857e-07
+Orthomin/ILU FINAL ITERATION 16 of 4000 RNORM=8.53154e-19 XNORM=1.37102e-07 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=2.72596e-06, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  2.973e-6  8.321e-9
+CYCLE 34 Max Time Err=1.03533e-13 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   1.03e-13  4.02e-14
+RMS Spatial Errors   7.28e-11  8.97e-14
+
+CYCLE 35 TIME (0.000252264,0.000253158), DT=8.93857e-07, 4 NODES, 2 CELLS, 16 DOF
+Orthomin/ILU FINAL ITERATION 20 of 4000 RNORM=1.98573e-14 XNORM=0.0272345 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0247488, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  1.335e-6  0.026989
+CYCLE 35 Max Time Err=0.0160476 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   1.973e-7  0.016048
+Step Failed - Retry at DT=5.31096e-07
+Orthomin/ILU FINAL ITERATION 15 of 4000 RNORM=5.63014e-19 XNORM=5.40354e-08 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=8.16116e-07, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  8.900e-7  2.491e-9
+CYCLE 35 Max Time Err=5.954e-14 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   2.38e-14  5.59e-14
+RMS Spatial Errors   7.27e-11  8.97e-14
+
+CYCLE 36 TIME (0.000252795,0.000253326), DT=5.31096e-07, 4 NODES, 2 CELLS, 16 DOF
+Orthomin/ILU FINAL ITERATION 19 of 4000 RNORM=1.82508e-16 XNORM=0.0209929 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0147045, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  4.245e-7  0.016035
+CYCLE 36 Max Time Err=0.0095347 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   6.964e-8  0.009535
+Step Failed - Retry at DT=3.59421e-07
+Orthomin/ILU FINAL ITERATION 19 of 4000 RNORM=4.98003e-15 XNORM=0.0178529 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0106349, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  2.731e-7  0.011597
+CYCLE 36 Max Time Err=0.00556651 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   2.940e-8  0.005567
+RMS Spatial Errors   7.26e-11  8.97e-14
+
+CYCLE 37 TIME (0.000253155,0.000253514), DT=3.59421e-07, 4 NODES, 2 CELLS, 16 DOF
+Orthomin/ILU FINAL ITERATION 19 of 4000 RNORM=1.2106e-16 XNORM=0.0159728 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.00920412, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  1.084e-7  0.010037
+CYCLE 37 Max Time Err=0.00371099 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   2.365e-8  0.003711
+RMS Spatial Errors   7.25e-11  8.97e-14
+
+CYCLE 38 TIME (0.000253514,0.000253822), DT=3.07956e-07, 4 NODES, 2 CELLS, 16 DOF
+Orthomin/ILU FINAL ITERATION 19 of 4000 RNORM=2.84702e-17 XNORM=0.00382092 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.00206477, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  4.168e-8  0.002252
+CYCLE 38 Max Time Err=0.000860204 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   7.664e-9  8.602e-4
+RMS Spatial Errors   7.24e-11  8.97e-14
+
+CYCLE 39 TIME (0.000253822,0.00025413), DT=3.07956e-07, 4 NODES, 2 CELLS, 16 DOF
+Orthomin/ILU FINAL ITERATION 19 of 4000 RNORM=9.88176e-18 XNORM=0.00133076 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.00070982, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  2.624e-8  7.741e-4
+CYCLE 39 Max Time Err=0.000334653 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   3.690e-9  3.347e-4
+RMS Spatial Errors   7.23e-11  8.97e-14
+
+CYCLE 40 TIME (0.00025413,0.000254515), DT=3.84945e-07, 4 NODES, 2 CELLS, 16 DOF
+Orthomin/ILU FINAL ITERATION 19 of 4000 RNORM=9.61225e-17 XNORM=0.000452461 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.000264964, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  2.531e-8  2.889e-4
+CYCLE 40 Max Time Err=0.000186748 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   2.441e-9  1.867e-4
+RMS Spatial Errors   7.22e-11  8.97e-14
+
+CYCLE 41 TIME (0.000254515,0.000254996), DT=4.81181e-07, 4 NODES, 2 CELLS, 16 DOF
+Orthomin/ILU FINAL ITERATION 19 of 4000 RNORM=1.29979e-18 XNORM=0.000158673 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.000103887, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  3.274e-8  1.133e-4
+CYCLE 41 Max Time Err=8.3369e-05 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   1.302e-9  8.337e-5
+RMS Spatial Errors   7.21e-11  8.97e-14
+
+CYCLE 42 TIME (0.000254996,0.000255598), DT=6.01476e-07, 4 NODES, 2 CELLS, 16 DOF
+Orthomin/ILU FINAL ITERATION 19 of 4000 RNORM=5.88343e-19 XNORM=6.33576e-05 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=4.63776e-05, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  4.900e-8  5.058e-5
+CYCLE 42 Max Time Err=3.7218e-05 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   7.00e-10  3.722e-5
+RMS Spatial Errors   7.19e-11  8.97e-14
+
+CYCLE 43 TIME (0.000255598,0.00025635), DT=7.51846e-07, 4 NODES, 2 CELLS, 16 DOF
+Orthomin/ILU FINAL ITERATION 18 of 4000 RNORM=2.63864e-17 XNORM=2.52985e-05 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=2.07041e-05, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  7.540e-8  2.258e-5
+CYCLE 43 Max Time Err=1.6615e-05 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   3.79e-10  1.662e-5
+RMS Spatial Errors   7.17e-11  8.97e-14
+
+CYCLE 44 TIME (0.00025635,0.000257289), DT=9.39807e-07, 4 NODES, 2 CELLS, 16 DOF
+Orthomin/ILU FINAL ITERATION 18 of 4000 RNORM=3.58868e-17 XNORM=1.01016e-05 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=9.24273e-06, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  1.172e-7  1.008e-5
+CYCLE 44 Max Time Err=7.41734e-06 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   2.06e-10  7.417e-6
+RMS Spatial Errors   7.14e-11  8.97e-14
+
+CYCLE 45 TIME (0.000257289,0.000258464), DT=1.17476e-06, 4 NODES, 2 CELLS, 16 DOF
+Orthomin/ILU FINAL ITERATION 18 of 4000 RNORM=9.60715e-19 XNORM=4.03346e-06 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=4.12607e-06, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  1.828e-7  4.500e-6
+CYCLE 45 Max Time Err=3.31127e-06 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   1.13e-10  3.311e-6
+RMS Spatial Errors   7.11e-11  8.97e-14
+
+CYCLE 46 TIME (0.000258464,0.000259933), DT=1.46845e-06, 4 NODES, 2 CELLS, 16 DOF
+Orthomin/ILU FINAL ITERATION 17 of 4000 RNORM=2.01923e-16 XNORM=1.61044e-06 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.84183e-06, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  2.854e-7  2.009e-6
+CYCLE 46 Max Time Err=1.47822e-06 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   6.18e-11  1.478e-6
+RMS Spatial Errors   7.07e-11  8.97e-14
+
+CYCLE 47 TIME (0.000259933,0.000261768), DT=1.83556e-06, 4 NODES, 2 CELLS, 16 DOF
+Orthomin/ILU FINAL ITERATION 16 of 4000 RNORM=6.46019e-18 XNORM=6.42887e-07 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=8.22411e-07, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  4.458e-7  8.964e-7
+CYCLE 47 Max Time Err=6.59903e-07 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   3.40e-11  6.599e-7
+RMS Spatial Errors   7.02e-11  8.97e-14
+
+CYCLE 48 TIME (0.000261768,0.000264063), DT=2.29445e-06, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 14 of 4000 RNORM=1.67675e-20 XNORM=1.29101e-08 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=6.39645e-07, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  6.965e-7  3.998e-7
+CYCLE 48 Max Time Err=2.94591e-07 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   1.88e-11  2.946e-7
+RMS Spatial Errors   6.95e-11  8.97e-14
+
+CYCLE 49 TIME (0.000264063,0.000266931), DT=2.86806e-06, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 14 of 4000 RNORM=1.10394e-18 XNORM=8.22368e-09 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=9.97953e-07, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  1.088e-6  1.780e-7
+CYCLE 49 Max Time Err=1.31509e-07 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   1.04e-11  1.315e-7
+RMS Spatial Errors   6.88e-11  8.97e-14
+
+CYCLE 50 TIME (0.000266931,0.000270516), DT=3.58508e-06, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 14 of 4000 RNORM=2.17081e-21 XNORM=1.20296e-08 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.55928e-06, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  1.700e-6  7.860e-8
+CYCLE 50 Max Time Err=5.87069e-08 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   5.71e-12  5.871e-8
+RMS Spatial Errors   6.79e-11  8.97e-14
+
+CYCLE 51 TIME (0.000270516,0.000274997), DT=4.48135e-06, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 14 of 4000 RNORM=9.22142e-19 XNORM=1.87871e-08 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=2.43637e-06, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  2.657e-6  3.378e-8
+CYCLE 51 Max Time Err=2.62071e-08 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   3.12e-12  2.621e-8
+RMS Spatial Errors   6.67e-11  8.97e-14
+
+CYCLE 52 TIME (0.000274997,0.000280599), DT=5.60169e-06, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.27634e-19 XNORM=2.93547e-08 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=3.80683e-06, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  4.151e-6  1.303e-8
+CYCLE 52 Max Time Err=1.16989e-08 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   1.64e-12  1.170e-8
+RMS Spatial Errors   6.54e-11  8.97e-14
+
+CYCLE 53 TIME (0.000280599,0.000287601), DT=7.00211e-06, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.51251e-21 XNORM=4.58667e-08 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=5.94817e-06, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  6.487e-6  2.617e-9
+CYCLE 53 Max Time Err=5.22218e-09 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   7.24e-13  5.222e-9
+RMS Spatial Errors   6.38e-11  8.96e-14
+
+CYCLE 54 TIME (0.000287601,0.000296354), DT=8.75263e-06, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.60377e-20 XNORM=7.16666e-08 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=9.29401e-06, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  1.014e-5  3.830e-9
+CYCLE 54 Max Time Err=2.33141e-09 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   3.27e-14  2.331e-9
+RMS Spatial Errors   6.19e-11  8.96e-14
+
+CYCLE 55 TIME (0.000296354,0.000307294), DT=1.09408e-05, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.0733e-19 XNORM=1.11979e-07 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.45219e-05, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  1.584e-5  9.519e-9
+CYCLE 55 Max Time Err=1.04029e-09 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   6.96e-13  1.040e-9
+RMS Spatial Errors   5.96e-11  8.96e-14
+
+CYCLE 56 TIME (0.000307294,0.00032097), DT=1.3676e-05, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.87229e-20 XNORM=1.74967e-07 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=2.26905e-05, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  2.474e-5  1.645e-8
+CYCLE 56 Max Time Err=4.64471e-10 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   1.79e-12  4.64e-10
+RMS Spatial Errors   5.70e-11  8.96e-14
+
+CYCLE 57 TIME (0.00032097,0.000338065), DT=1.7095e-05, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.92706e-19 XNORM=2.73387e-07 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=3.54539e-05, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  3.866e-5  2.640e-8
+CYCLE 57 Max Time Err=2.07171e-10 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   3.73e-12  2.07e-10
+RMS Spatial Errors   5.41e-11  8.96e-14
+
+CYCLE 58 TIME (0.000338065,0.000359434), DT=2.13687e-05, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.43156e-19 XNORM=4.27167e-07 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=5.53967e-05, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  6.041e-5  4.155e-8
+CYCLE 58 Max Time Err=9.24661e-11 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   7.42e-12  9.24e-11
+RMS Spatial Errors   5.09e-11  8.96e-14
+
+CYCLE 59 TIME (0.000359434,0.000386145), DT=2.67109e-05, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=8.46629e-19 XNORM=6.67448e-07 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=8.65573e-05, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  9.439e-5  6.504e-8
+CYCLE 59 Max Time Err=4.15032e-11 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   1.46e-11  4.15e-11
+RMS Spatial Errors   4.73e-11  8.95e-14
+
+CYCLE 60 TIME (0.000386145,0.000419534), DT=3.33887e-05, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.6603e-17 XNORM=1.04289e-06 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.000135246, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  1.475e-4  1.016e-7
+CYCLE 60 Max Time Err=2.84823e-11 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   2.85e-11  1.84e-11
+RMS Spatial Errors   4.35e-11  8.95e-14
+
+CYCLE 61 TIME (0.000419534,0.000461269), DT=4.17358e-05, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.01974e-18 XNORM=1.62951e-06 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.000211322, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  2.304e-4  1.588e-7
+CYCLE 61 Max Time Err=5.56507e-11 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   5.57e-11  8.29e-12
+RMS Spatial Errors   3.95e-11  8.95e-14
+
+CYCLE 62 TIME (0.000461269,0.000513439), DT=5.21698e-05, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.0771e-17 XNORM=2.54612e-06 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.00033019, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  3.601e-4  2.479e-7
+CYCLE 62 Max Time Err=1.08711e-10 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   1.09e-10  3.78e-12
+RMS Spatial Errors   3.54e-11  8.94e-14
+
+CYCLE 63 TIME (0.000513439,0.000578651), DT=6.52122e-05, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=9.54744e-19 XNORM=3.97831e-06 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.000515923, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  5.626e-4  3.871e-7
+CYCLE 63 Max Time Err=2.12329e-10 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   2.12e-10  1.86e-12
+RMS Spatial Errors   3.14e-11  8.93e-14
+
+CYCLE 64 TIME (0.000578651,0.000660167), DT=8.15153e-05, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.91898e-18 XNORM=6.21612e-06 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.00080613, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  8.791e-4  6.042e-7
+CYCLE 64 Max Time Err=4.14709e-10 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   4.15e-10  9.85e-13
+RMS Spatial Errors   2.75e-11  8.92e-14
+
+CYCLE 65 TIME (0.000660167,0.000762061), DT=0.000101894, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.10278e-17 XNORM=9.71269e-06 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.00125958, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.001374  9.429e-7
+CYCLE 65 Max Time Err=8.09976e-10 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   8.10e-10  7.20e-13
+RMS Spatial Errors   2.38e-11  8.91e-14
+
+CYCLE 66 TIME (0.000762061,0.000889428), DT=0.000127368, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=8.04612e-19 XNORM=1.51761e-05 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0019681, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.002146  1.471e-6
+CYCLE 66 Max Time Err=1.58199e-09 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   1.582e-9  1.05e-12
+RMS Spatial Errors   2.03e-11  8.90e-14
+
+CYCLE 67 TIME (0.000889428,0.00104864), DT=0.000159209, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.53477e-18 XNORM=2.37127e-05 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.00307516, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.003353  2.294e-6
+CYCLE 67 Max Time Err=3.08983e-09 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   3.090e-9  1.81e-12
+RMS Spatial Errors   1.72e-11  8.88e-14
+
+CYCLE 68 TIME (0.00104864,0.00124765), DT=0.000199012, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.40227e-17 XNORM=3.70512e-05 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.00480494, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.005240  3.575e-6
+CYCLE 68 Max Time Err=6.03483e-09 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   6.035e-9  2.98e-12
+RMS Spatial Errors   1.44e-11  8.86e-14
+
+CYCLE 69 TIME (0.00124765,0.00149641), DT=0.000248765, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.32508e-17 XNORM=5.78926e-05 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.00750774, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.008187  5.569e-6
+CYCLE 69 Max Time Err=1.17868e-08 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   1.179e-8  6.01e-12
+RMS Spatial Errors   1.20e-11  8.83e-14
+
+CYCLE 70 TIME (0.00149641,0.00180737), DT=0.000310956, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.02199e-18 XNORM=9.04575e-05 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0117309, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.012793  8.669e-6
+CYCLE 70 Max Time Err=2.30211e-08 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   2.302e-8  1.14e-11
+RMS Spatial Errors   9.91e-12  8.80e-14
+
+CYCLE 71 TIME (0.00180737,0.00219607), DT=0.000388695, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.8664e-18 XNORM=0.000141341 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0183296, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.019989  1.348e-5
+CYCLE 71 Max Time Err=4.49633e-08 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   4.496e-8  2.21e-11
+RMS Spatial Errors   8.13e-12  8.76e-14
+
+CYCLE 72 TIME (0.00219607,0.00268193), DT=0.000485869, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.48404e-18 XNORM=0.000220846 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0286402, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.031232  2.094e-5
+CYCLE 72 Max Time Err=8.78193e-08 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   8.782e-8  4.30e-11
+RMS Spatial Errors   6.63e-12  8.70e-14
+
+CYCLE 73 TIME (0.00268193,0.00328927), DT=0.000607336, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.47351e-18 XNORM=0.000345074 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0447505, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.048801  3.248e-5
+CYCLE 73 Max Time Err=1.71523e-07 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   1.715e-7  8.35e-11
+RMS Spatial Errors   5.38e-12  8.64e-14
+
+CYCLE 74 TIME (0.00328927,0.00404844), DT=0.00075917, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.47928e-18 XNORM=0.000539183 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0699233, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.076252  5.029e-5
+CYCLE 74 Max Time Err=3.35008e-07 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   3.350e-7  1.61e-10
+RMS Spatial Errors   4.35e-12  8.56e-14
+
+CYCLE 75 TIME (0.00404844,0.0049974), DT=0.000948963, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.13876e-18 XNORM=0.000842482 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.109256, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.119145  7.770e-5
+CYCLE 75 Max Time Err=6.54318e-07 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   6.543e-7  3.12e-10
+RMS Spatial Errors   3.50e-12  8.47e-14
+
+CYCLE 76 TIME (0.0049974,0.00618361), DT=0.0011862, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.36837e-18 XNORM=0.0013164 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.170715, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.186166  1.197e-4
+CYCLE 76 Max Time Err=1.27798e-06 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   1.278e-6  6.01e-10
+RMS Spatial Errors   2.80e-12  8.35e-14
+
+CYCLE 77 TIME (0.00618361,0.00766636), DT=0.00148275, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=5.69251e-18 XNORM=0.0020569 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.266747, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.290890  1.839e-4
+CYCLE 77 Max Time Err=2.49608e-06 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   2.496e-6  1.155e-9
+RMS Spatial Errors   2.23e-12  8.21e-14
+
+CYCLE 78 TIME (0.00766636,0.0095198), DT=0.00185344, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.79023e-18 XNORM=0.00321398 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.416801, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.454525  2.814e-4
+CYCLE 78 Max Time Err=4.87523e-06 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   4.875e-6  2.208e-9
+RMS Spatial Errors   1.78e-12  8.04e-14
+
+CYCLE 79 TIME (0.0095198,0.0118366), DT=0.0023168, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.68234e-18 XNORM=0.00502197 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.651269, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.710214  4.285e-4
+CYCLE 79 Max Time Err=9.52211e-06 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   9.522e-6  4.204e-9
+RMS Spatial Errors   1.40e-12  7.83e-14
+
+CYCLE 80 TIME (0.0118366,0.0147326), DT=0.002896, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.56104e-17 XNORM=0.00784708 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.01764, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  1.109745  6.491e-4
+CYCLE 80 Max Time Err=1.85983e-05 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   1.860e-5  7.958e-9
+RMS Spatial Errors   1.11e-12  7.59e-14
+
+CYCLE 81 TIME (0.0147326,0.0183526), DT=0.00362, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.0587e-15 XNORM=0.0122616 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.59013, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  1.734047  9.768e-4
+CYCLE 81 Max Time Err=3.63259e-05 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   3.633e-5  1.497e-8
+RMS Spatial Errors   8.66e-13  7.31e-14
+
+CYCLE 82 TIME (0.0183526,0.0228776), DT=0.00452501, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=8.40604e-17 XNORM=0.0191597 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=2.4847, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  2.709587  0.001459
+CYCLE 82 Max Time Err=7.09517e-05 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   7.095e-5  2.795e-8
+RMS Spatial Errors   6.75e-13  6.99e-14
+
+CYCLE 83 TIME (0.0228776,0.0285339), DT=0.00565626, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.77117e-17 XNORM=0.0299389 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=3.88259, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  4.233999  0.002161
+CYCLE 83 Max Time Err=0.000138584 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   1.386e-4  5.173e-8
+RMS Spatial Errors   5.22e-13  6.63e-14
+
+CYCLE 84 TIME (0.0285339,0.0356042), DT=0.00707032, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.02139e-16 XNORM=0.0467832 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=6.06704, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  6.616149  0.003169
+CYCLE 84 Max Time Err=0.000270687 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   2.707e-4  9.484e-8
+RMS Spatial Errors   4.01e-13  6.22e-14
+
+CYCLE 85 TIME (0.0356042,0.0444421), DT=0.0088379, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.38414e-16 XNORM=0.0683543 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=8.28829, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  9.038446  0.004599
+CYCLE 85 Max Time Err=0.000462226 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   4.622e-4  1.720e-7
+RMS Spatial Errors   3.06e-13  5.77e-14
+
+CYCLE 86 TIME (0.0444421,0.0554895), DT=0.0110474, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=7.45227e-16 XNORM=0.0932912 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=9.87962, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  10.77380  0.006599
+CYCLE 86 Max Time Err=0.000688692 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   6.887e-4  3.086e-7
+RMS Spatial Errors   2.32e-13  5.30e-14
+
+CYCLE 87 TIME (0.0554895,0.0692987), DT=0.0138092, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.91765e-17 XNORM=0.126742 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=11.6684, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  12.72444  0.009357
+CYCLE 87 Max Time Err=0.00101669 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001017  5.468e-7
+RMS Spatial Errors   1.75e-13  4.81e-14
+
+CYCLE 88 TIME (0.0692987,0.0831079), DT=0.0138092, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=7.28522e-17 XNORM=0.128802 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=10.4997, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  11.45000  0.009827
+CYCLE 88 Max Time Err=0.000850342 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   8.503e-4  5.337e-7
+RMS Spatial Errors   1.38e-13  4.40e-14
+
+CYCLE 89 TIME (0.0831079,0.0969171), DT=0.0138092, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.24771e-16 XNORM=0.124102 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=9.09596, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  9.919218  0.009706
+CYCLE 89 Max Time Err=0.000744804 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   7.448e-4  5.330e-7
+RMS Spatial Errors   1.14e-13  4.06e-14
+
+CYCLE 90 TIME (0.0969171,0.114179), DT=0.0172615, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.39386e-15 XNORM=0.150033 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=9.81515, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  10.70349  0.011974
+CYCLE 90 Max Time Err=0.00110496 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001105  9.039e-7
+RMS Spatial Errors   9.22e-14  3.70e-14
+
+CYCLE 91 TIME (0.114179,0.13144), DT=0.0172615, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.45864e-16 XNORM=0.145862 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=8.61232, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  9.391800  0.011842
+CYCLE 91 Max Time Err=0.000893843 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   8.938e-4  8.240e-7
+RMS Spatial Errors   7.74e-14  3.40e-14
+
+CYCLE 92 TIME (0.13144,0.148702), DT=0.0172615, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.95792e-17 XNORM=0.142614 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=7.68252, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  8.377843  0.011730
+CYCLE 92 Max Time Err=0.000792329 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   7.923e-4  8.110e-7
+RMS Spatial Errors   6.67e-14  3.14e-14
+
+CYCLE 93 TIME (0.148702,0.170279), DT=0.0215769, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.25546e-15 XNORM=0.174693 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=8.51013, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  9.280364  0.014514
+CYCLE 93 Max Time Err=0.00120012 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001200  1.372e-6
+RMS Spatial Errors   5.69e-14  2.86e-14
+
+CYCLE 94 TIME (0.170279,0.191856), DT=0.0215769, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.24747e-15 XNORM=0.171555 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=7.61874, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  8.308291  0.014390
+CYCLE 94 Max Time Err=0.000988811 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   9.888e-4  1.252e-6
+RMS Spatial Errors   4.99e-14  2.64e-14
+
+CYCLE 95 TIME (0.191856,0.213432), DT=0.0215769, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.22736e-16 XNORM=0.169038 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=6.90183, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  7.526498  0.014284
+CYCLE 95 Max Time Err=0.000889737 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   8.897e-4  1.234e-6
+RMS Spatial Errors   4.46e-14  2.44e-14
+
+CYCLE 96 TIME (0.213432,0.235009), DT=0.0215769, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.54412e-16 XNORM=0.156467 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=5.9116, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  6.446647  0.013306
+CYCLE 96 Max Time Err=0.00077736 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   7.774e-4  1.172e-6
+RMS Spatial Errors   4.05e-14  2.27e-14
+
+CYCLE 97 TIME (0.235009,0.261981), DT=0.0269711, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=5.88077e-16 XNORM=0.194413 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=6.73732, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  7.347100  0.016597
+CYCLE 97 Max Time Err=0.00119452 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001195  1.972e-6
+RMS Spatial Errors   3.64e-14  2.10e-14
+
+CYCLE 98 TIME (0.261981,0.288952), DT=0.0269711, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.83033e-16 XNORM=0.193188 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=6.17531, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  6.734223  0.016568
+CYCLE 98 Max Time Err=0.00100314 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001003  1.803e-6
+RMS Spatial Errors   3.33e-14  1.94e-14
+
+CYCLE 99 TIME (0.288952,0.315923), DT=0.0269711, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.50197e-16 XNORM=0.192197 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=5.70264, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  6.218776  0.016542
+CYCLE 99 Max Time Err=0.000919066 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.191e-4  1.786e-6
+RMS Spatial Errors   3.08e-14  1.81e-14
+
+CYCLE 100 TIME (0.315923,0.342894), DT=0.0269711, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.9284e-16 XNORM=0.17935 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=4.9639, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  5.413173  0.015488
+CYCLE 100 Max Time Err=0.000815741 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   8.157e-4  1.704e-6
+RMS Spatial Errors   2.87e-14  1.70e-14
+
+CYCLE 101 TIME (0.342894,0.376608), DT=0.0337139, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=5.92942e-17 XNORM=0.224645 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=5.74846, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  6.268739  0.019425
+CYCLE 101 Max Time Err=0.00127353 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001274  2.882e-6
+RMS Spatial Errors   2.66e-14  1.57e-14
+
+CYCLE 102 TIME (0.376608,0.410322), DT=0.0337139, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.06177e-16 XNORM=0.224779 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=5.34184, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  5.825316  0.019482
+CYCLE 102 Max Time Err=0.00108422 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001084  2.647e-6
+RMS Spatial Errors   2.47e-14  1.47e-14
+
+CYCLE 103 TIME (0.410322,0.444036), DT=0.0337139, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=5.24003e-15 XNORM=0.224932 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=4.99031, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  5.441977  0.019532
+CYCLE 103 Max Time Err=0.00100487 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001005  2.633e-6
+RMS Spatial Errors   2.33e-14  1.38e-14
+
+CYCLE 104 TIME (0.444036,0.47775), DT=0.0337139, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.13177e-16 XNORM=0.210956 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=4.38738, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  4.784472  0.018352
+CYCLE 104 Max Time Err=0.000900806 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.008e-4  2.522e-6
+RMS Spatial Errors   2.19e-14  1.29e-14
+
+CYCLE 105 TIME (0.47775,0.511464), DT=0.0337139, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.80673e-16 XNORM=0.198649 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=3.88853, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  4.240469  0.017308
+CYCLE 105 Max Time Err=0.000803435 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   8.034e-4  2.393e-6
+RMS Spatial Errors   2.07e-14  1.22e-14
+
+CYCLE 106 TIME (0.511464,0.553606), DT=0.0421424, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.11079e-15 XNORM=0.251143 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=4.58718, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  5.002357  0.021880
+CYCLE 106 Max Time Err=0.001272 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001272  4.059e-6
+RMS Spatial Errors   1.94e-14  1.14e-14
+
+CYCLE 107 TIME (0.553606,0.595748), DT=0.0421424, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.12602e-16 XNORM=0.253377 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=4.3332, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  4.725391  0.022096
+CYCLE 107 Max Time Err=0.00109921 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001099  3.749e-6
+RMS Spatial Errors   1.83e-14  1.07e-14
+
+CYCLE 108 TIME (0.595748,0.637891), DT=0.0421424, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=7.79846e-16 XNORM=0.255367 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=4.10587, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  4.477483  0.022286
+CYCLE 108 Max Time Err=0.0010329 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001033  3.749e-6
+RMS Spatial Errors   1.73e-14  1.01e-14
+
+CYCLE 109 TIME (0.637891,0.680033), DT=0.0421424, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.54854e-16 XNORM=0.241019 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=3.6553, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  3.986131  0.021053
+CYCLE 109 Max Time Err=0.000937472 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.375e-4  3.610e-6
+RMS Spatial Errors   1.64e-14  9.49e-15
+
+CYCLE 110 TIME (0.680033,0.722176), DT=0.0421424, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.28265e-16 XNORM=0.228225 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=3.27558, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  3.572047  0.019949
+CYCLE 110 Max Time Err=0.000845343 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   8.453e-4  3.442e-6
+RMS Spatial Errors   1.57e-14  8.99e-15
+
+CYCLE 111 TIME (0.722176,0.764318), DT=0.0421424, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=8.39424e-17 XNORM=0.216743 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=2.95252, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  3.219743  0.018956
+CYCLE 111 Max Time Err=0.000763464 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   7.635e-4  3.276e-6
+RMS Spatial Errors   1.50e-14  8.55e-15
+
+CYCLE 112 TIME (0.764318,0.816996), DT=0.052678, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.84882e-15 XNORM=0.276487 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=3.54556, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  3.866464  0.024164
+CYCLE 112 Max Time Err=0.00122856 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001229  5.596e-6
+RMS Spatial Errors   1.42e-14  8.04e-15
+
+CYCLE 113 TIME (0.816996,0.869674), DT=0.052678, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.5064e-16 XNORM=0.281226 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=3.40372, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  3.711786  0.024583
+CYCLE 113 Max Time Err=0.00107838 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001078  5.204e-6
+RMS Spatial Errors   1.35e-14  7.60e-15
+
+CYCLE 114 TIME (0.869674,0.922352), DT=0.052678, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.54771e-16 XNORM=0.28548 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=3.27143, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  3.567523  0.024957
+CYCLE 114 Max Time Err=0.00102771 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001028  5.238e-6
+RMS Spatial Errors   1.29e-14  7.22e-15
+
+CYCLE 115 TIME (0.922352,0.97503), DT=0.052678, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.22628e-16 XNORM=0.271192 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=2.95, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  3.216994  0.023714
+CYCLE 115 Max Time Err=0.00094471 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.447e-4  5.073e-6
+RMS Spatial Errors   1.23e-14  6.86e-15
+
+CYCLE 116 TIME (0.97503,1.02771), DT=0.052678, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=7.73105e-17 XNORM=0.258292 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=2.67403, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  2.916046  0.022590
+CYCLE 116 Max Time Err=0.000861643 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   8.616e-4  4.861e-6
+RMS Spatial Errors   1.18e-14  6.51e-15
+
+CYCLE 117 TIME (1.02771,1.08039), DT=0.052678, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.13027e-16 XNORM=0.246584 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=2.43529, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  2.655702  0.021568
+CYCLE 117 Max Time Err=0.00078622 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   7.862e-4  4.650e-6
+RMS Spatial Errors   1.13e-14  6.22e-15
+
+CYCLE 118 TIME (1.08039,1.14623), DT=0.0658475, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.13609e-16 XNORM=0.316335 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=2.95715, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  3.224795  0.027643
+CYCLE 118 Max Time Err=0.00127927 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001279  7.984e-6
+RMS Spatial Errors   1.07e-14  5.89e-15
+
+CYCLE 119 TIME (1.14623,1.21208), DT=0.0658475, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.95015e-15 XNORM=0.323432 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=2.868, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  3.127573  0.028256
+CYCLE 119 Max Time Err=0.00113437 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001134  7.461e-6
+RMS Spatial Errors   1.01e-14  5.58e-15
+
+CYCLE 120 TIME (1.21208,1.27793), DT=0.0658475, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.03592e-15 XNORM=0.32986 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=2.78189, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  3.033668  0.028811
+CYCLE 120 Max Time Err=0.00109096 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001091  7.541e-6
+RMS Spatial Errors   9.65e-15  5.30e-15
+
+CYCLE 121 TIME (1.27793,1.34378), DT=0.0658475, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.37055e-16 XNORM=0.31469 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=2.52958, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  2.758525  0.027483
+CYCLE 121 Max Time Err=0.0010112 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001011  7.332e-6
+RMS Spatial Errors   9.26e-15  5.06e-15
+
+CYCLE 122 TIME (1.34378,1.40962), DT=0.0658475, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.85563e-16 XNORM=0.300884 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=2.31034, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  2.519445  0.026274
+CYCLE 122 Max Time Err=0.000929241 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   9.292e-4  7.052e-6
+RMS Spatial Errors   8.89e-15  4.82e-15
+
+CYCLE 123 TIME (1.40962,1.47547), DT=0.0658475, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.39442e-16 XNORM=0.288263 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=2.11861, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  2.310356  0.025166
+CYCLE 123 Max Time Err=0.000853712 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   8.537e-4  6.767e-6
+RMS Spatial Errors   8.53e-15  4.63e-15
+
+CYCLE 124 TIME (1.47547,1.54132), DT=0.0658475, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.34916e-16 XNORM=0.276679 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.94994, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  2.126424  0.024149
+CYCLE 124 Max Time Err=0.0007861 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   7.861e-4  6.496e-6
+RMS Spatial Errors   8.19e-15  4.45e-15
+
+CYCLE 125 TIME (1.54132,1.62363), DT=0.0823094, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.0255e-16 XNORM=0.357038 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=2.39533, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  2.612122  0.031128
+CYCLE 125 Max Time Err=0.00129324 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001293  1.121e-5
+RMS Spatial Errors   7.82e-15  4.25e-15
+
+CYCLE 126 TIME (1.62363,1.70594), DT=0.0823094, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=5.52304e-16 XNORM=0.367051 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=2.34816, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  2.560687  0.031984
+CYCLE 126 Max Time Err=0.00115888 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001159  1.053e-5
+RMS Spatial Errors   7.50e-15  4.08e-15
+
+CYCLE 127 TIME (1.70594,1.78825), DT=0.0823094, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.34737e-16 XNORM=0.376209 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=2.29991, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  2.508072  0.032765
+CYCLE 127 Max Time Err=0.00112531 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001125  1.070e-5
+RMS Spatial Errors   7.20e-15  3.90e-15
+
+CYCLE 128 TIME (1.78825,1.87056), DT=0.0823094, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.67821e-16 XNORM=0.360559 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=2.11012, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  2.301108  0.031390
+CYCLE 128 Max Time Err=0.00105234 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001052  1.044e-5
+RMS Spatial Errors   6.93e-15  3.73e-15
+
+CYCLE 129 TIME (1.87056,1.95287), DT=0.0823094, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=9.27835e-16 XNORM=0.346195 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.94309, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  2.118950  0.030126
+CYCLE 129 Max Time Err=0.000974924 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   9.749e-4  1.009e-5
+RMS Spatial Errors   6.70e-15  3.56e-15
+
+CYCLE 130 TIME (1.95287,2), DT=0.0471347, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=7.08651e-16 XNORM=0.166055 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.909545, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.991866  0.014463
+CYCLE 130 Max Time Err=0.000209626 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   2.096e-4  2.224e-6
+RMS Spatial Errors   6.55e-15  3.48e-15
+
+CYCLE 131 TIME (2,2.08231), DT=0.0823094, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.51572e-14 XNORM=0.27937 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.47266, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  1.605948  0.024300
+CYCLE 131 Max Time Err=0.000930241 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   9.302e-4  1.024e-5
+RMS Spatial Errors   6.33e-15  3.34e-15
+
+CYCLE 132 TIME (2.08231,2.16462), DT=0.0823094, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=9.2656e-16 XNORM=0.269365 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.36733, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  1.491084  0.023417
+CYCLE 132 Max Time Err=0.000699379 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   6.994e-4  7.994e-6
+RMS Spatial Errors   6.15e-15  3.23e-15
+
+CYCLE 133 TIME (2.16462,2.26751), DT=0.102887, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.32631e-16 XNORM=0.40737 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.97819, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  2.157229  0.035361
+CYCLE 133 Max Time Err=0.00127967 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001280  1.527e-5
+RMS Spatial Errors   5.90e-15  3.10e-15
+
+CYCLE 134 TIME (2.26751,2.37039), DT=0.102887, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.7087e-16 XNORM=0.420712 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.95656, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  2.133646  0.036491
+CYCLE 134 Max Time Err=0.00119127 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001191  1.483e-5
+RMS Spatial Errors   5.63e-15  2.97e-15
+
+CYCLE 135 TIME (2.37039,2.47328), DT=0.102887, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.329e-15 XNORM=0.433028 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.93207, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  2.106935  0.037530
+CYCLE 135 Max Time Err=0.00117474 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001175  1.524e-5
+RMS Spatial Errors   5.42e-15  2.86e-15
+
+CYCLE 136 TIME (2.47328,2.57617), DT=0.102887, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=8.4376e-16 XNORM=0.416652 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.78615, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  1.947806  0.036087
+CYCLE 136 Max Time Err=0.00110933 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001109  1.497e-5
+RMS Spatial Errors   5.22e-15  2.73e-15
+
+CYCLE 137 TIME (2.57617,2.67905), DT=0.102887, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.81089e-16 XNORM=0.401514 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.65632, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  1.806231  0.034752
+CYCLE 137 Max Time Err=0.00103561 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001036  1.452e-5
+RMS Spatial Errors   5.02e-15  2.63e-15
+
+CYCLE 138 TIME (2.67905,2.78194), DT=0.102887, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.47391e-16 XNORM=0.387475 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.54029, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  1.679696  0.033514
+CYCLE 138 Max Time Err=0.000964952 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   9.650e-4  1.404e-5
+RMS Spatial Errors   4.86e-15  2.55e-15
+
+CYCLE 139 TIME (2.78194,2.88483), DT=0.102887, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.9805e-16 XNORM=0.374419 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.43615, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  1.566131  0.032361
+CYCLE 139 Max Time Err=0.000900061 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.001e-4  1.357e-5
+RMS Spatial Errors   4.70e-15  2.48e-15
+
+CYCLE 140 TIME (2.88483,2.98771), DT=0.102887, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.47073e-15 XNORM=0.362244 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.34232, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  1.463814  0.031286
+CYCLE 140 Max Time Err=0.000841149 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   8.411e-4  1.312e-5
+RMS Spatial Errors   4.56e-15  2.42e-15
+
+CYCLE 141 TIME (2.98771,3.0906), DT=0.102887, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=9.77285e-16 XNORM=0.350865 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.25749, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  1.371303  0.030280
+CYCLE 141 Max Time Err=0.000787749 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   7.877e-4  1.271e-5
+RMS Spatial Errors   4.43e-15  2.35e-15
+
+CYCLE 142 TIME (3.0906,3.21921), DT=0.128608, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=5.78658e-16 XNORM=0.457397 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.57552, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  1.718115  0.039418
+CYCLE 142 Max Time Err=0.00132131 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001321  2.216e-5
+RMS Spatial Errors   4.27e-15  2.25e-15
+
+CYCLE 143 TIME (3.21921,3.34782), DT=0.128608, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.7338e-16 XNORM=0.474749 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.57341, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  1.715814  0.040871
+CYCLE 143 Max Time Err=0.00120594 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001206  2.101e-5
+RMS Spatial Errors   4.13e-15  2.17e-15
+
+CYCLE 144 TIME (3.34782,3.47642), DT=0.128608, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.85992e-16 XNORM=0.490908 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.5676, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  1.709482  0.042219
+CYCLE 144 Max Time Err=0.00119096 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001191  2.154e-5
+RMS Spatial Errors   3.97e-15  2.10e-15
+
+CYCLE 145 TIME (3.47642,3.60503), DT=0.128608, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=5.34786e-16 XNORM=0.474399 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.46134, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  1.593603  0.040761
+CYCLE 145 Max Time Err=0.00113141 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001131  2.121e-5
+RMS Spatial Errors   3.81e-15  2.02e-15
+
+CYCLE 146 TIME (3.60503,3.73364), DT=0.128608, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.71491e-16 XNORM=0.459021 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.36567, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  1.489278  0.039402
+CYCLE 146 Max Time Err=0.00106358 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001064  2.065e-5
+RMS Spatial Errors   3.67e-15  1.95e-15
+
+CYCLE 147 TIME (3.73364,3.86225), DT=0.128608, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=7.17302e-16 XNORM=0.444655 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.27922, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  1.394999  0.038132
+CYCLE 147 Max Time Err=0.000997876 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.979e-4  2.004e-5
+RMS Spatial Errors   3.56e-15  1.87e-15
+
+CYCLE 148 TIME (3.86225,4), DT=0.13775, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=8.23219e-16 XNORM=0.471829 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.31117, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  1.429842  0.040415
+CYCLE 148 Max Time Err=0.00112053 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001121  2.330e-5
+RMS Spatial Errors   3.44e-15  1.82e-15
+
+CYCLE 149 TIME (4,4.12861), DT=0.128608, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.08155e-15 XNORM=0.427609 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.15137, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  1.255577  0.036595
+CYCLE 149 Max Time Err=0.000870871 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   8.709e-4  1.870e-5
+RMS Spatial Errors   3.33e-15  1.75e-15
+
+CYCLE 150 TIME (4.12861,4.25722), DT=0.128608, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.23971e-15 XNORM=0.415502 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.08516, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  1.183374  0.035524
+CYCLE 150 Max Time Err=0.000843955 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   8.440e-4  1.869e-5
+RMS Spatial Errors   3.22e-15  1.69e-15
+
+CYCLE 151 TIME (4.25722,4.38583), DT=0.128608, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.46617e-16 XNORM=0.394759 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.00087, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  1.091453  0.033717
+CYCLE 151 Max Time Err=0.000785506 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   7.855e-4  1.793e-5
+RMS Spatial Errors   3.13e-15  1.64e-15
+
+CYCLE 152 TIME (4.38583,4.54659), DT=0.160761, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=9.37465e-15 XNORM=0.51703 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.26525, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  1.379769  0.044090
+CYCLE 152 Max Time Err=0.00132283 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001323  3.129e-5
+RMS Spatial Errors   3.02e-15  1.60e-15
+
+CYCLE 153 TIME (4.54659,4.70735), DT=0.160761, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.25403e-15 XNORM=0.539038 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.27433, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  1.389663  0.045907
+CYCLE 153 Max Time Err=0.0012156 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001216  2.979e-5
+RMS Spatial Errors   2.91e-15  1.54e-15
+
+CYCLE 154 TIME (4.70735,4.86811), DT=0.160761, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.90951e-16 XNORM=0.559705 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.2797, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  1.395526  0.047606
+CYCLE 154 Max Time Err=0.00120945 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001209  3.067e-5
+RMS Spatial Errors   2.83e-15  1.50e-15
+
+CYCLE 155 TIME (4.86811,5.02887), DT=0.160761, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.56364e-16 XNORM=0.543027 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.20191, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  1.310691  0.046131
+CYCLE 155 Max Time Err=0.00115733 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001157  3.035e-5
+RMS Spatial Errors   2.76e-15  1.45e-15
+
+CYCLE 156 TIME (5.02887,5.18963), DT=0.160761, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.09939e-15 XNORM=0.527385 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.13113, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  1.233507  0.044747
+CYCLE 156 Max Time Err=0.00109545 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001095  2.968e-5
+RMS Spatial Errors   2.67e-15  1.41e-15
+
+CYCLE 157 TIME (5.18963,5.35039), DT=0.160761, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=9.45616e-15 XNORM=0.512679 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.06653, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  1.163060  0.043445
+CYCLE 157 Max Time Err=0.00103447 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001034  2.894e-5
+RMS Spatial Errors   2.57e-15  1.36e-15
+
+CYCLE 158 TIME (5.35039,5.51115), DT=0.160761, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=7.68031e-15 XNORM=0.498824 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.0074, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  1.098579  0.042219
+CYCLE 158 Max Time Err=0.000977249 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.772e-4  2.821e-5
+RMS Spatial Errors   2.50e-15  1.32e-15
+
+CYCLE 159 TIME (5.51115,5.67191), DT=0.160761, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.24221e-16 XNORM=0.485748 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.953138, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  1.039405  0.041061
+CYCLE 159 Max Time Err=0.000924309 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.243e-4  2.751e-5
+RMS Spatial Errors   2.43e-15  1.28e-15
+
+CYCLE 160 TIME (5.67191,5.83267), DT=0.160761, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.41506e-15 XNORM=0.473388 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.903219, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.984967  0.039966
+CYCLE 160 Max Time Err=0.000875485 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   8.755e-4  2.684e-5
+RMS Spatial Errors   2.37e-15  1.23e-15
+
+CYCLE 161 TIME (5.83267,6), DT=0.16733, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.36968e-16 XNORM=0.486618 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.902544, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.984231  0.041028
+CYCLE 161 Max Time Err=0.00092217 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.222e-4  2.914e-5
+RMS Spatial Errors   2.30e-15  1.20e-15
+
+CYCLE 162 TIME (6,6.16076), DT=0.160761, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.47948e-16 XNORM=0.456274 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.82406, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.898644  0.038423
+CYCLE 162 Max Time Err=0.000783758 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   7.838e-4  2.549e-5
+RMS Spatial Errors   2.24e-15  1.17e-15
+
+CYCLE 163 TIME (6.16076,6.36171), DT=0.200951, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.0672e-16 XNORM=0.599376 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.04854, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  1.143440  0.050383
+CYCLE 163 Max Time Err=0.00135707 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001357  4.566e-5
+RMS Spatial Errors   2.16e-15  1.13e-15
+
+CYCLE 164 TIME (6.36171,6.56266), DT=0.200951, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.10924e-13 XNORM=0.619533 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.05051, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  1.145586  0.051996
+CYCLE 164 Max Time Err=0.00124783 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001248  4.343e-5
+RMS Spatial Errors   2.31e-15  1.10e-15
+
+CYCLE 165 TIME (6.56266,6.76361), DT=0.200951, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=8.03545e-16 XNORM=0.645634 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.06212, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  1.158251  0.054103
+CYCLE 165 Max Time Err=0.00124781 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001248  4.490e-5
+RMS Spatial Errors   2.39e-15  1.06e-15
+
+CYCLE 166 TIME (6.76361,6.96456), DT=0.200951, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.0887e-15 XNORM=0.628594 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=1.00403, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  1.094902  0.052596
+CYCLE 166 Max Time Err=0.00120108 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001201  4.466e-5
+RMS Spatial Errors   2.37e-15  1.05e-15
+
+CYCLE 167 TIME (6.96456,7.16551), DT=0.200951, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.71071e-14 XNORM=0.612522 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.9507, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  1.036745  0.051174
+CYCLE 167 Max Time Err=0.00114358 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001144  4.391e-5
+RMS Spatial Errors   2.31e-15  1.03e-15
+
+CYCLE 168 TIME (7.16551,7.36646), DT=0.200951, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=8.38771e-16 XNORM=0.597329 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.901606, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.983208  0.049830
+CYCLE 168 Max Time Err=0.00108606 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001086  4.305e-5
+RMS Spatial Errors   2.24e-15  1.00e-15
+
+CYCLE 169 TIME (7.36646,7.56741), DT=0.200951, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.46467e-16 XNORM=0.582941 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.856305, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.933807  0.048557
+CYCLE 169 Max Time Err=0.00103157 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001032  4.219e-5
+RMS Spatial Errors   2.18e-15  9.91e-16
+
+CYCLE 170 TIME (7.56741,7.76837), DT=0.200951, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.28005e-15 XNORM=0.569295 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.814411, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.888121  0.047350
+CYCLE 170 Max Time Err=0.000980743 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.807e-4  4.136e-5
+RMS Spatial Errors   2.12e-15  9.53e-16
+
+CYCLE 171 TIME (7.76837,8), DT=0.231634, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=8.75145e-16 XNORM=0.671609 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.932858, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  1.017289  0.055757
+CYCLE 171 Max Time Err=0.00135402 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001354  5.907e-5
+RMS Spatial Errors   2.05e-15  9.08e-16
+
+CYCLE 172 TIME (8,8.20095), DT=0.200951, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.42224e-16 XNORM=0.56973 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.771613, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.841450  0.047236
+CYCLE 172 Max Time Err=0.000870331 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   8.703e-4  3.914e-5
+RMS Spatial Errors   2.00e-15  8.84e-16
+
+CYCLE 173 TIME (8.20095,8.4019), DT=0.200951, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.49126e-16 XNORM=0.557451 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.736707, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.803384  0.046151
+CYCLE 173 Max Time Err=0.000880995 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   8.810e-4  4.080e-5
+RMS Spatial Errors   1.94e-15  8.65e-16
+
+CYCLE 174 TIME (8.4019,8.60285), DT=0.200951, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.30628e-15 XNORM=0.519409 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.670165, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.730820  0.042940
+CYCLE 174 Max Time Err=0.000817373 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   8.174e-4  3.898e-5
+RMS Spatial Errors   1.89e-15  8.41e-16
+
+CYCLE 175 TIME (8.60285,8.85404), DT=0.251188, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.96366e-15 XNORM=0.685526 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.859321, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.937096  0.056561
+CYCLE 175 Max Time Err=0.0013885 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001388  6.851e-5
+RMS Spatial Errors   1.83e-15  8.15e-16
+
+CYCLE 176 TIME (8.85404,9.10523), DT=0.251188, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.80676e-15 XNORM=0.720004 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.87735, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.956756  0.059300
+CYCLE 176 Max Time Err=0.00129112 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001291  6.597e-5
+RMS Spatial Errors   1.78e-15  7.99e-16
+
+CYCLE 177 TIME (9.10523,9.35642), DT=0.251188, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=7.60654e-16 XNORM=0.752834 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.892415, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.973185  0.061896
+CYCLE 177 Max Time Err=0.00130055 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001301  6.877e-5
+RMS Spatial Errors   1.74e-15  7.94e-16
+
+CYCLE 178 TIME (9.35642,9.60761), DT=0.251188, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.64057e-16 XNORM=0.735338 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.848514, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.925311  0.060355
+CYCLE 178 Max Time Err=0.00125964 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001260  6.891e-5
+RMS Spatial Errors   1.69e-15  7.86e-16
+
+CYCLE 179 TIME (9.60761,9.85879), DT=0.251188, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.55122e-16 XNORM=0.718759 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.807894, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.881014  0.058896
+CYCLE 179 Max Time Err=0.0012062 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001206  6.826e-5
+RMS Spatial Errors   1.64e-15  7.68e-16
+
+CYCLE 180 TIME (9.85879,10), DT=0.141207, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.7747e-15 XNORM=0.340823 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.377384, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.411540  0.027911
+CYCLE 180 Max Time Err=0.000251814 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   2.518e-4  1.458e-5
+RMS Spatial Errors   1.62e-15  7.64e-16
+
+CYCLE 181 TIME (10,10.2512), DT=0.251188, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.40274e-16 XNORM=0.593278 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.640782, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.698777  0.048492
+CYCLE 181 Max Time Err=0.0012121 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001212  7.233e-5
+RMS Spatial Errors   1.57e-15  7.44e-16
+
+CYCLE 182 TIME (10.2512,10.5024), DT=0.251188, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.8564e-16 XNORM=0.581034 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.61227, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.667685  0.047412
+CYCLE 182 Max Time Err=0.00093176 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   9.318e-4  5.752e-5
+RMS Spatial Errors   1.54e-15  7.18e-16
+
+CYCLE 183 TIME (10.5024,10.7536), DT=0.251188, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.00262e-14 XNORM=0.666122 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.685311, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.747337  0.054268
+CYCLE 183 Max Time Err=0.000980108 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.801e-4  6.247e-5
+RMS Spatial Errors   1.50e-15  6.96e-16
+
+CYCLE 184 TIME (10.7536,11.0048), DT=0.251188, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.11761e-15 XNORM=0.652812 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.655978, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.715349  0.053101
+CYCLE 184 Max Time Err=0.000966211 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.662e-4  6.359e-5
+RMS Spatial Errors   1.48e-15  6.75e-16
+
+CYCLE 185 TIME (11.0048,11.2559), DT=0.251188, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=7.01813e-16 XNORM=0.640132 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.628583, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.685474  0.051990
+CYCLE 185 Max Time Err=0.000934556 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   9.346e-4  6.350e-5
+RMS Spatial Errors   1.45e-15  6.61e-16
+
+CYCLE 186 TIME (11.2559,11.5071), DT=0.251188, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.83439e-16 XNORM=0.628019 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.602937, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.657507  0.050930
+CYCLE 186 Max Time Err=0.000898998 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   8.990e-4  6.306e-5
+RMS Spatial Errors   1.43e-15  6.51e-16
+
+CYCLE 187 TIME (11.5071,11.7583), DT=0.251188, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.24516e-15 XNORM=0.61643 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.578887, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.631280  0.049917
+CYCLE 187 Max Time Err=0.000863789 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   8.638e-4  6.254e-5
+RMS Spatial Errors   1.40e-15  6.36e-16
+
+CYCLE 188 TIME (11.7583,12), DT=0.241682, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.27752e-13 XNORM=0.575476 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.529274, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.577178  0.046538
+CYCLE 188 Max Time Err=0.000750093 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   7.501e-4  5.599e-5
+RMS Spatial Errors   1.38e-15  6.31e-16
+
+CYCLE 189 TIME (12,12.2512), DT=0.251188, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.32608e-14 XNORM=0.58759 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.529089, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.576975  0.047451
+CYCLE 189 Max Time Err=0.000803018 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   8.030e-4  6.182e-5
+RMS Spatial Errors   1.35e-15  6.21e-16
+
+CYCLE 190 TIME (12.2512,12.5652), DT=0.313985, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.47261e-15 XNORM=0.779344 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.683949, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.745852  0.062818
+CYCLE 190 Max Time Err=0.00136836 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001368  1.093e-4
+RMS Spatial Errors   1.33e-15  5.97e-16
+
+CYCLE 191 TIME (12.5652,12.8792), DT=0.313985, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.14573e-15 XNORM=0.831332 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.711386, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.775772  0.066896
+CYCLE 191 Max Time Err=0.00129587 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001296  1.074e-4
+RMS Spatial Errors   1.30e-15  5.82e-16
+
+CYCLE 192 TIME (12.8792,13.1931), DT=0.313985, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.81507e-15 XNORM=0.872419 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.728352, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.794274  0.070088
+CYCLE 192 Max Time Err=0.00131811 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001318  1.134e-4
+RMS Spatial Errors   1.28e-15  5.69e-16
+
+CYCLE 193 TIME (13.1931,13.5071), DT=0.313985, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.10918e-15 XNORM=0.855205 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.696928, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.760006  0.068601
+CYCLE 193 Max Time Err=0.00128644 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001286  1.148e-4
+RMS Spatial Errors   1.24e-15  5.52e-16
+
+CYCLE 194 TIME (13.5071,13.8211), DT=0.313985, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=5.95358e-16 XNORM=0.838819 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.667607, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.728031  0.067189
+CYCLE 194 Max Time Err=0.00124033 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001240  1.149e-4
+RMS Spatial Errors   1.20e-15  5.55e-16
+
+CYCLE 195 TIME (13.8211,14), DT=0.178885, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.70082e-16 XNORM=0.405104 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.318041, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.346826  0.032434
+CYCLE 195 Max Time Err=0.000269439 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   2.694e-4  2.563e-5
+RMS Spatial Errors   1.18e-15  5.47e-16
+
+CYCLE 196 TIME (14,14.314), DT=0.313985, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=5.01497e-15 XNORM=0.697993 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.535778, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.584270  0.055794
+CYCLE 196 Max Time Err=0.00125608 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001256  1.234e-4
+RMS Spatial Errors   1.16e-15  5.42e-16
+
+CYCLE 197 TIME (14.314,14.628), DT=0.313985, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=7.26015e-16 XNORM=0.685799 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.514777, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.561369  0.054749
+CYCLE 197 Max Time Err=0.000976273 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   9.763e-4  9.965e-5
+RMS Spatial Errors   1.13e-15  5.43e-16
+
+CYCLE 198 TIME (14.628,14.942), DT=0.313985, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=8.77379e-16 XNORM=0.786185 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.577407, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.629667  0.062679
+CYCLE 198 Max Time Err=0.00103095 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001031  1.090e-4
+RMS Spatial Errors   1.11e-15  5.35e-16
+
+CYCLE 199 TIME (14.942,15.2559), DT=0.313985, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=7.17691e-16 XNORM=0.772738 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.555476, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.605751  0.061536
+CYCLE 199 Max Time Err=0.00102154 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001022  1.119e-4
+RMS Spatial Errors   1.07e-15  5.40e-16
+
+CYCLE 200 TIME (15.2559,15.5699), DT=0.313985, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.5955e-16 XNORM=0.759893 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.534866, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.583275  0.060447
+CYCLE 200 Max Time Err=0.000993408 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.934e-4  1.127e-4
+RMS Spatial Errors   1.03e-15  5.32e-16
+
+CYCLE 201 TIME (15.5699,15.8839), DT=0.313985, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.71504e-15 XNORM=0.747581 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.515449, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.562101  0.059407
+CYCLE 201 Max Time Err=0.000960775 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.608e-4  1.129e-4
+RMS Spatial Errors   1.01e-15  5.14e-16
+
+CYCLE 202 TIME (15.8839,16), DT=0.116088, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=7.66399e-17 XNORM=0.217174 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.148546, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.161990  0.017260
+CYCLE 202 Max Time Err=6.5342e-05 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   6.534e-5  7.839e-6
+RMS Spatial Errors   1.00e-15  5.10e-16
+
+CYCLE 203 TIME (16,16.314), DT=0.313985, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.45206e-15 XNORM=0.578081 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.387659, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.422745  0.045888
+CYCLE 203 Max Time Err=0.0010561 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001056  1.303e-4
+RMS Spatial Errors   9.66e-16  4.98e-16
+
+CYCLE 204 TIME (16.314,16.628), DT=0.313985, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.65564e-15 XNORM=0.569652 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.374538, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.408437  0.045186
+CYCLE 204 Max Time Err=0.000716999 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   7.170e-4  9.184e-5
+RMS Spatial Errors   9.50e-16  4.90e-16
+
+CYCLE 205 TIME (16.628,17.0205), DT=0.392482, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.08368e-15 XNORM=0.957212 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.61452, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.670138  0.075818
+CYCLE 205 Max Time Err=0.00145021 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001450  1.929e-4
+RMS Spatial Errors   9.35e-16  4.66e-16
+
+CYCLE 206 TIME (17.0205,17.4129), DT=0.392482, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.15234e-15 XNORM=1.01178 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.634393, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.691810  0.080065
+CYCLE 206 Max Time Err=0.00143228 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001432  1.984e-4
+RMS Spatial Errors   9.00e-16  4.37e-16
+
+CYCLE 207 TIME (17.4129,17.8054), DT=0.392482, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.44316e-15 XNORM=1.06448 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.652187, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.711215  0.084163
+CYCLE 207 Max Time Err=0.00147773 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001478  2.130e-4
+RMS Spatial Errors   8.79e-16  4.16e-16
+
+CYCLE 208 TIME (17.8054,18), DT=0.194584, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.95797e-16 XNORM=0.435524 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.26371, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.287578  0.034445
+CYCLE 208 Max Time Err=0.000225898 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   2.259e-4  3.348e-5
+RMS Spatial Errors   8.72e-16  3.99e-16
+
+CYCLE 209 TIME (18,18.3925), DT=0.392482, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=5.28502e-16 XNORM=0.863482 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.51141, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.557697  0.068231
+CYCLE 209 Max Time Err=0.00157906 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001579  2.421e-4
+RMS Spatial Errors   8.57e-16  3.80e-16
+
+CYCLE 210 TIME (18.3925,18.785), DT=0.392482, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.6758e-15 XNORM=0.849847 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.492385, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.536949  0.067139
+CYCLE 210 Max Time Err=0.00117963 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001180  1.887e-4
+RMS Spatial Errors   8.42e-16  3.64e-16
+
+CYCLE 211 TIME (18.785,19.1774), DT=0.392482, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.25871e-15 XNORM=1.00425 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.569503, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.621047  0.079285
+CYCLE 211 Max Time Err=0.00127362 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001274  2.117e-4
+RMS Spatial Errors   8.33e-16  3.49e-16
+
+CYCLE 212 TIME (19.1774,19.5699), DT=0.392482, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=9.60179e-15 XNORM=0.988466 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.548819, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.598491  0.078025
+CYCLE 212 Max Time Err=0.00127285 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001273  2.199e-4
+RMS Spatial Errors   8.16e-16  3.37e-16
+
+CYCLE 213 TIME (19.5699,20), DT=0.430073, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.31297e-15 XNORM=1.09897 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.596518, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.650508  0.086734
+CYCLE 213 Max Time Err=0.00158247 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001582  2.847e-4
+RMS Spatial Errors   7.93e-16  3.30e-16
+
+CYCLE 214 TIME (20,20.3925), DT=0.392482, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.41403e-15 XNORM=0.988115 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.525518, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.573081  0.078001
+CYCLE 214 Max Time Err=0.00119217 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001192  2.230e-4
+RMS Spatial Errors   7.74e-16  3.25e-16
+
+CYCLE 215 TIME (20.3925,20.785), DT=0.392482, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.93663e-16 XNORM=0.973827 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.507682, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.553631  0.076891
+CYCLE 215 Max Time Err=0.0011997 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001200  2.330e-4
+RMS Spatial Errors   7.50e-16  3.24e-16
+
+CYCLE 216 TIME (20.785,21.1774), DT=0.392482, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.65156e-15 XNORM=0.930648 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.475741, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.518799  0.073518
+CYCLE 216 Max Time Err=0.00114168 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001142  2.301e-4
+RMS Spatial Errors   7.34e-16  3.07e-16
+
+CYCLE 217 TIME (21.1774,21.5699), DT=0.392482, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.21007e-16 XNORM=0.917963 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.460302, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.501963  0.072556
+CYCLE 217 Max Time Err=0.00110059 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001101  2.301e-4
+RMS Spatial Errors   7.18e-16  3.01e-16
+
+CYCLE 218 TIME (21.5699,22), DT=0.430073, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=8.22578e-16 XNORM=1.02272 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.502345, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.547811  0.080883
+CYCLE 218 Max Time Err=0.00135657 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001357  2.946e-4
+RMS Spatial Errors   7.02e-16  2.99e-16
+
+CYCLE 219 TIME (22,22.3925), DT=0.392482, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=9.14515e-16 XNORM=0.92125 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.444144, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.484342  0.072924
+CYCLE 219 Max Time Err=0.00102199 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001022  2.302e-4
+RMS Spatial Errors   6.79e-16  2.82e-16
+
+CYCLE 220 TIME (22.3925,22.785), DT=0.392482, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.54813e-15 XNORM=0.909522 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.430543, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.469511  0.072060
+CYCLE 220 Max Time Err=0.00103136 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001031  2.404e-4
+RMS Spatial Errors   6.53e-16  2.71e-16
+
+CYCLE 221 TIME (22.785,23.1774), DT=0.392482, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=7.94795e-15 XNORM=0.870671 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.404797, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.441434  0.069065
+CYCLE 221 Max Time Err=0.000984995 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.850e-4  2.376e-4
+RMS Spatial Errors   6.20e-16  2.66e-16
+
+CYCLE 222 TIME (23.1774,23.5699), DT=0.392482, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=9.82559e-16 XNORM=0.860213 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.392915, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.428476  0.068319
+CYCLE 222 Max Time Err=0.000953115 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.531e-4  2.378e-4
+RMS Spatial Errors   5.95e-16  2.62e-16
+
+CYCLE 223 TIME (23.5699,24), DT=0.430073, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=7.12171e-15 XNORM=0.960035 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.430247, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.469187  0.076346
+CYCLE 223 Max Time Err=0.00117957 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001180  3.047e-4
+RMS Spatial Errors   5.76e-16  2.57e-16
+
+CYCLE 224 TIME (24,24.3925), DT=0.392482, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.45884e-15 XNORM=0.866122 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.381544, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.416076  0.068985
+CYCLE 224 Max Time Err=0.000891934 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   8.919e-4  2.381e-4
+RMS Spatial Errors   5.67e-16  2.58e-16
+
+CYCLE 225 TIME (24.3925,24.785), DT=0.392482, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=7.03457e-15 XNORM=0.856372 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.370932, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.404504  0.068315
+CYCLE 225 Max Time Err=0.000903318 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.033e-4  2.488e-4
+RMS Spatial Errors   5.48e-16  2.52e-16
+
+CYCLE 226 TIME (24.785,25.1774), DT=0.392482, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=5.01436e-16 XNORM=0.820987 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.349733, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.381387  0.065615
+CYCLE 226 Max Time Err=0.000865738 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   8.657e-4  2.460e-4
+RMS Spatial Errors   5.38e-16  2.47e-16
+
+CYCLE 227 TIME (25.1774,25.5699), DT=0.392482, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.21049e-16 XNORM=0.812272 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.340394, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.371202  0.065040
+CYCLE 227 Max Time Err=0.000840575 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   8.406e-4  2.462e-4
+RMS Spatial Errors   5.30e-16  2.45e-16
+
+CYCLE 228 TIME (25.5699,26), DT=0.430073, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.16366e-15 XNORM=0.907884 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.373808, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.407641  0.072839
+CYCLE 228 Max Time Err=0.00104402 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001044  3.154e-4
+RMS Spatial Errors   5.22e-16  2.40e-16
+
+CYCLE 229 TIME (26,26.3925), DT=0.392482, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=5.13328e-15 XNORM=0.820174 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.332349, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.362429  0.065946
+CYCLE 229 Max Time Err=0.000792003 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   7.920e-4  2.465e-4
+RMS Spatial Errors   5.18e-16  2.37e-16
+
+CYCLE 230 TIME (26.3925,26.8831), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.71582e-15 XNORM=1.09373 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.434666, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.474007  0.088131
+CYCLE 230 Max Time Err=0.00144745 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001447  4.652e-4
+RMS Spatial Errors   5.13e-16  2.35e-16
+
+CYCLE 231 TIME (26.8831,27.3737), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.4012e-15 XNORM=1.13026 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.440627, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.480507  0.091327
+CYCLE 231 Max Time Err=0.00136252 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001363  4.529e-4
+RMS Spatial Errors   5.02e-16  2.26e-16
+
+CYCLE 232 TIME (27.3737,27.8643), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.09448e-14 XNORM=1.19624 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.457616, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.499034  0.096909
+CYCLE 232 Max Time Err=0.00140372 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001404  4.819e-4
+RMS Spatial Errors   4.95e-16  2.17e-16
+
+CYCLE 233 TIME (27.8643,28), DT=0.135712, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.0115e-16 XNORM=0.250705 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0953655, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.103997  0.020365
+CYCLE 233 Max Time Err=4.39813e-05 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   4.398e-5  1.539e-5
+RMS Spatial Errors   4.90e-16  2.15e-16
+
+CYCLE 234 TIME (28,28.4906), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.47765e-15 XNORM=0.895485 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.33448, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.364753  0.072905
+CYCLE 234 Max Time Err=0.00167136 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001671  5.985e-4
+RMS Spatial Errors   4.64e-16  2.11e-16
+
+CYCLE 235 TIME (28.4906,28.9812), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.22012e-15 XNORM=0.887151 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.325372, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.354820  0.072564
+CYCLE 235 Max Time Err=0.00106521 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001065  3.940e-4
+RMS Spatial Errors   4.48e-16  2.05e-16
+
+CYCLE 236 TIME (28.9812,29.4718), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=8.12403e-15 XNORM=1.15446 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.415921, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.453565  0.094598
+CYCLE 236 Max Time Err=0.00123831 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001238  4.711e-4
+RMS Spatial Errors   4.39e-16  2.02e-16
+
+CYCLE 237 TIME (29.4718,30), DT=0.528194, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.08316e-15 XNORM=1.26007 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.445427, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.485742  0.103615
+CYCLE 237 Max Time Err=0.00154994 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001550  6.072e-4
+RMS Spatial Errors   4.20e-16  1.96e-16
+
+CYCLE 238 TIME (30,30.4906), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.55594e-16 XNORM=1.15879 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.402535, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.438967  0.095654
+CYCLE 238 Max Time Err=0.00125671 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001257  5.064e-4
+RMS Spatial Errors   4.10e-16  1.87e-16
+
+CYCLE 239 TIME (30.4906,30.9812), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=5.40371e-15 XNORM=1.14757 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.391852, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.427317  0.095093
+CYCLE 239 Max Time Err=0.00127509 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001275  5.277e-4
+RMS Spatial Errors   3.95e-16  1.82e-16
+
+CYCLE 240 TIME (30.9812,31.4718), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.11166e-16 XNORM=1.10884 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.372272, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.405965  0.092275
+CYCLE 240 Max Time Err=0.00123398 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001234  5.241e-4
+RMS Spatial Errors   3.93e-16  1.80e-16
+
+CYCLE 241 TIME (31.4718,32), DT=0.528194, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.82734e-15 XNORM=1.21226 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.399773, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.435955  0.101309
+CYCLE 241 Max Time Err=0.00146519 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001465  6.387e-4
+RMS Spatial Errors   3.90e-16  1.84e-16
+
+CYCLE 242 TIME (32,32.4906), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.5722e-15 XNORM=1.11628 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.362109, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.394882  0.093694
+CYCLE 242 Max Time Err=0.00117068 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001171  5.231e-4
+RMS Spatial Errors   3.85e-16  1.84e-16
+
+CYCLE 243 TIME (32.4906,32.9812), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.15813e-15 XNORM=1.1068 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.353261, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.385233  0.093291
+CYCLE 243 Max Time Err=0.00118468 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001185  5.416e-4
+RMS Spatial Errors   3.80e-16  1.86e-16
+
+CYCLE 244 TIME (32.9812,33.4718), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.94945e-16 XNORM=1.0707 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.336313, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.366751  0.090662
+CYCLE 244 Max Time Err=0.00114726 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001147  5.362e-4
+RMS Spatial Errors   3.77e-16  1.83e-16
+
+CYCLE 245 TIME (33.4718,34), DT=0.528194, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.72854e-15 XNORM=1.17196 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.361939, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.394696  0.099687
+CYCLE 245 Max Time Err=0.00136483 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001365  6.520e-4
+RMS Spatial Errors   3.65e-16  1.77e-16
+
+CYCLE 246 TIME (34,34.4906), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.0939e-15 XNORM=1.08036 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.328488, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.358218  0.092316
+CYCLE 246 Max Time Err=0.00109277 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001093  5.329e-4
+RMS Spatial Errors   3.56e-16  1.76e-16
+
+CYCLE 247 TIME (34.4906,34.9812), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.59862e-15 XNORM=1.07233 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.321076, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.350135  0.092034
+CYCLE 247 Max Time Err=0.00110815 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001108  5.508e-4
+RMS Spatial Errors   3.44e-16  1.77e-16
+
+CYCLE 248 TIME (34.9812,35.4718), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.82202e-15 XNORM=1.03844 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.306248, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.333964  0.089548
+CYCLE 248 Max Time Err=0.00107537 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001075  5.444e-4
+RMS Spatial Errors   3.37e-16  1.73e-16
+
+CYCLE 249 TIME (35.4718,36), DT=0.528194, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.50894e-16 XNORM=1.1379 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.330226, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.360113  0.098579
+CYCLE 249 Max Time Err=0.00128201 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001282  6.607e-4
+RMS Spatial Errors   3.24e-16  1.70e-16
+
+CYCLE 250 TIME (36,36.4906), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.94225e-15 XNORM=1.05003 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.300243, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.327416  0.091386
+CYCLE 250 Max Time Err=0.00102842 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001028  5.390e-4
+RMS Spatial Errors   3.17e-16  1.73e-16
+
+CYCLE 251 TIME (36.4906,36.9812), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.76992e-16 XNORM=1.04325 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.293979, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.320584  0.091196
+CYCLE 251 Max Time Err=0.00104478 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001045  5.561e-4
+RMS Spatial Errors   3.12e-16  1.74e-16
+
+CYCLE 252 TIME (36.9812,37.4718), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.86668e-15 XNORM=1.01128 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.280881, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.306301  0.088815
+CYCLE 252 Max Time Err=0.00101563 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001016  5.484e-4
+RMS Spatial Errors   3.02e-16  1.78e-16
+
+CYCLE 253 TIME (37.4718,38), DT=0.528194, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=5.164e-16 XNORM=1.10926 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.30341, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.330869  0.097861
+CYCLE 253 Max Time Err=0.00121291 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001213  6.644e-4
+RMS Spatial Errors   2.95e-16  1.80e-16
+
+CYCLE 254 TIME (38,38.4906), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.86491e-15 XNORM=1.02456 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.276312, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.301317  0.090792
+CYCLE 254 Max Time Err=0.000974507 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   9.745e-4  5.408e-4
+RMS Spatial Errors   2.90e-16  1.80e-16
+
+CYCLE 255 TIME (38.4906,38.9812), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.98038e-16 XNORM=1.01887 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.270975, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.295497  0.090669
+CYCLE 255 Max Time Err=0.000991464 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.915e-4  5.568e-4
+RMS Spatial Errors   2.89e-16  1.78e-16
+
+CYCLE 256 TIME (38.9812,39.4718), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.02166e-15 XNORM=0.988534 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.259305, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.282771  0.088359
+CYCLE 256 Max Time Err=0.00096514 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   9.651e-4  5.480e-4
+RMS Spatial Errors   2.84e-16  1.73e-16
+
+CYCLE 257 TIME (39.4718,40), DT=0.528194, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=7.27087e-17 XNORM=1.08533 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.280557, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.305945  0.097421
+CYCLE 257 Max Time Err=0.00115424 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001154  6.623e-4
+RMS Spatial Errors   2.72e-16  1.68e-16
+
+CYCLE 258 TIME (40,40.4906), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.69658e-15 XNORM=1.00332 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.255879, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.279034  0.090432
+CYCLE 258 Max Time Err=0.000928514 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   9.285e-4  5.378e-4
+RMS Spatial Errors   2.75e-16  1.63e-16
+
+CYCLE 259 TIME (40.4906,40.9812), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.287e-15 XNORM=0.998591 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.251299, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.274039  0.090352
+CYCLE 259 Max Time Err=0.000945765 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.458e-4  5.526e-4
+RMS Spatial Errors   2.70e-16  1.59e-16
+
+CYCLE 260 TIME (40.9812,41.4718), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.09063e-13 XNORM=0.969669 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.240819, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.262610  0.088087
+CYCLE 260 Max Time Err=0.000921654 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.217e-4  5.426e-4
+RMS Spatial Errors   2.67e-16  1.55e-16
+
+CYCLE 261 TIME (41.4718,42), DT=0.528194, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=7.15752e-15 XNORM=1.06553 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.26094, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.284551  0.097159
+CYCLE 261 Max Time Err=0.00110343 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001103  6.542e-4
+RMS Spatial Errors   2.60e-16  1.61e-16
+
+CYCLE 262 TIME (42,42.4906), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.46121e-16 XNORM=0.985809 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.238311, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.259873  0.090215
+CYCLE 262 Max Time Err=0.000888477 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   8.885e-4  5.300e-4
+RMS Spatial Errors   2.66e-16  1.60e-16
+
+CYCLE 263 TIME (42.4906,42.9812), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=7.28017e-15 XNORM=0.981924 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.234354, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.255557  0.090157
+CYCLE 263 Max Time Err=0.000905778 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.058e-4  5.433e-4
+RMS Spatial Errors   2.71e-16  1.55e-16
+
+CYCLE 264 TIME (42.9812,43.4718), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.66322e-15 XNORM=0.954219 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.224872, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.245217  0.087914
+CYCLE 264 Max Time Err=0.000883397 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   8.834e-4  5.322e-4
+RMS Spatial Errors   2.81e-16  1.51e-16
+
+CYCLE 265 TIME (43.4718,44), DT=0.528194, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.6412e-15 XNORM=1.04939 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.24399, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.266062  0.096983
+CYCLE 265 Max Time Err=0.00105848 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001058  6.402e-4
+RMS Spatial Errors   2.76e-16  1.43e-16
+
+CYCLE 266 TIME (44,44.4906), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.28894e-16 XNORM=0.971583 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.223106, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.243288  0.090060
+CYCLE 266 Max Time Err=0.000852857 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   8.529e-4  5.174e-4
+RMS Spatial Errors   2.70e-16  1.43e-16
+
+CYCLE 267 TIME (44.4906,44.9812), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.26914e-15 XNORM=0.968441 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.219665, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.239534  0.090006
+CYCLE 267 Max Time Err=0.00087001 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   8.700e-4  5.292e-4
+RMS Spatial Errors   2.73e-16  1.44e-16
+
+CYCLE 268 TIME (44.9812,45.4718), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.11378e-15 XNORM=0.941779 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.211027, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.230114  0.087766
+CYCLE 268 Max Time Err=0.000848991 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   8.490e-4  5.172e-4
+RMS Spatial Errors   2.80e-16  1.41e-16
+
+CYCLE 269 TIME (45.4718,46), DT=0.528194, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.01988e-15 XNORM=1.03646 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.229249, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.249982  0.096816
+CYCLE 269 Max Time Err=0.00101781 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001018  6.208e-4
+RMS Spatial Errors   2.81e-16  1.37e-16
+
+CYCLE 270 TIME (46,46.4906), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=8.88597e-15 XNORM=0.960254 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.209863, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.228841  0.089897
+CYCLE 270 Max Time Err=0.000820464 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   8.205e-4  5.006e-4
+RMS Spatial Errors   2.77e-16  1.39e-16
+
+CYCLE 271 TIME (46.4906,46.9812), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.00507e-15 XNORM=0.957768 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.206852, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.225556  0.089833
+CYCLE 271 Max Time Err=0.000837318 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   8.373e-4  5.109e-4
+RMS Spatial Errors   2.74e-16  1.42e-16
+
+CYCLE 272 TIME (46.9812,47.4718), DT=0.490602, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.89745e-16 XNORM=0.931996 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.198933, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.216918  0.087582
+CYCLE 272 Max Time Err=0.000817384 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   8.174e-4  4.983e-4
+RMS Spatial Errors   2.72e-16  1.46e-16
+
+CYCLE 273 TIME (47.4718,48), DT=0.528194, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.92062e-15 XNORM=1.02636 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.21635, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.235908  0.096595
+CYCLE 273 Max Time Err=0.000980271 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.803e-4  5.969e-4
+RMS Spatial Errors   2.67e-16  1.42e-16
+
+CYCLE 274 TIME (48,48.6133), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=8.76729e-16 XNORM=1.28412 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.266826, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.290943  0.120995
+CYCLE 274 Max Time Err=0.00143168 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001432  8.704e-4
+RMS Spatial Errors   2.68e-16  1.34e-16
+
+CYCLE 275 TIME (48.6133,49.2265), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.4596e-14 XNORM=1.37632 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.28194, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.307419  0.129805
+CYCLE 275 Max Time Err=0.00142672 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001427  8.657e-4
+RMS Spatial Errors   2.74e-16  1.27e-16
+
+CYCLE 276 TIME (49.2265,49.8398), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.26472e-15 XNORM=1.43887 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.290623, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.316882  0.135797
+CYCLE 276 Max Time Err=0.00147774 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001478  8.947e-4
+RMS Spatial Errors   2.68e-16  1.24e-16
+
+CYCLE 277 TIME (49.8398,50), DT=0.160242, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.85682e-16 XNORM=0.284114 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0571582, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.062322  0.026858
+CYCLE 277 Max Time Err=3.96555e-05 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   3.966e-5  2.394e-5
+RMS Spatial Errors   2.68e-16  1.24e-16
+
+CYCLE 278 TIME (50,50.6133), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.371e-16 XNORM=1.08348 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.215, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.234421  0.102406
+CYCLE 278 Max Time Err=0.00179842 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001798  0.001086
+RMS Spatial Errors   2.66e-16  1.29e-16
+
+CYCLE 279 TIME (50.6133,51.2265), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.18422e-15 XNORM=1.08451 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.212255, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.231422  0.102631
+CYCLE 279 Max Time Err=0.00114401 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001144  6.841e-4
+RMS Spatial Errors   2.69e-16  1.32e-16
+
+CYCLE 280 TIME (51.2265,51.8398), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.05519e-15 XNORM=1.43168 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.276419, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.301375  0.135312
+CYCLE 280 Max Time Err=0.00135077 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001351  8.067e-4
+RMS Spatial Errors   2.69e-16  1.31e-16
+
+CYCLE 281 TIME (51.8398,52), DT=0.160242, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.12319e-15 XNORM=0.282681 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0543693, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.059277  0.026744
+CYCLE 281 Max Time Err=3.73889e-05 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   3.739e-5  2.228e-5
+RMS Spatial Errors   2.70e-16  1.32e-16
+
+CYCLE 282 TIME (52,52.6133), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.81955e-15 XNORM=1.07846 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.204682, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.223154  0.101923
+CYCLE 282 Max Time Err=0.00171454 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001715  0.001022
+RMS Spatial Errors   2.62e-16  1.32e-16
+
+CYCLE 283 TIME (52.6133,53.2265), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.22418e-15 XNORM=1.08005 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.202259, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.220507  0.102083
+CYCLE 283 Max Time Err=0.00110201 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001102  6.519e-4
+RMS Spatial Errors   2.52e-16  1.34e-16
+
+CYCLE 284 TIME (53.2265,53.8398), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.53368e-14 XNORM=1.42651 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.263642, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.287421  0.134570
+CYCLE 284 Max Time Err=0.00130305 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001303  7.709e-4
+RMS Spatial Errors   2.44e-16  1.39e-16
+
+CYCLE 285 TIME (53.8398,54), DT=0.160242, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.68494e-16 XNORM=0.281714 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0518723, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.056550  0.026591
+CYCLE 285 Max Time Err=3.60767e-05 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   3.608e-5  2.132e-5
+RMS Spatial Errors   2.42e-16  1.39e-16
+
+CYCLE 286 TIME (54,54.6133), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.1663e-14 XNORM=1.07531 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.195456, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.213076  0.101321
+CYCLE 286 Max Time Err=0.00165512 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001655  9.802e-4
+RMS Spatial Errors   2.31e-16  1.37e-16
+
+CYCLE 287 TIME (54.6133,55.2265), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.72344e-15 XNORM=1.07748 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.193323, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.210744  0.101445
+CYCLE 287 Max Time Err=0.00106396 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001064  6.279e-4
+RMS Spatial Errors   2.19e-16  1.31e-16
+
+CYCLE 288 TIME (55.2265,55.8398), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.01086e-15 XNORM=1.42376 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.252205, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.274923  0.133724
+CYCLE 288 Max Time Err=0.00125855 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001259  7.454e-4
+RMS Spatial Errors   2.16e-16  1.21e-16
+
+CYCLE 289 TIME (55.8398,56), DT=0.160242, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=9.0687e-16 XNORM=0.281219 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0496359, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.054106  0.026420
+CYCLE 289 Max Time Err=3.48467e-05 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   3.485e-5  2.069e-5
+RMS Spatial Errors   2.13e-16  1.19e-16
+
+CYCLE 290 TIME (56,56.6133), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=9.97078e-16 XNORM=1.0739 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.187181, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.204033  0.100671
+CYCLE 290 Max Time Err=0.00159946 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001599  9.543e-4
+RMS Spatial Errors   2.14e-16  1.17e-16
+
+CYCLE 291 TIME (56.6133,57.2265), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.823e-15 XNORM=1.0766 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.185296, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.201970  0.100791
+CYCLE 291 Max Time Err=0.00102856 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001029  6.163e-4
+RMS Spatial Errors   2.09e-16  1.13e-16
+
+CYCLE 292 TIME (57.2265,57.8398), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.60409e-15 XNORM=1.4232 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.24192, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.263679  0.132888
+CYCLE 292 Max Time Err=0.0012174 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001217  7.367e-4
+RMS Spatial Errors   2.05e-16  1.08e-16
+
+CYCLE 293 TIME (57.8398,58), DT=0.160242, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.68692e-16 XNORM=0.281151 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0476241, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.051907  0.026256
+CYCLE 293 Max Time Err=3.37132e-05 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   3.371e-5  2.055e-5
+RMS Spatial Errors   2.04e-16  1.08e-16
+
+CYCLE 294 TIME (58,58.6133), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.26665e-15 XNORM=1.07409 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.17973, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.195883  0.100074
+CYCLE 294 Max Time Err=0.0015485 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001549  9.532e-4
+RMS Spatial Errors   2.02e-16  1.14e-16
+
+CYCLE 295 TIME (58.6133,59.2265), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.82024e-15 XNORM=1.07728 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.178062, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.194055  0.100238
+CYCLE 295 Max Time Err=0.000996632 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   9.966e-4  6.227e-4
+RMS Spatial Errors   2.02e-16  1.21e-16
+
+CYCLE 296 TIME (59.2265,59.8398), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.71827e-15 XNORM=1.42466 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.232643, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.253526  0.132222
+CYCLE 296 Max Time Err=0.00118068 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001181  7.510e-4
+RMS Spatial Errors   2.05e-16  1.19e-16
+
+CYCLE 297 TIME (59.8398,60), DT=0.160242, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.40809e-16 XNORM=0.281482 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.045809, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.049920  0.026132
+CYCLE 297 Max Time Err=3.27077e-05 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   3.271e-5  2.110e-5
+RMS Spatial Errors   2.03e-16  1.17e-16
+
+CYCLE 298 TIME (60,60.6133), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.89853e-15 XNORM=1.07578 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.173004, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.188519  0.099668
+CYCLE 298 Max Time Err=0.0015038 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001504  9.844e-4
+RMS Spatial Errors   2.02e-16  1.09e-16
+
+CYCLE 299 TIME (60.6133,61.2265), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.21799e-16 XNORM=1.07946 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.171531, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.186900  0.099934
+CYCLE 299 Max Time Err=0.000969295 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   9.693e-4  6.516e-4
+RMS Spatial Errors   2.00e-16  1.03e-16
+
+CYCLE 300 TIME (61.2265,61.8398), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.84033e-15 XNORM=1.4281 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.224266, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.244344  0.131933
+CYCLE 300 Max Time Err=0.00114979 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001150  7.934e-4
+RMS Spatial Errors   1.97e-16  9.18e-17
+
+CYCLE 301 TIME (61.8398,62), DT=0.160242, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.30855e-16 XNORM=0.282205 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0441706, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.048124  0.026089
+CYCLE 301 Max Time Err=3.18694e-05 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   3.187e-5  2.243e-5
+RMS Spatial Errors   1.97e-16  9.15e-17
+
+CYCLE 302 TIME (62,62.6133), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.75121e-16 XNORM=1.07898 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.166934, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.181859  0.099615
+CYCLE 302 Max Time Err=0.00146719 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001467  0.001053
+RMS Spatial Errors   1.94e-16  9.01e-17
+
+CYCLE 303 TIME (62.6133,63.2265), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.76385e-16 XNORM=1.08318 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.165642, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.180433  0.100048
+CYCLE 303 Max Time Err=0.000947751 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   9.478e-4  7.050e-4
+RMS Spatial Errors   1.91e-16  8.96e-17
+
+CYCLE 304 TIME (63.2265,63.8398), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.36842e-15 XNORM=1.43358 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.216718, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.236048  0.132241
+CYCLE 304 Max Time Err=0.00112613 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001126  8.645e-4
+RMS Spatial Errors   1.93e-16  8.61e-17
+
+CYCLE 305 TIME (63.8398,64), DT=0.160242, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.16236e-16 XNORM=0.283338 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0426953, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.046501  0.026171
+CYCLE 305 Max Time Err=3.12367e-05 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   3.124e-5  2.456e-5
+RMS Spatial Errors   1.93e-16  8.76e-17
+
+CYCLE 306 TIME (64,64.6133), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.94352e-15 XNORM=1.08377 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.161475, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.175849  0.100078
+CYCLE 306 Max Time Err=0.00144039 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001440  0.001157
+RMS Spatial Errors   1.96e-16  8.37e-17
+
+CYCLE 307 TIME (64.6133,65.2265), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=5.63855e-14 XNORM=1.08855 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.160359, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.174606  0.100731
+CYCLE 307 Max Time Err=0.000932982 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   9.330e-4  7.793e-4
+RMS Spatial Errors   2.00e-16  7.55e-17
+
+CYCLE 308 TIME (65.2265,65.8398), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.46439e-15 XNORM=1.44131 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.209958, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.228580  0.133333
+CYCLE 308 Max Time Err=0.00111074 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001111  9.581e-4
+RMS Spatial Errors   1.97e-16  6.67e-17
+
+CYCLE 309 TIME (65.8398,66), DT=0.160242, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.44088e-16 XNORM=0.284922 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0413758, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.045042  0.026412
+CYCLE 309 Max Time Err=3.08361e-05 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   3.084e-5  2.724e-5
+RMS Spatial Errors   1.96e-16  6.62e-17
+
+CYCLE 310 TIME (66,66.6133), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.19302e-15 XNORM=1.09034 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.156605, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.170453  0.101169
+CYCLE 310 Max Time Err=0.0014244 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001424  0.001283
+RMS Spatial Errors   1.88e-16  6.39e-17
+
+CYCLE 311 TIME (66.6133,67.2265), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.17325e-15 XNORM=1.09578 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.155664, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.169388  0.102064
+CYCLE 311 Max Time Err=0.000925303 Var 1(H) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.253e-4  8.628e-4
+RMS Spatial Errors   1.80e-16  6.34e-17
+
+CYCLE 312 TIME (67.2265,67.8398), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.65802e-15 XNORM=1.45155 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.203966, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.221902  0.135282
+CYCLE 312 Max Time Err=0.00110368 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001104  0.001057
+RMS Spatial Errors   1.72e-16  6.36e-17
+
+CYCLE 313 TIME (67.8398,68), DT=0.160242, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.10273e-15 XNORM=0.287012 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0402087, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.043739  0.026822
+CYCLE 313 Max Time Err=3.06649e-05 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   3.066e-5  2.994e-5
+RMS Spatial Errors   1.74e-16  6.28e-17
+
+CYCLE 314 TIME (68,68.6133), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.97896e-15 XNORM=1.09889 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.152312, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.165643  0.102888
+CYCLE 314 Max Time Err=0.0014187 Var 1(H) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001419  0.001404
+RMS Spatial Errors   1.76e-16  6.21e-17
+
+CYCLE 315 TIME (68.6133,69.2265), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.26636e-16 XNORM=1.10509 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.151548, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.164751  0.103989
+CYCLE 315 Max Time Err=0.000934243 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   9.238e-4  9.342e-4
+RMS Spatial Errors   1.67e-16  5.78e-17
+
+CYCLE 316 TIME (69.2265,69.8398), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.12538e-14 XNORM=1.46458 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.198732, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.215979  0.137963
+CYCLE 316 Max Time Err=0.00113533 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001103  0.001135
+RMS Spatial Errors   1.60e-16  5.89e-17
+
+CYCLE 317 TIME (69.8398,70), DT=0.160242, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.38023e-16 XNORM=0.289663 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0391914, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.042586  0.027370
+CYCLE 317 Max Time Err=3.20103e-05 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   3.068e-5  3.201e-5
+RMS Spatial Errors   1.56e-16  5.82e-17
+
+CYCLE 318 TIME (70,70.6133), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.65735e-15 XNORM=1.10962 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.148586, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.161392  0.105086
+CYCLE 318 Max Time Err=0.00149654 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001421  0.001497
+RMS Spatial Errors   1.53e-16  5.83e-17
+
+CYCLE 319 TIME (70.6133,71.2265), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.64238e-14 XNORM=1.11665 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.147999, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.160667  0.106336
+CYCLE 319 Max Time Err=0.000992286 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.267e-4  9.923e-4
+RMS Spatial Errors   1.53e-16  6.22e-17
+
+CYCLE 320 TIME (71.2265,71.8398), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.61277e-15 XNORM=1.48062 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.194239, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.210770  0.141175
+CYCLE 320 Max Time Err=0.00120631 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001108  0.001206
+RMS Spatial Errors   1.54e-16  6.24e-17
+
+CYCLE 321 TIME (71.8398,72), DT=0.160242, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.27641e-15 XNORM=0.292914 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.038321, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.041572  0.028020
+CYCLE 321 Max Time Err=3.40336e-05 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   3.082e-5  3.403e-5
+RMS Spatial Errors   1.55e-16  6.19e-17
+
+CYCLE 322 TIME (72,72.6133), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.3047e-15 XNORM=1.12268 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.145419, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.157667  0.107670
+CYCLE 322 Max Time Err=0.00159238 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001429  0.001592
+RMS Spatial Errors   1.57e-16  7.19e-17
+
+CYCLE 323 TIME (72.6133,73.2265), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=8.04488e-15 XNORM=1.1306 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.145012, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.157100  0.109076
+CYCLE 323 Max Time Err=0.00105755 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.335e-4  0.001058
+RMS Spatial Errors   1.54e-16  7.60e-17
+
+CYCLE 324 TIME (73.2265,73.8398), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.45416e-15 XNORM=1.49987 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.190487, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.206234  0.144917
+CYCLE 324 Max Time Err=0.00128725 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001118  0.001287
+RMS Spatial Errors   1.51e-16  7.62e-17
+
+CYCLE 325 TIME (73.8398,74), DT=0.160242, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=5.33886e-16 XNORM=0.296805 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.037598, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.040691  0.028777
+CYCLE 325 Max Time Err=3.63496e-05 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   3.110e-5  3.635e-5
+RMS Spatial Errors   1.52e-16  7.51e-17
+
+CYCLE 326 TIME (74,74.6133), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.38865e-15 XNORM=1.13823 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.142817, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.154440  0.110671
+CYCLE 326 Max Time Err=0.00170222 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001443  0.001702
+RMS Spatial Errors   1.51e-16  7.38e-17
+
+CYCLE 327 TIME (74.6133,75.2265), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=9.74798e-15 XNORM=1.1471 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.142601, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.154026  0.112252
+CYCLE 327 Max Time Err=0.00113253 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.445e-4  0.001133
+RMS Spatial Errors   1.54e-16  8.02e-17
+
+CYCLE 328 TIME (75.2265,75.8398), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.13629e-15 XNORM=1.52255 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.187503, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.202337  0.149248
+CYCLE 328 Max Time Err=0.00138034 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001132  0.001380
+RMS Spatial Errors   1.54e-16  7.78e-17
+
+CYCLE 329 TIME (75.8398,76), DT=0.160242, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.92135e-16 XNORM=0.301383 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0370282, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.039936  0.029652
+CYCLE 329 Max Time Err=3.90156e-05 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   3.152e-5  3.902e-5
+RMS Spatial Errors   1.53e-16  7.44e-17
+
+CYCLE 330 TIME (76,76.6133), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.85874e-15 XNORM=1.15646 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.140809, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.151687  0.114139
+CYCLE 330 Max Time Err=0.00182874 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001464  0.001829
+RMS Spatial Errors   1.55e-16  6.83e-17
+
+CYCLE 331 TIME (76.6133,77.2265), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=5.05026e-16 XNORM=1.16637 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.140804, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.151423  0.115917
+CYCLE 331 Max Time Err=0.00121903 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.598e-4  0.001219
+RMS Spatial Errors   1.62e-16  6.40e-17
+
+CYCLE 332 TIME (77.2265,77.8398), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.43442e-15 XNORM=1.54895 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.185345, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.199056  0.154243
+CYCLE 332 Max Time Err=0.00148787 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001152  0.001488
+RMS Spatial Errors   1.62e-16  7.49e-17
+
+CYCLE 333 TIME (77.8398,78), DT=0.160242, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.22787e-13 XNORM=0.306706 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0366245, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.039302  0.030662
+CYCLE 333 Max Time Err=4.20982e-05 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   3.208e-5  4.210e-5
+RMS Spatial Errors   1.61e-16  7.19e-17
+
+CYCLE 334 TIME (78,78.6133), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.19449e-15 XNORM=1.17759 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.139453, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.149394  0.118135
+CYCLE 334 Max Time Err=0.00197514 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001492  0.001975
+RMS Spatial Errors   1.57e-16  6.93e-17
+
+CYCLE 335 TIME (78.6133,79.2265), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.57797e-15 XNORM=1.18866 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.139691, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.149279  0.120139
+CYCLE 335 Max Time Err=0.00131933 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.799e-4  0.001319
+RMS Spatial Errors   1.54e-16  6.66e-17
+
+CYCLE 336 TIME (79.2265,79.8398), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.41697e-15 XNORM=1.57942 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.184115, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.196375  0.159992
+CYCLE 336 Max Time Err=0.00161271 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001177  0.001613
+RMS Spatial Errors   1.42e-16  6.73e-17
+
+CYCLE 337 TIME (79.8398,80), DT=0.160242, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.58534e-16 XNORM=0.312845 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0364086, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.038788  0.031824
+CYCLE 337 Max Time Err=4.56813e-05 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   3.282e-5  4.568e-5
+RMS Spatial Errors   1.40e-16  6.93e-17
+
+CYCLE 338 TIME (80,80.6133), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.88471e-15 XNORM=1.20192 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.138841, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.147552  0.122734
+CYCLE 338 Max Time Err=0.00214546 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001528  0.002145
+RMS Spatial Errors   1.43e-16  6.24e-17
+
+CYCLE 339 TIME (80.6133,81.2265), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.18245e-15 XNORM=1.21428 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.13937, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.147587  0.124998
+CYCLE 339 Max Time Err=0.00143627 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001005  0.001436
+RMS Spatial Errors   1.46e-16  6.34e-17
+
+CYCLE 340 TIME (81.2265,81.8398), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.68536e-15 XNORM=1.6144 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.183969, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.194289  0.166609
+CYCLE 340 Max Time Err=0.0017585 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001210  0.001759
+RMS Spatial Errors   1.44e-16  6.38e-17
+
+CYCLE 341 TIME (81.8398,82), DT=0.160242, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=7.3255e-16 XNORM=0.319891 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.036413, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.038391  0.033161
+CYCLE 341 Max Time Err=4.98714e-05 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   3.373e-5  4.987e-5
+RMS Spatial Errors   1.44e-16  6.25e-17
+
+CYCLE 342 TIME (82,82.6133), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=7.62978e-15 XNORM=1.22982 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.139109, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.146160  0.128030
+CYCLE 342 Max Time Err=0.00234483 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001573  0.002345
+RMS Spatial Errors   1.48e-16  6.39e-17
+
+CYCLE 343 TIME (82.6133,83.2265), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.47372e-15 XNORM=1.24361 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.139994, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.146349  0.130597
+CYCLE 343 Max Time Err=0.0015735 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001037  0.001574
+RMS Spatial Errors   1.56e-16  6.52e-17
+
+CYCLE 344 TIME (83.2265,83.8398), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.40648e-15 XNORM=1.65443 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.185123, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.192803  0.174235
+CYCLE 344 Max Time Err=0.00192991 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001249  0.001930
+RMS Spatial Errors   1.60e-16  6.25e-17
+
+CYCLE 345 TIME (83.8398,84), DT=0.160242, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.98818e-16 XNORM=0.327951 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0366823, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.038114  0.034703
+CYCLE 345 Max Time Err=5.48052e-05 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   3.486e-5  5.481e-5
+RMS Spatial Errors   1.57e-16  6.22e-17
+
+CYCLE 346 TIME (84,84.6133), DT=0.613253, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.43401e-15 XNORM=1.26171 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.140439, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.145224  0.134138
+CYCLE 346 Max Time Err=0.00257987 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001627  0.002580
+RMS Spatial Errors   1.53e-16  5.74e-17
+
+CYCLE 347 TIME (84.6133,85.1887), DT=0.575437, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.93957e-16 XNORM=1.16564 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.129428, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.132943  0.125084
+CYCLE 347 Max Time Err=0.00145544 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.019e-4  0.001455
+RMS Spatial Errors   1.45e-16  6.01e-17
+
+CYCLE 348 TIME (85.1887,85.7641), DT=0.575437, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.60179e-16 XNORM=1.52939 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.169087, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.172855  0.164620
+CYCLE 348 Max Time Err=0.00179976 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001096  0.001800
+RMS Spatial Errors   1.35e-16  5.93e-17
+
+CYCLE 349 TIME (85.7641,86), DT=0.235874, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.16828e-16 XNORM=0.49637 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0548776, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.055884  0.053723
+CYCLE 349 Max Time Err=0.000174094 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   1.043e-4  1.741e-4
+RMS Spatial Errors   1.32e-16  5.60e-17
+
+CYCLE 350 TIME (86,86.5754), DT=0.575437, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.99702e-14 XNORM=1.21876 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.134376, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.135987  0.132617
+CYCLE 350 Max Time Err=0.0022261 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001320  0.002226
+RMS Spatial Errors   1.27e-16  5.75e-17
+
+CYCLE 351 TIME (86.5754,87.1509), DT=0.575437, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=5.86104e-16 XNORM=1.23263 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.135808, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.136296  0.135308
+CYCLE 351 Max Time Err=0.00168943 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.841e-4  0.001689
+RMS Spatial Errors   1.27e-16  6.33e-17
+
+CYCLE 352 TIME (87.1509,87.7263), DT=0.575437, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.80817e-15 XNORM=1.54203 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.169482, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.168981  0.169972
+CYCLE 352 Max Time Err=0.00198982 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001139  0.001990
+RMS Spatial Errors   1.23e-16  6.49e-17
+
+CYCLE 353 TIME (87.7263,88), DT=0.27369, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.57112e-16 XNORM=0.609884 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0670956, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.066539  0.067621
+CYCLE 353 Max Time Err=0.000289736 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   1.629e-4  2.897e-4
+RMS Spatial Errors   1.22e-16  6.72e-17
+
+CYCLE 354 TIME (88,88.5754), DT=0.575437, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=8.2878e-16 XNORM=1.29196 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.142033, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.139706  0.144121
+CYCLE 354 Max Time Err=0.00242966 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001351  0.002430
+RMS Spatial Errors   1.20e-16  7.10e-17
+
+CYCLE 355 TIME (88.5754,89.1509), DT=0.575437, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.35787e-15 XNORM=1.30749 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.143964, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.140121  0.147199
+CYCLE 355 Max Time Err=0.00193746 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001058  0.001937
+RMS Spatial Errors   1.21e-16  7.23e-17
+
+CYCLE 356 TIME (89.1509,89.7263), DT=0.575437, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=5.19412e-16 XNORM=1.59426 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.175461, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.169338  0.180376
+CYCLE 356 Max Time Err=0.002249 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001206  0.002249
+RMS Spatial Errors   1.20e-16  7.70e-17
+
+CYCLE 357 TIME (89.7263,90), DT=0.27369, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.20535e-16 XNORM=0.63098 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0696151, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.066729  0.071848
+CYCLE 357 Max Time Err=0.00032677 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   1.720e-4  3.268e-4
+RMS Spatial Errors   1.19e-16  7.68e-17
+
+CYCLE 358 TIME (90,90.5754), DT=0.575437, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.21152e-15 XNORM=1.33791 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.147814, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.140245  0.153369
+CYCLE 358 Max Time Err=0.00274147 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001427  0.002741
+RMS Spatial Errors   1.19e-16  7.43e-17
+
+CYCLE 359 TIME (90.5754,91.1073), DT=0.531813, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.18607e-15 XNORM=1.21419 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.13471, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.126231  0.140565
+CYCLE 359 Max Time Err=0.00176605 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.019e-4  0.001766
+RMS Spatial Errors   1.21e-16  7.81e-17
+
+CYCLE 360 TIME (91.1073,91.6391), DT=0.531813, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.32858e-13 XNORM=1.45081 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.161184, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.149602  0.168837
+CYCLE 360 Max Time Err=0.00207008 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001039  0.002070
+RMS Spatial Errors   1.20e-16  8.74e-17
+
+CYCLE 361 TIME (91.6391,92), DT=0.360937, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.19901e-15 XNORM=0.864087 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.0963791, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.088600  0.101305
+CYCLE 361 Max Time Err=0.000770193 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   3.795e-4  7.702e-4
+RMS Spatial Errors   1.20e-16  8.91e-17
+
+CYCLE 362 TIME (92,92.5318), DT=0.531813, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.36058e-15 XNORM=1.28549 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.143907, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.130740  0.151837
+CYCLE 362 Max Time Err=0.00235329 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001144  0.002353
+RMS Spatial Errors   1.17e-16  8.75e-17
+
+CYCLE 363 TIME (92.5318,93.0636), DT=0.531813, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=3.10237e-15 XNORM=1.30128 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.146474, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.131269  0.155140
+CYCLE 363 Max Time Err=0.00211253 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001008  0.002113
+RMS Spatial Errors   1.15e-16  9.17e-17
+
+CYCLE 364 TIME (93.0636,93.5954), DT=0.531813, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.11597e-15 XNORM=1.47041 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.166144, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.147126  0.176497
+CYCLE 364 Max Time Err=0.00234242 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001097  0.002342
+RMS Spatial Errors   1.13e-16  1.05e-16
+
+CYCLE 365 TIME (93.5954,94), DT=0.40456, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.91259e-15 XNORM=1.04014 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.118163, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.103425  0.125849
+CYCLE 365 Max Time Err=0.0011934 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   5.487e-4  0.001193
+RMS Spatial Errors   1.13e-16  1.04e-16
+
+CYCLE 366 TIME (94,94.5318), DT=0.531813, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.23768e-16 XNORM=1.38241 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.157944, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.136348  0.168670
+CYCLE 366 Max Time Err=0.00266268 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001206  0.002663
+RMS Spatial Errors   1.11e-16  1.03e-16
+
+CYCLE 367 TIME (94.5318,95.0269), DT=0.495093, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.094e-15 XNORM=1.27095 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.146258, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.124406  0.156585
+CYCLE 367 Max Time Err=0.00206194 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.159e-4  0.002062
+RMS Spatial Errors   1.06e-16  1.00e-16
+
+CYCLE 368 TIME (95.0269,95.522), DT=0.495093, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.73338e-15 XNORM=1.36516 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.157998, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.132621  0.169489
+CYCLE 368 Max Time Err=0.00226819 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   9.893e-4  0.002268
+RMS Spatial Errors   1.02e-16  9.57e-17
+
+CYCLE 369 TIME (95.522,96), DT=0.478001, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.50676e-15 XNORM=1.287 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.150044, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.124116  0.161266
+CYCLE 369 Max Time Err=0.00213613 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.147e-4  0.002136
+RMS Spatial Errors   9.85e-17  1.01e-16
+
+CYCLE 370 TIME (96,96.4951), DT=0.495093, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.36035e-15 XNORM=1.34934 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.158488, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.129148  0.170637
+CYCLE 370 Max Time Err=0.00244386 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001028  0.002444
+RMS Spatial Errors   9.79e-17  1.06e-16
+
+CYCLE 371 TIME (96.4951,96.9902), DT=0.495093, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=1.89063e-15 XNORM=1.36658 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.161802, Max error at Var 2 (V) Coef 1 
+Variable Convergence:  0.129812  0.174478
+CYCLE 371 Max Time Err=0.00250746 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   0.001035  0.002507
+RMS Spatial Errors   9.66e-17  1.19e-16
+
+CYCLE 372 TIME (96.9902,97.4581), DT=0.467882, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=4.93223e-16 XNORM=1.29858 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.154987, Max error at Var 2 (V) Coef 2 
+Variable Convergence:  0.122474  0.167352
+CYCLE 372 Max Time Err=0.00226014 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   9.148e-4  0.002260
+RMS Spatial Errors   9.41e-17  1.28e-16
+
+CYCLE 373 TIME (97.4581,98), DT=0.541933, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=2.60293e-15 XNORM=1.57347 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.189449, Max error at Var 2 (V) Coef 4 
+Variable Convergence:  0.147182  0.204831
+CYCLE 373 Max Time Err=0.00351238 Var 2(V) Cell 2 (0.666667,0.666667,0)
+RMS Time Errors:   0.001396  0.003512
+RMS Spatial Errors   9.10e-17  1.23e-16
+
+CYCLE 374 TIME (98,98.4708), DT=0.470763, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=6.10434e-15 XNORM=1.3635 Flag=Ok
+EQset 1 Newton Step 1 of 1 DNORM=0.165703, Max error at Var 2 (V) Coef 3 
+Variable Convergence:  0.126624  0.179352
+CYCLE 374 Max Time Err=0.00244704 Var 2(V) Cell 1 (0.333333,0.333333,0)
+RMS Time Errors:   9.519e-4  0.002447
+RMS Spatial Errors   8.55e-17  1.32e-16
+
+CYCLE 375 TIME (98.4708,98.9415), DT=0.470763, 4 NODES, 2 CELLS, 16 DOF
+Lanczos/BInv FINAL ITERATION 13 of 4000 RNORM=9.1

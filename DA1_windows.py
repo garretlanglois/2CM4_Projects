@@ -8,7 +8,7 @@ COORDINATES cartesian2  { coordinate system, 1D,2D,3D, etc }
 VARIABLES        { system variables }
 h(threshold = 0.0001)
 v(threshold = 0.0001)
-
+ 
  SELECT         { method controls n}
 ngrid =1
 DEFINITIONS    { parameter definitions }
@@ -57,7 +57,7 @@ rho = p*mm/(R_gas*Tvar)
 
 
 ! equations
- 
+
 FD = 1/2*rho*CD*A*(v^2)
 FG = (big_G*m_r_t*M_earth)/((R_earth+h)^2)
 FT = if ( t < tfuel1) then q1*v1 else(if  (t < tfuel2) then q2*v2 else 0)
@@ -90,7 +90,7 @@ PLOTS            { save result displays }
     history (acc) at (0,0)
     history (v) at (0,0)
     history(rho) at (0,0)
-	history(h, v) at (0,0) Export Format '#t#b#1#b#2' file = 'DA1test.txt'
+	history(h, v, p) at (0,0) Export Format '#t#b#1#b#2#b#3' file = 'DA1test.txt'
 SUMMARY
 	report eval (h, 0, 0)
 	report eval (v, 0, 0)
@@ -103,44 +103,82 @@ SUMMARY
 END
 """
 
-flexfilename = "assignment 1 rocket.pde"
+flexfilename = "assignment_1_rocket.pde"
 
-def runflexsim(mfuel1):
+
+def run_code(mfuel1):
     with open(flexfilename, "w") as f:
         print(flexcode%mfuel1, file=f)
-        
-    completed =subprocess.run(["C:\Program Files\FlexPDE7\FlexPDE7.exe", "-S", flexfilename], timeout = 5) 
-    #print('returned: ', completed.returncode)
     
+    subprocess.run(["C:\Program Files\FlexPDE7\FlexPDE7.exe", "-S", flexfilename], timeout = 5)
+
     with open(flexfilename[:-4]+"_output\\DA1test.txt") as f:
         data=np.loadtxt(f, skiprows=8)
-
-    return(data)
-
-def bestfuel(fuelrange):
-    lowlim = 100
-    highlim = 36117
-    numpoints = 50
-    fuel = np.linspace(lowlim,highlim,numpoints)
-    #print(fuel)
-    bestspeed = 0
-    bestfuel = 0
     
-    for fuelamt in fuelrange:
-        
-        v = runflexsim(fuelamt)[:,2]
-        finalv = v[-1]
-        plt.plot(fuelamt, finalv, "*-")
-        if (finalv > bestspeed).any():
-            lowlim = lowlim + (0.1*(lowlim-fuelamt))
-            bestspeed = finalv
-            bestfuel = fuelamt
-            print(f"current best speed is {bestspeed:.3f}m/s, with fuel in the first tank being {fuelamt:.2f}kg")
+    return data
+
+
+def optimization():
+
+    #Chose the value for the precision of the optimization
+    precision = 30
+
+    #Choose all the possible values for the fuel
+    mfuel = np.linspace(100, 36117, precision)
+
+    #Create an empty array to store the velocities
+    v = np.empty(len(mfuel))
+
+    #Run the code for each fuel value and store the velocity
+    for i, fuel in enumerate(mfuel):
+        v[i] = run_code(fuel)[:, 2][-1]
+
+    #Set the low and high values for the fuel 
+    xlow, xhigh = 100, 36117
+    ylow, yhigh = run_code(xlow)[:, 2][-1], run_code(xhigh)[:, 2][-1]
+
+    plt.plot(xlow, ylow, '*')
+    plt.plot(xhigh, yhigh, '*')
+
+    optimum_fuel = None
+    max_velocity = -np.inf
+
+    #Run the optimization
+    for _ in range(precision):
+        xmid = (xlow + xhigh) / 2
+        ymid = run_code(xmid)[:, 2][-1]
+        plt.plot(xmid, ymid, '*')
+
+        if ymid > max_velocity:
+            max_velocity = ymid
+            optimum_fuel = xmid
+
+        xvals = [xlow, xmid, xhigh]
+        yvals = [ylow, ymid, yhigh]
+
+        # Fit a parabola to the three points
+        coeffs = np.polyfit(xvals, yvals, 2)
+
+        # If the coefficient is 0 we break
+        if coeffs[0] == 0:
+            break
+
+        # Find the x value of the peak of the parabola
+        xpeak = -coeffs[1] / (2 * coeffs[0])
+
+        # Find the y value of the peak of the parabola
+        ypeak = run_code(xpeak)[:, 2][-1]
+
+        # Plot the peak
+        plt.plot(xpeak, ypeak, '*')
+
+        # If the peak is between the low and mid points, replace the high point with the peak
+        if ymid > ylow:
+            xlow, ylow = xmid, ymid
         else:
-            print("wasnt fast enough lol")
-            highlim = highlim - (0.1*(highlim-fuelamt))
-            
-        
-        
-            
-bestfuel(fuel)
+            xhigh, yhigh = xmid, ymid
+
+    plt.show()
+    print(f"Optimum Fuel Amount: {optimum_fuel}, Maximum Velocity: {max_velocity}")
+
+optimization()
