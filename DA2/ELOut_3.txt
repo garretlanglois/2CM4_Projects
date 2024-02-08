@@ -1,0 +1,10 @@
+{
+FlexPDE Version 6.36s/W32  14:13:44 Jan  8 2015
+DA2 Grady.pde  21:20:07 2/7/24
+Title: SUMMARY
+ Time 24
+}
+ SUMMARY
+ tastiness=  5.654124e-5
+ val(temp,0,0)=  33.61996
+ val(qvol, 0,-0.0025)=  2800000.
