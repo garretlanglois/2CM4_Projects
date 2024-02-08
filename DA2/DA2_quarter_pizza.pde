@@ -105,12 +105,12 @@ to close
 TIME 0 TO  60{ if time dependent }
 
 PLOTS            { save result displays }
-for t = 0 by endtime/5 to endtime
+for t =  endtime
   CONTOUR(Temp) painted
   vector(qdot) norm
 SUMMARY
+export file 'tasty_data'
 report(tastiness)
-report(integral(1,3)*0.41)
-report(integral(1,'filling') )
+
 END
 
