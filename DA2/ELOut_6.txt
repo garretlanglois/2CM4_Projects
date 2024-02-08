@@ -1,8 +1,10 @@
 {
 FlexPDE Version 6.36s/W32  14:13:44 Jan  8 2015
-DA2 Grady.pde  20:23:39 2/7/24
+DA2 Grady.pde  21:20:07 2/7/24
 Title: SUMMARY
  Time 60
 }
  SUMMARY
- tastiness=  0.019765
+ tastiness=  2.470416e-3
+ val(temp,0,0)=  54.57637
+ val(qvol, 0,-0.0025)=  2800000.
