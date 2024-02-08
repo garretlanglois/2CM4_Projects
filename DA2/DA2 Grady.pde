@@ -10,8 +10,8 @@ DEFINITIONS    { parameter definitions }
 
 !Variables Params
 T_air = 100 !Degrees celcius
-h = 100 !The convection heat transfer coefficient
-Power_mic = 5000 !The power of the microwave W
+h = 200 !The convection heat transfer coefficient
+Power_mic = 4800 !The power of the microwave W
 
 rho
 k
@@ -93,7 +93,7 @@ BOUNDARIES       { The domain definition }
 	epsilon_m=0
 	initTemp=24
 	T_ideal=0
-	qvol = Power_Skillet/(thickness_skillet*(width_skillet*length_skillet/2+width_skillet/2*length_skillet/2))
+	qvol = 800!Power_Skillet/(thickness_skillet*(width_skillet*length_skillet/2+width_skillet/2*length_skillet/2))
 	start   (width_skillet/2,0) load(temp)=0 line to (width_skillet/2,-thickness_skillet) 
 	line to  (-width_skillet/2, -thickness_skillet) line to  (-width_skillet/2,0)  
 	line to (0,0) to close
@@ -105,6 +105,7 @@ for t = 0 by endtime/5 to endtime
   CONTOUR(Temp) painted
  !vector(qdot) norm
 SUMMARY
+EXPORT FILE 'ELOut.txt'
 report(tastiness)
 
 
