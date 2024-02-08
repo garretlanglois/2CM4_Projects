@@ -12,14 +12,18 @@ DEFINITIONS    { parameter definitions }
 T_air = 100 !Degrees celcius
 h = 200 !The convection heat transfer coefficient
 Power_mic = 4800 !The power of the microwave W
+Power_skillet=800
 
+!Initializing 
 rho
 k
 cp
 epsilon_m
 T_Ideal
 initTemp
+qvol
 
+!Tastiness Equation variables
 rho_filling=1200 !kg/m^3
 rho_crust=700 !kg/m^3
 area_filling=1/2*pi*0.035^2 !m^3
@@ -32,21 +36,20 @@ T_integral=.4*area_integral(rho*((Temp-T_ideal)/Ttol)^4, 'crust')+0.39*area_inte
 Tastiness=1/(1+T_integral/mass)
 !Skillet values
 
-k_skillet = 10 !W/m^2-K
-rho_skillet = 3500 !kg/m^3
-cp_skillet = 1300 !J/kg-K
 thickness_skillet = 0.005 !m thick
 width_skillet = 0.09 !m wide
 length_skillet = 0.41 !m long
-Power_skillet=800
- !Volumetric Heating in the Skillet
 
+ !Volumetric Heating in the Skillet
 absorb_tot =  0.4*area_integral(epsilon_m,'crust') + 0.39*(area_integral(epsilon_m, "filling"))
 
-radius_crust = 0.04 !radius of the crust in meters
+!dimensions of pizza
+radius_crust = 0.04
 radius_filling = 0.035
-qvol
+
+!heat transfer eqn
 qdot = -k*grad(Temp)
+
 INITIAL VALUES
 Temp =inittemp
     
@@ -93,7 +96,7 @@ BOUNDARIES       { The domain definition }
 	epsilon_m=0
 	initTemp=24
 	T_ideal=0
-	qvol = 800!Power_Skillet/(thickness_skillet*(width_skillet*length_skillet/2+width_skillet/2*length_skillet/2))
+	qvol = Power_Skillet
 	start   (width_skillet/2,0) load(temp)=0 line to (width_skillet/2,-thickness_skillet) 
 	line to  (-width_skillet/2, -thickness_skillet) line to  (-width_skillet/2,0)  
 	line to (0,0) to close
@@ -103,7 +106,7 @@ TIME 0 TO  60{ if time dependent }
 PLOTS            { save result displays }
 for t = 0 by endtime/5 to endtime
   CONTOUR(Temp) painted
- !vector(qdot) norm
+ vector(qdot) norm
 SUMMARY
 EXPORT FILE 'ELOut.txt'
 report(tastiness)
